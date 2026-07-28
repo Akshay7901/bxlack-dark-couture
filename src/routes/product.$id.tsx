@@ -111,15 +111,6 @@ function ProductPage() {
               </div>
 
               <div className="mt-8">
-                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/60">Colour · Matte Black</p>
-                <div className="mt-3 flex gap-2">
-                  <button className="h-8 w-8 border border-white bg-[oklch(0.05_0_0)]" aria-label="Matte black" />
-                  <button className="h-8 w-8 border border-white/20 bg-[oklch(0.28_0_0)] transition-colors hover:border-white/60" aria-label="Charcoal" />
-                  <button className="h-8 w-8 border border-white/20 bg-[oklch(0.86_0.02_80)] transition-colors hover:border-white/60" aria-label="Off white" />
-                </div>
-              </div>
-
-              <div className="mt-8">
                 <div className="flex items-center justify-between">
                   <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/60">Size</p>
                   <button className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/60 underline underline-offset-4 transition-colors hover:text-white">
