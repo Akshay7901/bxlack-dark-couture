@@ -12,7 +12,7 @@ export function Hero() {
   const [isHovering, setIsHovering] = useState(false);
   const hoverValue = useMotionValue(0);
 
-  const springConfig = { stiffness: 480, damping: 34, mass: 0.4 };
+  const springConfig = { stiffness: 620, damping: 40, mass: 0.3 };
   const smoothX = useSpring(cursorX, springConfig);
   const smoothY = useSpring(cursorY, springConfig);
 
@@ -21,8 +21,8 @@ export function Hero() {
       hoverValue,
       isHovering ? 1 : 0,
       isHovering
-        ? { type: "spring", stiffness: 420, damping: 30, mass: 0.32 }
-        : { type: "spring", stiffness: 240, damping: 28, mass: 0.55 }
+        ? { type: "spring", stiffness: 520, damping: 34, mass: 0.28 }
+        : { type: "spring", stiffness: 300, damping: 30, mass: 0.45 }
     );
     return controls.stop;
   }, [isHovering, hoverValue]);
