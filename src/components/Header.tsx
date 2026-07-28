@@ -28,8 +28,14 @@ export function Header({ onCart }: { onCart: () => void }) {
       }`}
     >
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 md:px-10">
-        <Link to="/" className="font-display text-xl font-medium tracking-[-0.03em] text-white" data-cursor="Home">
-          BXLACK<span className="text-white/40">®</span>
+        <Link to="/" className="flex items-center" data-cursor="Home">
+          <img
+            src={logo.url}
+            alt="BXLACK"
+            className="h-6 w-auto invert-0 md:h-7"
+            width={1920}
+            height={1065}
+          />
         </Link>
         <nav className="hidden items-center gap-10 md:flex">
           {nav.map((n, i) => (
