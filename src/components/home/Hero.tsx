@@ -11,10 +11,10 @@ export function Hero() {
   const cursorY = useMotionValue(0);
   const isHovering = useMotionValue(0);
 
-  const springConfig = { stiffness: 300, damping: 26, mass: 0.55 };
+  const springConfig = { stiffness: 450, damping: 32, mass: 0.45 };
   const smoothX = useSpring(cursorX, springConfig);
   const smoothY = useSpring(cursorY, springConfig);
-  const smoothHover = useSpring(isHovering, { stiffness: 260, damping: 22, mass: 0.5 });
+  const smoothHover = useSpring(isHovering, { stiffness: 380, damping: 30, mass: 0.4 });
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
