@@ -31,22 +31,29 @@ export function NewArrivals() {
                 params={{ id: p.id }}
                 className="group block"
               >
-                <div className="relative aspect-[3/4] overflow-hidden bg-charcoal">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[oklch(0.18_0_0)] ring-1 ring-white/[0.08] shadow-[0_0_40px_-12px_rgba(0,0,0,0.6)]">
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/40 via-transparent to-white/[0.03] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="absolute inset-0 z-0 bg-gradient-to-br from-white/[0.06] via-transparent to-transparent" />
                   <img
                     src={p.image}
                     alt={p.name}
-                    className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-105"
+                    className="relative z-0 h-full w-full object-cover transition-all duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-105 group-hover:brightness-110 group-hover:contrast-[1.05]"
                     loading="lazy"
                     width={600}
                     height={800}
                   />
                 </div>
-                <div className="mt-4">
-                  <p className="font-display text-sm font-medium uppercase tracking-wide text-foreground">
-                    {p.name}
-                  </p>
-                  <p className="mt-1 font-sans text-xs text-foreground/50">
-                    {p.category}
+                <div className="mt-5 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-display text-sm font-medium uppercase tracking-wide text-foreground">
+                      {p.name}
+                    </p>
+                    <p className="mt-1 font-sans text-xs text-foreground/50">
+                      {p.category}
+                    </p>
+                  </div>
+                  <p className="font-sans text-sm font-medium text-foreground/70">
+                    ${p.price}
                   </p>
                 </div>
               </Link>
