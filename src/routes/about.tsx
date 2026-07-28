@@ -18,8 +18,9 @@ export const Route = createFileRoute("/about")({
 
 const chapters = [
   { n: "I", t: "Our Vision", body: "To dress the ones who refuse to disappear. Every collection is a chapter in a longer sentence about identity, silence and defiance." },
-  { n: "II", t: "Our Craft", body: "Cut and stitched by hand in a small Antwerp atelier. Finished under a single light in Tokyo. No factory floors. No repetition." },
-  { n: "III", t: "Our Identity", body: "Matte black. Editorial. Uncompromising. BXLACK is not a season, it is a state of mind." },
+  { n: "II", t: "Our Identity", body: "Matte black. Editorial. Uncompromising. BXLACK is not a season, it is a state of mind." },
+  { n: "III", t: "Our Craft", body: "Cut and stitched by hand in a small Antwerp atelier. Finished under a single light in Tokyo. No factory floors. No repetition." },
+  { n: "IV", t: "Our Community", body: "A quiet circle of collectors, artists and outsiders. We do not chase attention — we choose our audience one piece at a time." },
 ];
 
 function AboutPage() {

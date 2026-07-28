@@ -28,7 +28,7 @@ export function NewDrop() {
               transition={{ delay: i * 0.08, duration: 0.9, ease: [0.7, 0, 0.2, 1] }}
               className="group relative w-[75vw] shrink-0 md:w-[420px]"
             >
-              <div className="relative aspect-[3/4] overflow-hidden bg-[oklch(0.08_0_0)]">
+              <Link to="/product/$id" params={{ id: p.id }} data-cursor="Open" className="relative block aspect-[3/4] overflow-hidden bg-[oklch(0.08_0_0)]">
                 <img
                   src={p.image}
                   alt={p.name}
@@ -40,11 +40,9 @@ export function NewDrop() {
                 <div className="pointer-events-none absolute inset-0 opacity-0 shadow-[inset_0_0_60px_rgba(255,255,255,0.15)] transition-opacity duration-700 group-hover:opacity-100" />
                 <div className="absolute left-4 top-4 font-mono text-[9px] uppercase tracking-[0.3em] text-white/70">{p.tag}</div>
                 <div className="absolute inset-x-0 bottom-0 translate-y-full bg-white/90 p-4 text-black transition-transform duration-500 group-hover:translate-y-0">
-                  <button data-cursor="Add" className="w-full text-left font-mono text-[11px] uppercase tracking-[0.3em]">
-                    Quick View →
-                  </button>
+                  <span className="block w-full text-left font-mono text-[11px] uppercase tracking-[0.3em]">Quick View →</span>
                 </div>
-              </div>
+              </Link>
               <div className="mt-4 flex items-baseline justify-between">
                 <div>
                   <p className="font-display text-xl text-white">{p.name}</p>
