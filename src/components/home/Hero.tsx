@@ -76,7 +76,7 @@ export function Hero() {
           aria-hidden
           className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
           style={{
-            opacity: smoothHover,
+            opacity: hoverValue,
             WebkitMaskImage: maskImage,
             maskImage: maskImage,
             willChange: "mask-image, -webkit-mask-image, opacity",
@@ -85,7 +85,7 @@ export function Hero() {
         <motion.div
           className="pointer-events-none absolute inset-0"
           style={{
-            opacity: useTransform(smoothHover, (v) => v * 0.55),
+            opacity: useTransform(hoverValue, (v) => (v as number) * 0.55),
             background: edgeGlow,
             mixBlendMode: "screen",
             willChange: "background",
