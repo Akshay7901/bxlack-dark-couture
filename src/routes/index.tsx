@@ -4,7 +4,6 @@ import { Hero } from "@/components/home/Hero";
 import { Story } from "@/components/home/Story";
 import { NewDrop } from "@/components/home/NewDrop";
 import { Lookbook } from "@/components/home/Lookbook";
-
 import { Pinned } from "@/components/home/Pinned";
 import { FilmStrip } from "@/components/home/FilmStrip";
 import { Numerals } from "@/components/home/Numerals";
