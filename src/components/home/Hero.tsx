@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate, animate } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import hero from "@/assets/bxlack-hero.png.asset.json";
 import heroBack from "@/assets/bxlack-hero-back.png.asset.json";
 
@@ -9,12 +9,23 @@ export function Hero() {
 
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
-  const isHovering = useMotionValue(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const hoverValue = useMotionValue(0);
 
-  const springConfig = { stiffness: 450, damping: 32, mass: 0.45 };
+  const springConfig = { stiffness: 480, damping: 34, mass: 0.4 };
   const smoothX = useSpring(cursorX, springConfig);
   const smoothY = useSpring(cursorY, springConfig);
-  const smoothHover = useSpring(isHovering, { stiffness: 380, damping: 30, mass: 0.4 });
+
+  useEffect(() => {
+    const controls = animate(
+      hoverValue,
+      isHovering ? 1 : 0,
+      isHovering
+        ? { type: "spring", stiffness: 420, damping: 30, mass: 0.32 }
+        : { type: "spring", stiffness: 240, damping: 28, mass: 0.55 }
+    );
+    return controls.stop;
+  }, [isHovering, hoverValue]);
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
@@ -28,11 +39,11 @@ export function Hero() {
     if (!rect) return;
     cursorX.set(e.clientX - rect.left);
     cursorY.set(e.clientY - rect.top);
-    isHovering.set(1);
+    setIsHovering(true);
   };
 
   const handleLeave = () => {
-    isHovering.set(0);
+    setIsHovering(false);
   };
 
   const maskImage = useMotionTemplate`
