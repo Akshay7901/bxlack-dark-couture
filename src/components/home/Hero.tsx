@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import hero from "@/assets/hero.jpg";
+import hero from "@/assets/bxlack-campaign-hero.png.asset.json";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
