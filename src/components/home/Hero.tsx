@@ -48,17 +48,6 @@ export function Hero() {
         </motion.a>
       </motion.div>
 
-      {/* Centered small logo mark */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.6, duration: 1 }}
-        className="pointer-events-none absolute left-1/2 top-6 z-10 -translate-x-1/2 md:top-8"
-      >
-        <div className="font-display text-2xl font-medium tracking-[-0.05em] text-white">
-          ▼
-        </div>
-      </motion.div>
     </section>
   );
 }
