@@ -9,6 +9,7 @@ import { Pinned } from "@/components/home/Pinned";
 import { FilmStrip } from "@/components/home/FilmStrip";
 import { Numerals } from "@/components/home/Numerals";
 import { Credits } from "@/components/home/Credits";
+import { Campaign } from "@/components/home/Campaign";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -21,6 +22,7 @@ function Index() {
       <Marquee items={["Born to stand apart", "SS26 · Chapter 001", "Made in silence", "Numbered · Not repeated"]} />
       <Pinned />
       <FilmStrip />
+      <Campaign />
       <Story />
       <Marquee items={["One garment · one owner", "No colour grade", "No restock", "Cut in Antwerp · Finished in Tokyo"]} />
       <Numerals />
