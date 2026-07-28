@@ -82,15 +82,6 @@ export function Hero() {
             willChange: "mask-image, -webkit-mask-image, opacity",
           }}
         />
-        <motion.div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            opacity: useTransform(hoverValue, (v) => (v as number) * 0.55),
-            background: edgeGlow,
-            mixBlendMode: "screen",
-            willChange: "background",
-          }}
-        />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </motion.div>
 
