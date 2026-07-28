@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { products } from "@/lib/products";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 
 export const Route = createFileRoute("/product/$id")({
   loader: ({ params }) => {
@@ -28,30 +28,67 @@ export const Route = createFileRoute("/product/$id")({
 function ProductPage() {
   const { product } = Route.useLoaderData();
   const [size, setSize] = useState("M");
-  const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
-  const [wishlisted, setWishlisted] = useState(false);
+  const [openAcc, setOpenAcc] = useState<string | null>("details");
 
   const others = products.filter((p) => p.id !== product.id).slice(0, 4);
   const gallery = [product.image, ...(product.backImage ? [product.backImage] : [])];
   const isBack = product.backImage && activeImg === 1;
 
+  const accordions = [
+    {
+      id: "details",
+      title: "Product Details",
+      body: "Cut and sewn in Antwerp from 260gsm heavyweight organic cotton. Screen-printed graphic finished by hand in Tokyo. Boxy fit, dropped shoulder, ribbed collar. Numbered piece of fifty.",
+    },
+    {
+      id: "size",
+      title: "Size Chart",
+      body: "XS · 48 / S · 50 / M · 52 / L · 54 / XL · 56 (chest, cm). Model wears M and is 186cm. Runs true to size — size down for a closer silhouette.",
+    },
+    {
+      id: "ship",
+      title: "Shipping & Returns",
+      body: "Complimentary express shipping worldwide · 48h dispatch from Antwerp. Free returns within 30 days on unworn pieces with original packaging and numbered tag intact.",
+    },
+  ];
+
   return (
     <AppShell>
       <section className="pt-28">
-        <div className="mx-auto mt-8 grid max-w-[1600px] grid-cols-1 gap-8 px-6 md:grid-cols-12 md:gap-6 md:px-10">
-          {/* Left — product details */}
-          <aside className="order-3 md:order-1 md:col-span-3">
+        <div className="mx-auto mt-8 grid max-w-[1600px] grid-cols-1 gap-12 px-6 md:grid-cols-12 md:gap-10 md:px-10">
+          {/* Left — name, price, accordions */}
+          <aside className="order-2 md:order-1 md:col-span-3">
             <div className="md:sticky md:top-28">
-              <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">{product.tag}</p>
-              <h1 className="mt-3 font-display text-3xl leading-[0.95] tracking-[-0.03em] text-white md:text-4xl">
+              <h1 className="text-center font-display text-2xl uppercase leading-[1.1] tracking-[0.02em] text-white md:text-3xl">
                 {product.name}
               </h1>
-              <p className="mt-3 font-editorial text-lg italic text-white/60">A piece for the ones who refuse to blend.</p>
+              <p className="mt-4 text-center font-mono text-sm text-white/70">€{product.price}.00</p>
 
-              <p className="mt-8 font-editorial text-lg italic text-white/50">
-                One of fifty · numbered by hand.
-              </p>
+              <div className="mt-10 divide-y divide-white/10 border-y border-white/10">
+                {accordions.map((a) => {
+                  const open = openAcc === a.id;
+                  return (
+                    <div key={a.id}>
+                      <button
+                        onClick={() => setOpenAcc(open ? null : a.id)}
+                        className="flex w-full items-center justify-between py-4 text-left"
+                      >
+                        <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-white/80">{a.title}</span>
+                        {open ? <Minus size={14} className="text-white/60" /> : <Plus size={14} className="text-white/60" />}
+                      </button>
+                      <motion.div
+                        initial={false}
+                        animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
+                        transition={{ duration: 0.4, ease: [0.7, 0, 0.2, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <p className="pb-5 font-editorial text-sm leading-relaxed text-white/60">{a.body}</p>
+                      </motion.div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </aside>
 
@@ -101,66 +138,27 @@ function ProductPage() {
             </div>
           </div>
 
-          {/* Right — price, cart, wishlist */}
-          <aside className="order-2 md:order-3 md:col-span-3">
-            <div className="md:sticky md:top-28">
-              <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">Price</p>
-              <div className="mt-2 flex items-baseline gap-3">
-                <p className="font-mono text-3xl text-white md:text-4xl">€{product.price}</p>
-                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">Incl. VAT</p>
-              </div>
-
-              <div className="mt-8">
-                <div className="flex items-center justify-between">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/60">Size</p>
-                  <button className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/60 underline underline-offset-4 transition-colors hover:text-white">
-                    Size guide
+          {/* Right — sizes + add to cart */}
+          <aside className="order-3 md:col-span-3">
+            <div className="flex flex-col items-end md:sticky md:top-28">
+              <div className="flex flex-wrap items-center justify-end gap-x-5 gap-y-3">
+                {["S", "M", "L", "XL", "XXL"].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSize(s)}
+                    className={`font-mono text-[12px] uppercase tracking-[0.2em] transition-colors ${size === s ? "text-white underline underline-offset-[6px]" : "text-white/50 hover:text-white"}`}
+                  >
+                    {s}
                   </button>
-                </div>
-                <div className="mt-3 grid grid-cols-5 gap-2">
-                  {["XS", "S", "M", "L", "XL"].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setSize(s)}
-                      className={`border py-3 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${size === s ? "border-white bg-white text-black" : "border-white/20 text-white/70 hover:border-white"}`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
+                ))}
               </div>
 
-              <div className="mt-8">
-                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/60">Quantity</p>
-                <div className="mt-3 inline-flex items-center border border-white/20">
-                  <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-5 py-3 text-white/70 hover:text-white">−</button>
-                  <span className="min-w-10 text-center font-mono text-sm text-white">{qty}</span>
-                  <button onClick={() => setQty((q) => q + 1)} className="px-5 py-3 text-white/70 hover:text-white">+</button>
-                </div>
-              </div>
-
-              <div className="mt-8 flex items-stretch gap-3">
-                <button
-                  data-cursor="Add"
-                  className="group relative flex-1 overflow-hidden border border-white bg-white py-4 font-mono text-[11px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white"
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    <ShoppingBag size={16} />
-                    Add to Cart
-                  </span>
-                </button>
-                <button
-                  aria-label="Wishlist"
-                  onClick={() => setWishlisted((w) => !w)}
-                  className={`flex items-center justify-center border px-5 transition-colors ${wishlisted ? "border-white bg-white text-black" : "border-white/20 text-white/70 hover:border-white hover:text-white"}`}
-                >
-                  <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
-                </button>
-              </div>
-
-              <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">
-                Complimentary express shipping · 48h dispatch
-              </p>
+              <button
+                data-cursor="Add"
+                className="mt-10 w-full max-w-[260px] border border-white bg-white py-4 font-mono text-[11px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white"
+              >
+                Add to Cart — €{product.price}.00
+              </button>
             </div>
           </aside>
         </div>
