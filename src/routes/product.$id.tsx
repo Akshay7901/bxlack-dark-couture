@@ -61,7 +61,13 @@ function ProductPage() {
   const captionOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
 
   const others = products.filter((p) => p.id !== product.id).slice(0, 4);
-  const gallery = [product.image, ...products.filter((p) => p.id !== product.id).slice(0, 2).map((p) => p.image), product.image];
+  const gallery = [
+    product.image,
+    ...(product.backImage ? [product.backImage] : []),
+    ...products.filter((p) => p.id !== product.id).slice(0, 2).map((p) => p.image),
+    product.image,
+  ];
+
 
   return (
     <AppShell>
