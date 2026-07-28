@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Header } from "./Header";
-import { Footer } from "./Footer";
+
 import { Cursor } from "./Cursor";
 import { Loader } from "./Loader";
 import { CartDrawer } from "./CartDrawer";
@@ -14,7 +14,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Header onCart={() => setCart(true)} />
       <CartDrawer open={cart} onClose={() => setCart(false)} />
       <main>{children}</main>
-      <Footer />
     </div>
   );
 }
