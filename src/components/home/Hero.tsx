@@ -72,7 +72,6 @@ export function Hero() {
             height: LENS_SIZE,
             backgroundImage: `url(${heroBack.url})`,
             backgroundRepeat: "no-repeat",
-            backgroundRepeat: "no-repeat",
             opacity: 0,
             transform: `translate3d(-${LENS_SIZE / 2}px, -${LENS_SIZE / 2}px, 0)`,
             willChange: "transform, opacity",
