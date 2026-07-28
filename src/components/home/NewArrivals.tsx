@@ -6,13 +6,13 @@ const featured = products.slice(0, 4);
 
 export function NewArrivals() {
   return (
-    <section className="bg-card py-20 text-card-foreground md:py-28">
+    <section className="bg-noir py-20 text-foreground md:py-28">
       <div className="mx-auto max-w-[1600px] px-6 md:px-10">
         <div className="mb-12 md:mb-16">
           <h2 className="font-display text-3xl font-medium uppercase tracking-[-0.02em] md:text-4xl">
-            New Arrivals <span className="text-card-foreground/40">.</span>
+            New Arrivals <span className="text-foreground/40">.</span>
           </h2>
-          <p className="mt-3 max-w-xl font-sans text-sm leading-relaxed text-card-foreground/50">
+          <p className="mt-3 max-w-xl font-sans text-sm leading-relaxed text-foreground/50">
             Available worldwide at select chapter stores and brandvision.com
           </p>
         </div>
@@ -31,7 +31,7 @@ export function NewArrivals() {
                 params={{ id: p.id }}
                 className="group block"
               >
-                <div className="relative aspect-[3/4] overflow-hidden bg-[oklch(0.96_0_0)]">
+                <div className="relative aspect-[3/4] overflow-hidden bg-charcoal">
                   <img
                     src={p.image}
                     alt={p.name}
@@ -42,10 +42,10 @@ export function NewArrivals() {
                   />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display text-sm font-medium uppercase tracking-wide text-card-foreground">
+                  <p className="font-display text-sm font-medium uppercase tracking-wide text-foreground">
                     {p.name}
                   </p>
-                  <p className="mt-1 font-sans text-xs text-card-foreground/50">
+                  <p className="mt-1 font-sans text-xs text-foreground/50">
                     {p.category}
                   </p>
                 </div>
