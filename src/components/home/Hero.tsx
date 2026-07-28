@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import hero from "@/assets/hero.jpg";
+import hero from "@/assets/bxlack-campaign-hero.png.asset.json";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -13,9 +13,9 @@ export function Hero() {
     <section ref={ref} className="relative h-screen w-full overflow-hidden bg-black">
       <motion.div style={{ scale, y }} className="absolute inset-0">
         <img
-          src={hero}
+          src={hero.url}
           alt="BXLACK SS2026 campaign"
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top"
           width={1920}
           height={1200}
         />
