@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search, Heart, ShoppingBag } from "lucide-react";
+import logo from "@/assets/bxlack-logo.png.asset.json";
 
 export function Header({ onCart }: { onCart: () => void }) {
   const [scrolled, setScrolled] = useState(false);
