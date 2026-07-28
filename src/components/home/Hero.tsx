@@ -21,7 +21,9 @@ export function Hero() {
 
     const lens = lensRef.current;
     lens.style.transform = `translate3d(${x - LENS_SIZE / 2}px, ${y - LENS_SIZE / 2}px, 0)`;
-    lens.style.backgroundPosition = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
+    // Match the underlying full-cover back image so the lens is a true window
+    lens.style.backgroundSize = `${rect.width}px ${rect.height}px`;
+    lens.style.backgroundPosition = `${-(x - LENS_SIZE / 2)}px ${-(y - LENS_SIZE / 2)}px`;
   };
 
   const onMouseEnter = () => {
@@ -69,8 +71,7 @@ export function Hero() {
             width: LENS_SIZE,
             height: LENS_SIZE,
             backgroundImage: `url(${heroBack.url})`,
-            backgroundSize: "cover",
-            backgroundPosition: "50% 50%",
+            backgroundRepeat: "no-repeat",
             backgroundRepeat: "no-repeat",
             opacity: 0,
             transform: `translate3d(-${LENS_SIZE / 2}px, -${LENS_SIZE / 2}px, 0)`,
