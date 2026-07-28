@@ -1,24 +1,47 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate } from "framer-motion";
+import { useRef } from "react";
 import hero from "@/assets/bxlack-hero.png.asset.json";
 import heroBack from "@/assets/bxlack-hero-back.png.asset.json";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const imgWrap = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
+  const isHovering = useMotionValue(0);
+
+  const springConfig = { stiffness: 300, damping: 26, mass: 0.55 };
+  const smoothX = useSpring(cursorX, springConfig);
+  const smoothY = useSpring(cursorY, springConfig);
+  const smoothHover = useSpring(isHovering, { stiffness: 260, damping: 22, mass: 0.5 });
+
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  const RADIUS = 180;
+  const RADIUS = "clamp(200px, 24vw, 380px)";
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = imgWrap.current?.getBoundingClientRect();
     if (!rect) return;
-    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    cursorX.set(e.clientX - rect.left);
+    cursorY.set(e.clientY - rect.top);
+    isHovering.set(1);
   };
+
+  const handleLeave = () => {
+    isHovering.set(0);
+  };
+
+  const maskImage = useMotionTemplate`
+    radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, #000 0%, #000 48%, rgba(0,0,0,0.55) 68%, transparent 100%)
+  `;
+
+  const edgeGlow = useMotionTemplate`
+    radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, transparent 0%, transparent 52%, rgba(255,255,255,0.10) 64%, transparent 100%)
+  `;
 
   return (
     <section ref={ref} className="relative h-screen w-full overflow-hidden bg-noir">
@@ -27,7 +50,7 @@ export function Hero() {
         style={{ scale, y }}
         className="absolute inset-0 flex items-center justify-center"
         onMouseMove={handleMove}
-        onMouseLeave={() => setPos(null)}
+        onMouseLeave={handleLeave}
       >
         <img
           src={hero.url}
@@ -36,19 +59,25 @@ export function Hero() {
           width={1672}
           height={941}
         />
-        <img
+        <motion.img
           src={heroBack.url}
           alt=""
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-200"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
           style={{
-            opacity: pos ? 1 : 0,
-            WebkitMaskImage: pos
-              ? `radial-gradient(circle ${RADIUS}px at ${pos.x}px ${pos.y}px, #000 55%, rgba(0,0,0,0.4) 75%, transparent 100%)`
-              : undefined,
-            maskImage: pos
-              ? `radial-gradient(circle ${RADIUS}px at ${pos.x}px ${pos.y}px, #000 55%, rgba(0,0,0,0.4) 75%, transparent 100%)`
-              : undefined,
+            opacity: smoothHover,
+            WebkitMaskImage: maskImage,
+            maskImage: maskImage,
+            willChange: "mask-image, -webkit-mask-image, opacity",
+          }}
+        />
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            opacity: useTransform(smoothHover, (v) => v * 0.55),
+            background: edgeGlow,
+            mixBlendMode: "screen",
+            willChange: "background",
           }}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
