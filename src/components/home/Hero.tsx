@@ -1,5 +1,5 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion, useScroll, useSpring, useTransform, useMotionValue } from "framer-motion";
+import { useEffect, useRef } from "react";
 import hero from "@/assets/bxlack-hero.png.asset.json";
 import heroBack from "@/assets/bxlack-hero-back.png.asset.json";
 
@@ -10,11 +10,30 @@ export function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
+  const springX = useSpring(cursorX, { stiffness: 80, damping: 20, mass: 0.8 });
+  const springY = useSpring(cursorY, { stiffness: 80, damping: 20, mass: 0.8 });
+
+  useEffect(() => {
+    const update = () => {
+      if (!ref.current) return;
+      ref.current.style.setProperty("--mask-x", `${springX.get()}px`);
+      ref.current.style.setProperty("--mask-y", `${springY.get()}px`);
+    };
+    const unsubscribeX = springX.on("change", update);
+    const unsubscribeY = springY.on("change", update);
+    return () => {
+      unsubscribeX();
+      unsubscribeY();
+    };
+  }, [springX, springY]);
+
   const onMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    ref.current.style.setProperty("--mask-x", `${e.clientX - rect.left}px`);
-    ref.current.style.setProperty("--mask-y", `${e.clientY - rect.top}px`);
+    cursorX.set(e.clientX - rect.left);
+    cursorY.set(e.clientY - rect.top);
   };
 
   return (
