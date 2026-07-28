@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate, animate } from "framer-motion";
 import { useRef } from "react";
 import hero from "@/assets/bxlack-hero.png.asset.json";
 import heroBack from "@/assets/bxlack-hero-back.png.asset.json";
