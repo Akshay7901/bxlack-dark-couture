@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { products } from "@/lib/products";
 
@@ -36,15 +37,15 @@ function ShopPage() {
         <div className="mx-auto mt-16 max-w-[1600px] px-6 md:px-10">
           <div className="grid auto-rows-[40vh] grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
             {products.map((p, i) => (
-              <motion.article
+              <motion.div
                 key={p.id}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05, duration: 0.9, ease: [0.7, 0, 0.2, 1] }}
                 className={`group relative overflow-hidden bg-[oklch(0.08_0_0)] ${spans[i] || ""}`}
-                data-cursor="View"
               >
+                <Link to="/product/$id" params={{ id: p.id }} data-cursor="View" className="absolute inset-0 z-10" aria-label={p.name} />
                 <img src={p.image} alt={p.name} className="h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-110" loading="lazy" />
                 <div className="absolute inset-0 bg-black/0 backdrop-blur-0 transition-all duration-500 group-hover:bg-black/30 group-hover:backdrop-blur-sm" />
                 <div className="absolute left-4 top-4 font-mono text-[9px] uppercase tracking-[0.3em] text-white/80">{p.tag}</div>
@@ -55,7 +56,7 @@ function ShopPage() {
                   </div>
                   <p className="font-mono text-sm text-white">€{p.price}</p>
                 </div>
-              </motion.article>
+              </motion.div>
             ))}
           </div>
         </div>
