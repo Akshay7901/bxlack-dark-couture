@@ -12,11 +12,12 @@ export function Header({ onCart }: { onCart: () => void }) {
   }, []);
 
   const nav = [
-    { to: "/shop", label: "Shop" },
-    { to: "/shop", label: "Collections" },
+    { to: "/", label: "Home" },
+    { to: "/new-drop", label: "New Drop" },
+    { to: "/shop", label: "Collection" },
     { to: "/lookbook", label: "Lookbook" },
-    { to: "/about", label: "Journal" },
     { to: "/about", label: "About" },
+    { to: "/journal", label: "Journal" },
   ];
 
   return (
