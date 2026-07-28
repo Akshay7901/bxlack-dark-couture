@@ -24,33 +24,6 @@ export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
 });
 
-const ACCORDIONS = [
-  { t: "Composition & Craft", b: "100% Japanese wool, 320g. Hand-cut in Antwerp, finished under a single light in Tokyo. Every seam is a decision." },
-  { t: "Sizing & Fit", b: "Cut with a generous shoulder and cinched line. Model is 187cm wearing size M. If in between, size down." },
-  { t: "Shipping", b: "Complimentary express worldwide. Dispatched within 48h in numbered black packaging." },
-  { t: "Returns", b: "Fourteen days from arrival. Piece must be untouched, tags intact, boxed as delivered." },
-];
-
-function Accordion({ t, b, i }: { t: string; b: string; i: number }) {
-  const [open, setOpen] = useState(i === 0);
-  return (
-    <div className="border-t border-white/10">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between py-5 text-left font-mono text-[11px] uppercase tracking-[0.3em] text-white/80 hover:text-white"
-        data-cursor="Open"
-      >
-        {t}
-        <ChevronDown size={14} className={`transition-transform duration-500 ${open ? "rotate-180" : ""}`} />
-      </button>
-      <div className={`grid overflow-hidden transition-[grid-template-rows] duration-500 ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-        <div className="min-h-0">
-          <p className="pb-6 text-sm leading-relaxed text-white/60">{b}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function ProductPage() {
   const { product } = Route.useLoaderData();
@@ -66,16 +39,6 @@ function ProductPage() {
   return (
     <AppShell>
       <section className="pt-28">
-        <div className="mx-auto max-w-[1600px] px-6 md:px-10">
-          <nav className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-white/40">
-            <Link to="/shop" className="hover:text-white">Collection</Link>
-            <span>/</span>
-            <span className="text-white/70">{product.category}</span>
-            <span>/</span>
-            <span className="text-white">{product.tag}</span>
-          </nav>
-        </div>
-
         <div className="mx-auto mt-8 grid max-w-[1600px] grid-cols-1 gap-8 px-6 md:grid-cols-12 md:gap-6 md:px-10">
           {/* Left — product details */}
           <aside className="order-3 md:order-1 md:col-span-3">
