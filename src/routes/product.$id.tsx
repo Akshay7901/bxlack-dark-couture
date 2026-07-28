@@ -55,27 +55,28 @@ function ProductPage() {
 
   return (
     <AppShell>
-      <section className="pt-28">
-        <div className="mx-auto mt-8 grid max-w-[1600px] grid-cols-1 gap-12 px-6 md:grid-cols-12 md:gap-10 md:px-10">
+      <section className="pt-32 md:pt-36">
+        <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-16 px-6 md:grid-cols-12 md:gap-12 md:px-12">
           {/* Left — name, price, accordions */}
           <aside className="order-2 md:order-1 md:col-span-3">
-            <div className="md:sticky md:top-28">
-              <h1 className="text-center font-display text-2xl uppercase leading-[1.1] tracking-[0.02em] text-white md:text-3xl">
+            <div className="md:sticky md:top-32">
+              <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">BXLACK · SS26</p>
+              <h1 className="mt-5 font-display text-[28px] uppercase leading-[1.05] tracking-[-0.01em] text-white md:text-[34px]">
                 {product.name}
               </h1>
-              <p className="mt-4 text-center font-mono text-sm text-white/70">€{product.price}.00</p>
+              <p className="mt-3 font-mono text-[13px] tracking-[0.05em] text-white/60">€{product.price}.00 EUR</p>
 
-              <div className="mt-10 divide-y divide-white/10 border-y border-white/10">
+              <div className="mt-14 border-t border-white/10">
                 {accordions.map((a) => {
                   const open = openAcc === a.id;
                   return (
-                    <div key={a.id}>
+                    <div key={a.id} className="border-b border-white/10">
                       <button
                         onClick={() => setOpenAcc(open ? null : a.id)}
-                        className="flex w-full items-center justify-between py-4 text-left"
+                        className="flex w-full items-center justify-between py-5 text-left"
                       >
-                        <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-white/80">{a.title}</span>
-                        {open ? <Minus size={14} className="text-white/60" /> : <Plus size={14} className="text-white/60" />}
+                        <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/85">{a.title}</span>
+                        {open ? <Minus size={12} className="text-white/50" /> : <Plus size={12} className="text-white/50" />}
                       </button>
                       <motion.div
                         initial={false}
@@ -83,7 +84,7 @@ function ProductPage() {
                         transition={{ duration: 0.4, ease: [0.7, 0, 0.2, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="pb-5 font-editorial text-sm leading-relaxed text-white/60">{a.body}</p>
+                        <p className="pb-6 pr-4 font-editorial text-[13px] leading-[1.7] tracking-[0.01em] text-white/55">{a.body}</p>
                       </motion.div>
                     </div>
                   );
@@ -140,13 +141,14 @@ function ProductPage() {
 
           {/* Right — sizes + add to cart */}
           <aside className="order-3 md:col-span-3">
-            <div className="flex flex-col items-end md:sticky md:top-28">
-              <div className="flex flex-wrap items-center justify-end gap-x-5 gap-y-3">
+            <div className="md:sticky md:top-32">
+              <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">Select Size</p>
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
                 {["S", "M", "L", "XL", "XXL"].map((s) => (
                   <button
                     key={s}
                     onClick={() => setSize(s)}
-                    className={`font-mono text-[12px] uppercase tracking-[0.2em] transition-colors ${size === s ? "text-white underline underline-offset-[6px]" : "text-white/50 hover:text-white"}`}
+                    className={`font-mono text-[12px] uppercase tracking-[0.22em] transition-colors ${size === s ? "text-white underline underline-offset-[8px] decoration-[1.5px]" : "text-white/45 hover:text-white/80"}`}
                   >
                     {s}
                   </button>
@@ -155,10 +157,14 @@ function ProductPage() {
 
               <button
                 data-cursor="Add"
-                className="mt-10 w-full max-w-[260px] border border-white bg-white py-4 font-mono text-[11px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white"
+                className="mt-12 w-full border border-white bg-white py-[18px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
               >
                 Add to Cart — €{product.price}.00
               </button>
+
+              <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.28em] text-white/35">
+                Complimentary express · Numbered 1/50
+              </p>
             </div>
           </aside>
         </div>
