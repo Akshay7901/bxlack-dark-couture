@@ -40,16 +40,6 @@ export function Hero() {
       className="relative h-screen w-full cursor-none overflow-hidden bg-noir"
     >
       <motion.div style={{ scale, y }} className="absolute inset-0">
-        {/* Back image (base layer) */}
-        <img
-          src={heroBack.url}
-          alt="BXLACK SS2026 campaign back"
-          className="absolute inset-0 h-full w-full object-contain object-center"
-          width={1672}
-          height={941}
-          loading="eager"
-        />
-
         {/* Front image (full cover) */}
         <img
           src={hero.url}
