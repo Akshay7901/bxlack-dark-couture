@@ -10,16 +10,16 @@ export function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <section ref={ref} className="relative h-screen w-full overflow-hidden bg-black">
-      <motion.div style={{ scale, y }} className="absolute inset-0">
+    <section ref={ref} className="relative h-screen w-full overflow-hidden bg-noir">
+      <motion.div style={{ scale, y }} className="absolute inset-0 flex items-center justify-center">
         <img
           src={hero.url}
           alt="BXLACK SS2026 campaign"
-          className="h-full w-full object-cover object-top"
-          width={1920}
-          height={1200}
+          className="h-full w-full object-contain"
+          width={1451}
+          height={1084}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </motion.div>
 
       {/* Bottom-left CTA */}
