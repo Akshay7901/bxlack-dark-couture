@@ -103,7 +103,7 @@ function ProductPage() {
                     <img
                       src={img}
                       alt={`${product.name} view ${i + 1}`}
-                      className={`h-full w-full transition-transform duration-[1.5s] ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-105 ${isBack ? "object-contain p-8" : "object-cover"}`}
+                      className="h-full w-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-105"
                       loading="lazy"
                     />
                     <div className="absolute left-4 top-4 flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.3em] text-white/70">
@@ -113,7 +113,7 @@ function ProductPage() {
                     {isBack && (
                       <div className="absolute inset-0 flex items-end justify-end p-6">
                         <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.3em] text-white backdrop-blur">
-                          Back view · Full print
+                          Back view
                         </span>
                       </div>
                     )}
