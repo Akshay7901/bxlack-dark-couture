@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import hero from "@/assets/bxlack-hero.png.asset.json";
+import heroBack from "@/assets/bxlack-hero-back.png.asset.json";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -9,15 +10,40 @@ export function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
+  const onMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    ref.current.style.setProperty("--mask-x", `${e.clientX - rect.left}px`);
+    ref.current.style.setProperty("--mask-y", `${e.clientY - rect.top}px`);
+  };
+
   return (
-    <section ref={ref} className="relative h-screen w-full overflow-hidden bg-noir">
-      <motion.div style={{ scale, y }} className="absolute inset-0 flex items-center justify-center">
+    <section
+      ref={ref}
+      onMouseMove={onMouseMove}
+      className="relative h-screen w-full overflow-hidden bg-noir"
+      style={{ "--mask-x": "50%", "--mask-y": "50%" } as React.CSSProperties}
+    >
+      <motion.div style={{ scale, y }} className="absolute inset-0">
+        {/* Back image (revealed on hover) */}
+        <img
+          src={heroBack.url}
+          alt="BXLACK SS2026 campaign back"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          width={1672}
+          height={941}
+        />
+        {/* Front image with cursor-following mask */}
         <img
           src={hero.url}
           alt="BXLACK SS2026 campaign"
-          className="h-full w-full object-cover object-center"
+          className="absolute inset-0 h-full w-full object-cover object-center transition-[mask-image] duration-75 ease-out"
           width={1672}
           height={941}
+          style={{
+            maskImage: "radial-gradient(circle at var(--mask-x) var(--mask-y), transparent 0%, transparent 120px, black 180px)",
+            WebkitMaskImage: "radial-gradient(circle at var(--mask-x) var(--mask-y), transparent 0%, transparent 120px, black 180px)",
+          }}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </motion.div>
@@ -47,7 +73,6 @@ export function Hero() {
           <span>→</span>
         </motion.a>
       </motion.div>
-
     </section>
   );
 }
