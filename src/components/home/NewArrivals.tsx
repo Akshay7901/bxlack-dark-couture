@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { products } from "@/lib/products";
 import { Link } from "@tanstack/react-router";
 
-const featured = products.slice(0, 4);
+const featured = products.slice(0, 5);
 
 export function NewArrivals() {
   return (
