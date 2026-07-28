@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { products } from "@/lib/products";
-import { ChevronDown, Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 
 export const Route = createFileRoute("/product/$id")({
   loader: ({ params }) => {
@@ -48,13 +48,6 @@ function ProductPage() {
                 {product.name}
               </h1>
               <p className="mt-3 font-editorial text-lg italic text-white/60">A piece for the ones who refuse to blend.</p>
-
-              <div className="mt-8">
-                {ACCORDIONS.map((a, i) => (
-                  <Accordion key={a.t} {...a} i={i} />
-                ))}
-                <div className="border-t border-white/10" />
-              </div>
 
               <p className="mt-8 font-editorial text-lg italic text-white/50">
                 One of fifty · numbered by hand.
