@@ -12,7 +12,7 @@ export function Hero() {
   const [isHovering, setIsHovering] = useState(false);
   const hoverValue = useMotionValue(0);
 
-  const springConfig = { stiffness: 620, damping: 40, mass: 0.3 };
+  const springConfig = { stiffness: 600, damping: 38, mass: 0.32 };
   const smoothX = useSpring(cursorX, springConfig);
   const smoothY = useSpring(cursorY, springConfig);
 
@@ -21,8 +21,8 @@ export function Hero() {
       hoverValue,
       isHovering ? 1 : 0,
       isHovering
-        ? { type: "spring", stiffness: 520, damping: 34, mass: 0.28 }
-        : { type: "spring", stiffness: 300, damping: 30, mass: 0.45 }
+        ? { type: "spring", stiffness: 500, damping: 35, mass: 0.3 }
+        : { type: "spring", stiffness: 340, damping: 32, mass: 0.4 }
     );
     return controls.stop;
   }, [isHovering, hoverValue]);
@@ -47,8 +47,10 @@ export function Hero() {
   };
 
   const maskImage = useMotionTemplate`
-    radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, #000 0%, #000 48%, rgba(0,0,0,0.55) 68%, transparent 100%)
+    radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, #000 0%, #000 42%, rgba(0,0,0,0.72) 55%, rgba(0,0,0,0.28) 70%, transparent 100%)
   `;
+
+  const revealScale = useTransform(hoverValue, [0, 1], [1.04, 1]);
 
   return (
     <section ref={ref} className="relative h-screen w-full overflow-hidden bg-noir">
@@ -73,9 +75,14 @@ export function Hero() {
           className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
           style={{
             opacity: hoverValue,
+            scale: revealScale,
             WebkitMaskImage: maskImage,
             maskImage: maskImage,
-            willChange: "mask-image, -webkit-mask-image, opacity",
+            WebkitMaskSize: "cover",
+            maskSize: "cover",
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+            willChange: "mask-image, -webkit-mask-image, opacity, transform",
           }}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
