@@ -60,8 +60,8 @@ export function Hero() {
           width={1672}
           height={941}
           style={{
-            maskImage: "radial-gradient(circle at var(--mask-x) var(--mask-y), transparent 0%, transparent 28px, rgba(0,0,0,0.35) 56px, black 80px)",
-            WebkitMaskImage: "radial-gradient(circle at var(--mask-x) var(--mask-y), transparent 0%, transparent 28px, rgba(0,0,0,0.35) 56px, black 80px)",
+            maskImage: "radial-gradient(circle at var(--mask-x) var(--mask-y), transparent 0%, transparent 38px, rgba(0,0,0,0.28) 68px, rgba(0,0,0,0.72) 96px, black 120px)",
+            WebkitMaskImage: "radial-gradient(circle at var(--mask-x) var(--mask-y), transparent 0%, transparent 38px, rgba(0,0,0,0.28) 68px, rgba(0,0,0,0.72) 96px, black 120px)",
           }}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
