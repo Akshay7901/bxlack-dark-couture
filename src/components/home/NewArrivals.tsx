@@ -31,7 +31,7 @@ export function NewArrivals() {
                 params={{ id: p.id }}
                 className="group block"
               >
-                <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[oklch(0.18_0_0)] ring-1 ring-white/[0.08] shadow-[0_0_40px_-12px_rgba(0,0,0,0.6)]">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-card ring-1 ring-light-grey/10 shadow-[0_0_40px_-12px_rgba(0,0,0,0.6)]">
                   <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/40 via-transparent to-white/[0.03] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                   <div className="absolute inset-0 z-0 bg-gradient-to-br from-white/[0.06] via-transparent to-transparent" />
                   <img
