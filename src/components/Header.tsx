@@ -43,7 +43,7 @@ export function Header({ onCart }: { onCart: () => void }) {
           <img
             src={logo.url}
             alt="BXLACK"
-            className="h-6 w-auto md:h-7"
+            className="h-8 w-auto md:h-11"
             width={1920}
             height={1065}
           />
