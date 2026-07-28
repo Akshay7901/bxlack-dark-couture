@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { products } from "@/lib/products";
 
 export const Route = createFileRoute("/shop")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    type: typeof search.type === "string" ? search.type : "All",
+  }),
   head: () => ({
     meta: [
       { title: "Shop — BXLACK" },
@@ -20,7 +22,9 @@ export const Route = createFileRoute("/shop")({
 const types = ["All", "Tshirt", "Shirt", "Jeans"] as const;
 
 function ShopPage() {
-  const [selectedType, setSelectedType] = useState<(typeof types)[number]>("All");
+  const { type } = Route.useSearch();
+  const selectedType: (typeof types)[number] =
+    types.includes(type as (typeof types)[number]) ? (type as (typeof types)[number]) : "All";
   const filtered = selectedType === "All" ? products : products.filter((p) => p.category === selectedType);
 
   // masonry-ish: alternate spans
@@ -34,24 +38,8 @@ function ShopPage() {
             The <em className="font-editorial italic text-white/70">index.</em>
           </h1>
           <div className="mt-8 flex items-center gap-4">
-            <label htmlFor="type-filter" className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/50">
-              Type
-            </label>
-            <div className="relative">
-              <select
-                id="type-filter"
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value as (typeof types)[number])}
-                className="appearance-none bg-transparent border border-light-grey/20 px-5 py-2.5 pr-10 font-mono text-[11px] uppercase tracking-[0.3em] text-white focus:outline-none focus:border-light-grey/50 transition-colors"
-              >
-                {types.map((t) => (
-                  <option key={t} value={t} className="bg-noir text-white">
-                    {t}
-                  </option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-white/60">▼</span>
-            </div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/50">Type</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-white">{selectedType}</span>
           </div>
         </div>
 
