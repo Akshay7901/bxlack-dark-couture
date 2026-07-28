@@ -1,23 +1,55 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import hero from "@/assets/bxlack-hero.png.asset.json";
+import heroBack from "@/assets/bxlack-hero-back.png.asset.json";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
+  const imgWrap = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
+  const RADIUS = 180;
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = imgWrap.current?.getBoundingClientRect();
+    if (!rect) return;
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   return (
     <section ref={ref} className="relative h-screen w-full overflow-hidden bg-noir">
-      <motion.div style={{ scale, y }} className="absolute inset-0 flex items-center justify-center">
+      <motion.div
+        ref={imgWrap}
+        style={{ scale, y }}
+        className="absolute inset-0 flex items-center justify-center"
+        onMouseMove={handleMove}
+        onMouseLeave={() => setPos(null)}
+      >
         <img
           src={hero.url}
           alt="BXLACK SS2026 campaign"
           className="h-full w-full object-cover object-center"
           width={1672}
           height={941}
+        />
+        <img
+          src={heroBack.url}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-200"
+          style={{
+            opacity: pos ? 1 : 0,
+            WebkitMaskImage: pos
+              ? `radial-gradient(circle ${RADIUS}px at ${pos.x}px ${pos.y}px, #000 55%, rgba(0,0,0,0.4) 75%, transparent 100%)`
+              : undefined,
+            maskImage: pos
+              ? `radial-gradient(circle ${RADIUS}px at ${pos.x}px ${pos.y}px, #000 55%, rgba(0,0,0,0.4) 75%, transparent 100%)`
+              : undefined,
+          }}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </motion.div>
