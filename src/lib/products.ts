@@ -4,6 +4,7 @@ import p3 from "@/assets/p3.jpg";
 import p4 from "@/assets/p4.jpg";
 import p5 from "@/assets/p5.jpg";
 import venusModel from "@/assets/venus-tee-model.jpg";
+import venusBack from "@/assets/venus-flytrap-back.png.asset.json";
 
 export type Product = {
   id: string;
@@ -11,11 +12,12 @@ export type Product = {
   price: number;
   category: string;
   image: string;
+  backImage?: string;
   tag?: string;
 };
 
 export const products: Product[] = [
-  { id: "venus-flytrap-tee", name: "Venus Flytrap Tee", price: 220, category: "Tshirt", image: venusModel, tag: "SS26 / 000" },
+  { id: "venus-flytrap-tee", name: "Venus Flytrap Tee", price: 220, category: "Tshirt", image: venusModel, backImage: venusBack.url, tag: "SS26 / 000" },
   { id: "obsidian-coat", name: "Obsidian Overcoat", price: 890, category: "Shirt", image: p1, tag: "SS26 / 001" },
   { id: "void-cargo", name: "Void Cargo Trouser", price: 420, category: "Jeans", image: p2, tag: "SS26 / 002" },
   { id: "shadow-hood", name: "Shadow Hooded Anorak", price: 560, category: "Tshirt", image: p3, tag: "SS26 / 003" },
