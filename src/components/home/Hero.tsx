@@ -50,10 +50,6 @@ export function Hero() {
     radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, #000 0%, #000 48%, rgba(0,0,0,0.55) 68%, transparent 100%)
   `;
 
-  const edgeGlow = useMotionTemplate`
-    radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, transparent 0%, transparent 52%, rgba(255,255,255,0.10) 64%, transparent 100%)
-  `;
-
   return (
     <section ref={ref} className="relative h-screen w-full overflow-hidden bg-noir">
       <motion.div
