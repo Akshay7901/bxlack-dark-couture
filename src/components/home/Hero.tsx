@@ -15,9 +15,9 @@ export function Hero() {
         <img
           src={hero.url}
           alt="BXLACK SS2026 campaign"
-          className="h-full w-full object-contain"
-          width={1451}
-          height={1084}
+          className="h-full w-full object-cover object-center"
+          width={1672}
+          height={941}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </motion.div>
