@@ -21,7 +21,7 @@ export function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  const RADIUS = "clamp(200px, 24vw, 380px)";
+  const RADIUS = "clamp(120px, 16vw, 240px)";
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = imgWrap.current?.getBoundingClientRect();
