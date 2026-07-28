@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import hero from "@/assets/bxlack-hero.png.asset.json";
-import heroBack from "@/assets/bxlack-hero-back.png.asset.json";
+import heroBack from "@/assets/bxlack-tshirt-back.png.asset.json";
 
 const LENS_SIZE = 160;
 
@@ -21,9 +21,6 @@ export function Hero() {
 
     const lens = lensRef.current;
     lens.style.transform = `translate3d(${x - LENS_SIZE / 2}px, ${y - LENS_SIZE / 2}px, 0)`;
-    // Match the underlying full-cover back image so the lens is a true window
-    lens.style.backgroundSize = `${rect.width}px ${rect.height}px`;
-    lens.style.backgroundPosition = `${-(x - LENS_SIZE / 2)}px ${-(y - LENS_SIZE / 2)}px`;
   };
 
   const onMouseEnter = () => {
@@ -47,7 +44,7 @@ export function Hero() {
         <img
           src={heroBack.url}
           alt="BXLACK SS2026 campaign back"
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          className="absolute inset-0 h-full w-full object-contain object-center"
           width={1672}
           height={941}
           loading="eager"
@@ -72,6 +69,8 @@ export function Hero() {
             height: LENS_SIZE,
             backgroundImage: `url(${heroBack.url})`,
             backgroundRepeat: "no-repeat",
+            backgroundSize: "contain",
+            backgroundPosition: "center",
             opacity: 0,
             transform: `translate3d(-${LENS_SIZE / 2}px, -${LENS_SIZE / 2}px, 0)`,
             willChange: "transform, opacity",
