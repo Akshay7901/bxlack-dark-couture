@@ -55,25 +55,25 @@ function ProductPage() {
 
   return (
     <AppShell>
-      <section className="pt-32 md:pt-36">
-        <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-16 px-6 md:grid-cols-12 md:gap-12 md:px-12">
+      <section className="pt-24 md:pt-28">
+        <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-12 px-6 md:grid-cols-12 md:gap-10 md:px-12">
           {/* Left — name, price, accordions */}
-          <aside className="order-2 md:order-1 md:col-span-3">
-            <div className="md:sticky md:top-32">
+          <aside className="order-2 md:order-1 md:col-span-4">
+            <div className="md:sticky md:top-28">
               <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">BXLACK · SS26</p>
               <h1 className="mt-5 font-display text-[28px] uppercase leading-[1.05] tracking-[-0.01em] text-white md:text-[34px]">
                 {product.name}
               </h1>
               <p className="mt-3 font-mono text-[13px] tracking-[0.05em] text-white/60">€{product.price}.00 EUR</p>
 
-              <div className="mt-14 border-t border-white/10">
+              <div className="mt-10 border-t border-white/10">
                 {accordions.map((a) => {
                   const open = openAcc === a.id;
                   return (
                     <div key={a.id} className="border-b border-white/10">
                       <button
                         onClick={() => setOpenAcc(open ? null : a.id)}
-                        className="flex w-full items-center justify-between py-5 text-left"
+                        className="flex w-full items-center justify-between py-4 text-left"
                       >
                         <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/85">{a.title}</span>
                         {open ? <Minus size={12} className="text-white/50" /> : <Plus size={12} className="text-white/50" />}
@@ -84,7 +84,7 @@ function ProductPage() {
                         transition={{ duration: 0.4, ease: [0.7, 0, 0.2, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="pb-6 pr-4 font-editorial text-[13px] leading-[1.7] tracking-[0.01em] text-white/55">{a.body}</p>
+                        <p className="pb-5 pr-4 font-editorial text-[13px] leading-[1.7] tracking-[0.01em] text-white/55">{a.body}</p>
                       </motion.div>
                     </div>
                   );
@@ -94,8 +94,8 @@ function ProductPage() {
           </aside>
 
           {/* Middle — product image */}
-          <div className="order-1 md:order-2 md:col-span-6">
-            <div className="relative aspect-[3/4] overflow-hidden bg-[oklch(0.08_0_0)]">
+          <div className="order-1 flex items-start justify-center md:order-2 md:col-span-4">
+            <div className="relative aspect-[3/4] w-full max-w-[480px] overflow-hidden bg-[oklch(0.08_0_0)]">
               <motion.img
                 key={activeImg}
                 initial={{ opacity: 0, scale: 1.02 }}
@@ -140,8 +140,8 @@ function ProductPage() {
           </div>
 
           {/* Right — sizes + add to cart */}
-          <aside className="order-3 md:col-span-3">
-            <div className="md:sticky md:top-32">
+          <aside className="order-3 md:col-span-4">
+            <div className="md:sticky md:top-28">
               <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">Select Size</p>
               <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
                 {["S", "M", "L", "XL", "XXL"].map((s) => (
@@ -157,12 +157,12 @@ function ProductPage() {
 
               <button
                 data-cursor="Add"
-                className="mt-12 w-full border border-white bg-white py-[18px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
+                className="mt-10 w-full border border-white bg-white py-[16px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
               >
                 Add to Cart — €{product.price}.00
               </button>
 
-              <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.28em] text-white/35">
+              <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/35">
                 Complimentary express · Numbered 1/50
               </p>
             </div>
