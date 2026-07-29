@@ -81,10 +81,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "BXLACK. Not fashion. A statement. Editorial luxury streetwear crafted for those who refuse to blend in." },
       { name: "author", content: "BXLACK" },
       { property: "og:title", content: "BXLACK — Born To Stand Apart" },
-      { property: "og:description", content: "Editorial luxury streetwear. A statement, not a garment." },
+      { property: "og:description", content: "BXLACK. Not fashion. A statement. Editorial luxury streetwear crafted for those who refuse to blend in." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@BXLACK" },
+      { name: "twitter:title", content: "BXLACK — Born To Stand Apart" },
+      { name: "twitter:description", content: "BXLACK. Not fashion. A statement. Editorial luxury streetwear crafted for those who refuse to blend in." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/afb6a951-f712-44a6-a4ca-ee8297bef8cf/id-preview-f05dbdd6--c7d592ab-0631-4cbf-a1c0-5593066198cf.lovable.app-1785229126911.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/afb6a951-f712-44a6-a4ca-ee8297bef8cf/id-preview-f05dbdd6--c7d592ab-0631-4cbf-a1c0-5593066198cf.lovable.app-1785229126911.png" },
     ],
     links: [
       {
