@@ -141,7 +141,7 @@ function ProductPage() {
 
           {/* Right — sizes + add to cart */}
           <aside className="order-3 md:col-span-4">
-            <div className="md:sticky md:top-28">
+            <div className="md:sticky md:top-24">
               <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">Select Size</p>
               <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
                 {["S", "M", "L", "XL", "XXL"].map((s) => (
