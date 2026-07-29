@@ -55,11 +55,11 @@ function ProductPage() {
 
   return (
     <AppShell>
-      <section className="pt-24 md:pt-28">
+      <section className="pt-20 md:pt-24">
         <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-12 px-6 md:grid-cols-12 md:gap-10 md:px-12">
           {/* Left — name, price, accordions */}
           <aside className="order-2 md:order-1 md:col-span-4">
-            <div className="md:sticky md:top-28">
+            <div className="md:sticky md:top-24">
               <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">BXLACK · SS26</p>
               <h1 className="mt-5 font-display text-[28px] uppercase leading-[1.05] tracking-[-0.01em] text-white md:text-[34px]">
                 {product.name}
@@ -95,7 +95,7 @@ function ProductPage() {
 
           {/* Middle — product image */}
           <div className="order-1 flex items-start justify-center md:order-2 md:col-span-4">
-            <div className="relative aspect-[3/4] w-full max-w-[480px] overflow-hidden bg-[oklch(0.08_0_0)]">
+            <div className="relative aspect-[3/4] w-full max-w-[400px] overflow-hidden bg-[oklch(0.08_0_0)]">
               <motion.img
                 key={activeImg}
                 initial={{ opacity: 0, scale: 1.02 }}
