@@ -55,13 +55,13 @@ function ProductPage() {
 
   return (
     <AppShell>
-      <section className="pt-12 md:pt-14">
-        <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-8 px-6 md:grid-cols-12 md:gap-6 md:px-12">
+      <section className="pt-24 sm:pt-28 md:pt-14">
+        <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-8 px-5 sm:px-6 md:grid-cols-12 md:gap-6 md:px-12">
           {/* Left — name, price, accordions */}
           <aside className="order-2 md:order-1 md:col-span-4">
             <div className="md:sticky md:top-20">
               <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">BXLACK · SS26</p>
-              <h1 className="mt-2 font-display text-[22px] uppercase leading-[1.05] tracking-[-0.01em] text-white md:text-[26px]">
+              <h1 className="mt-2 font-display text-[20px] uppercase leading-[1.05] tracking-[-0.01em] text-white sm:text-[22px] md:text-[26px]">
                 {product.name}
               </h1>
               <p className="mt-2 font-mono text-[12px] tracking-[0.05em] text-white/60">€{product.price}.00 EUR</p>
@@ -95,7 +95,7 @@ function ProductPage() {
 
           {/* Middle — product image */}
           <div className="order-1 flex items-start justify-center md:order-2 md:col-span-4">
-            <div className="relative aspect-[3/4] w-full max-w-[260px] overflow-hidden bg-[oklch(0.08_0_0)]">
+            <div className="relative aspect-[3/4] w-full max-w-[320px] overflow-hidden bg-[oklch(0.08_0_0)] sm:max-w-[280px] md:max-w-[260px]">
               <motion.img
                 key={activeImg}
                 initial={{ opacity: 0, scale: 1.02 }}
@@ -170,14 +170,14 @@ function ProductPage() {
         </div>
 
         {/* Recommended */}
-        <div className="mx-auto mt-40 max-w-[1600px] border-t border-white/10 px-6 pt-16 md:px-10">
-          <div className="flex items-end justify-between">
-            <h2 className="font-display text-5xl leading-[0.9] tracking-[-0.03em] text-white md:text-7xl">
+        <div className="mx-auto mt-20 max-w-[1600px] border-t border-white/10 px-5 pt-12 sm:px-6 md:mt-40 md:px-10 md:pt-16">
+          <div className="flex items-end justify-between gap-4">
+            <h2 className="font-display text-3xl leading-[0.9] tracking-[-0.03em] text-white sm:text-5xl md:text-7xl">
               You may also <em className="font-editorial italic text-white/60">consider.</em>
             </h2>
             <Link to="/shop" search={{ type: "All" }} className="hidden font-mono text-[11px] uppercase tracking-[0.3em] text-white/60 hover:text-white md:block" data-cursor="View">View all →</Link>
           </div>
-          <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:mt-12 md:grid-cols-4 md:gap-6">
             {others.map((o, i) => (
               <motion.div
                 key={o.id}
@@ -191,16 +191,16 @@ function ProductPage() {
                   <div className="relative aspect-[3/4] overflow-hidden bg-[oklch(0.08_0_0)]">
                     <img src={o.image} alt={o.name} className="h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" loading="lazy" />
                   </div>
-                  <div className="mt-3 flex items-baseline justify-between">
-                    <p className="font-display text-lg text-white">{o.name}</p>
-                    <p className="font-mono text-xs text-white/70">€{o.price}</p>
+                  <div className="mt-3 flex items-baseline justify-between gap-2">
+                    <p className="min-w-0 truncate font-display text-sm text-white sm:text-lg">{o.name}</p>
+                    <p className="shrink-0 font-mono text-[11px] text-white/70 sm:text-xs">€{o.price}</p>
                   </div>
                 </Link>
               </motion.div>
             ))}
           </div>
         </div>
-        <div className="h-32" />
+        <div className="h-20 md:h-32" />
       </section>
     </AppShell>
   );
