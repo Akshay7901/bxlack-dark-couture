@@ -30,10 +30,10 @@ const frames = [
 function LookbookPage() {
   return (
     <AppShell>
-      <section className="pt-40">
-        <div className="mx-auto max-w-[1600px] px-6 md:px-10">
+      <section className="pt-28 md:pt-40">
+        <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">Lookbook · Chapter 001</p>
-          <h1 className="mt-6 font-display text-6xl font-medium leading-[0.85] tracking-[-0.04em] md:text-[10vw]">
+          <h1 className="mt-6 font-display text-[14vw] font-medium leading-[0.85] tracking-[-0.04em] sm:text-6xl md:text-[10vw]">
             Silence, <em className="font-editorial italic text-white/70">framed.</em>
           </h1>
         </div>

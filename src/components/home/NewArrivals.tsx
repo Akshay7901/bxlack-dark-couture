@@ -7,7 +7,7 @@ const featured = products.slice(0, 5);
 export function NewArrivals() {
   return (
     <section className="bg-noir py-14 text-foreground sm:py-20 md:py-28">
-      <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
+      <div className="mx-auto max-w-[1600px] px-5 sm:px-5 sm:px-6 md:px-10">
         <div className="mb-8 sm:mb-12 md:mb-16">
           <h2 className="font-display text-2xl font-medium uppercase tracking-[-0.02em] sm:text-3xl md:text-4xl">
             New Arrivals <span className="text-foreground/40">.</span>

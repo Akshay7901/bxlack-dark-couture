@@ -8,7 +8,7 @@ export function NewDrop() {
       <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-6 md:flex-row md:items-end md:justify-between md:px-10">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">The Drop — 003</p>
-          <h2 className="mt-6 font-display text-6xl font-medium leading-[0.9] tracking-[-0.04em] text-white md:text-8xl">
+          <h2 className="mt-6 font-display text-[13vw] font-medium leading-[0.9] tracking-[-0.04em] text-white sm:text-6xl md:text-8xl">
             New <em className="font-editorial italic text-white/70">arrivals.</em>
           </h2>
         </div>
@@ -18,7 +18,7 @@ export function NewDrop() {
       </div>
 
       <div className="mt-16 overflow-x-auto overflow-y-hidden pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex gap-6 px-6 md:px-10" style={{ width: "max-content" }}>
+        <div className="flex gap-6 px-5 sm:px-6 md:px-10" style={{ width: "max-content" }}>
           {products.map((p, i) => (
             <motion.div
               key={p.id}

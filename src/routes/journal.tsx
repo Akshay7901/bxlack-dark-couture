@@ -28,8 +28,8 @@ const ENTRIES = [
 function JournalPage() {
   return (
     <AppShell>
-      <section className="pt-40">
-        <div className="mx-auto max-w-[1600px] px-6 md:px-10">
+      <section className="pt-28 md:pt-40">
+        <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">Journal · Reel B</p>
           <h1 className="mt-6 font-display text-6xl font-medium leading-[0.85] tracking-[-0.05em] md:text-[11vw]">
             Field <em className="font-editorial italic text-white/70">notes.</em>
@@ -39,7 +39,7 @@ function JournalPage() {
           </p>
         </div>
 
-        <div className="mx-auto mt-24 max-w-[1600px] px-6 md:px-10">
+        <div className="mx-auto mt-14 md:mt-24 max-w-[1600px] px-5 sm:px-6 md:px-10">
           {ENTRIES.map((e, i) => (
             <motion.article
               key={e.n}
