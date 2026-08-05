@@ -3,11 +3,13 @@ import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 
 function useCountdown(target: number) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
+  if (now === null) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   const diff = Math.max(0, target - now);
   return {
     days: Math.floor(diff / 86400000),
