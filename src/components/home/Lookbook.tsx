@@ -12,11 +12,11 @@ const shots = [
 export function Lookbook() {
   return (
     <section className="relative overflow-hidden bg-black py-32">
-      <div className="mx-auto max-w-[1600px] px-6 md:px-10">
+      <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
         <div className="flex items-end justify-between">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">Lookbook — 004</p>
-            <h2 className="mt-6 font-display text-6xl font-medium leading-[0.9] tracking-[-0.04em] md:text-8xl">
+            <h2 className="mt-6 font-display text-[13vw] font-medium leading-[0.9] tracking-[-0.04em] sm:text-6xl md:text-8xl">
               Editorial <em className="font-editorial italic text-white/70">motion.</em>
             </h2>
           </div>
@@ -24,7 +24,7 @@ export function Lookbook() {
       </div>
 
       <div className="mt-16 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex gap-6 px-6 md:px-10" style={{ width: "max-content" }}>
+        <div className="flex gap-6 px-5 sm:px-6 md:px-10" style={{ width: "max-content" }}>
           {shots.map((s, i) => (
             <motion.figure
               key={i}

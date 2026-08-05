@@ -26,7 +26,7 @@ const chapters = [
 function AboutPage() {
   return (
     <AppShell>
-      <section className="relative flex min-h-[90vh] items-end overflow-hidden pt-40">
+      <section className="relative flex min-h-[90vh] items-end overflow-hidden pt-28 md:pt-40">
         <img src={hero} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" loading="lazy" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black" />
         <div className="relative z-10 mx-auto max-w-[1600px] px-6 pb-20 md:px-10">

@@ -14,7 +14,7 @@ const ROWS: [string, string][] = [
 export function Credits() {
   return (
     <section className="relative overflow-hidden border-t border-white/10 bg-black py-32">
-      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-6 md:px-10">
         <div className="flex items-baseline justify-between">
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/40">End Credits — Reel A</p>
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/40">© BXLACK · MMXXVI</p>
@@ -52,7 +52,7 @@ export function Credits() {
 
         <div className="mt-24 flex flex-col items-center gap-6 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/40">Fade to black</p>
-          <p className="font-display text-6xl leading-[0.9] tracking-[-0.04em] text-white md:text-8xl">
+          <p className="font-display text-[12vw] leading-[0.9] tracking-[-0.04em] text-white sm:text-6xl md:text-8xl">
             See you <em className="font-editorial italic text-white/60">in chapter 002.</em>
           </p>
         </div>

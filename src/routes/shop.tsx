@@ -31,25 +31,25 @@ function ShopPage() {
   const spans = ["md:col-span-2 md:row-span-2", "", "", "md:col-span-2", "", ""];
   return (
     <AppShell>
-      <section className="pt-40">
-        <div className="mx-auto max-w-[1600px] px-6 md:px-10">
+      <section className="pt-28 md:pt-40">
+        <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">Collection — SS26</p>
-          <h1 className="mt-6 font-display text-6xl font-medium leading-[0.85] tracking-[-0.04em] md:text-[10vw]">
+          <h1 className="mt-5 font-display text-[15vw] font-medium leading-[0.85] tracking-[-0.04em] sm:text-6xl md:mt-6 md:text-[10vw]">
             The <em className="font-editorial italic text-white/70">index.</em>
           </h1>
-          <div className="mt-8 flex items-center gap-4">
+          <div className="mt-6 flex flex-wrap items-center gap-3 md:mt-8 md:gap-4">
             <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/50">Type</span>
             <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-white">{selectedType}</span>
           </div>
         </div>
 
-        <div className="mx-auto mt-16 max-w-[1600px] px-6 md:px-10">
+        <div className="mx-auto mt-10 max-w-[1600px] px-5 sm:px-6 md:mt-16 md:px-10">
           {filtered.length === 0 ? (
             <div className="flex h-[40vh] items-center justify-center">
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/50">No pieces in this category.</p>
             </div>
           ) : (
-            <div className="grid auto-rows-[40vh] grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+            <div className="grid auto-rows-[52vw] grid-cols-2 gap-3 sm:auto-rows-[40vh] sm:gap-4 md:grid-cols-4 md:gap-6">
               {filtered.map((p, i) => (
                 <motion.div
                   key={p.id}
@@ -63,12 +63,12 @@ function ShopPage() {
                   <img src={p.image} alt={p.name} className="h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-110" loading="lazy" />
                   <div className="absolute inset-0 bg-black/0 backdrop-blur-0 transition-all duration-500 group-hover:bg-black/30 group-hover:backdrop-blur-sm" />
                   <div className="absolute left-4 top-4 font-mono text-[9px] uppercase tracking-[0.3em] text-white/80">{p.tag}</div>
-                  <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5">
-                    <div>
-                      <p className="font-display text-xl text-white md:text-2xl">{p.name}</p>
-                      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.3em] text-white/60">{p.category}</p>
+                  <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-5">
+                    <div className="min-w-0">
+                      <p className="truncate font-display text-base text-white sm:text-xl md:text-2xl">{p.name}</p>
+                      <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/60 sm:text-[10px] sm:tracking-[0.3em]">{p.category}</p>
                     </div>
-                    <p className="font-mono text-sm text-white">€{p.price}</p>
+                    <p className="shrink-0 font-mono text-xs text-white sm:text-sm">€{p.price}</p>
                   </div>
                 </motion.div>
               ))}

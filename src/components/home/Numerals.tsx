@@ -38,7 +38,7 @@ function Chapter({ n, title, body, img, index }: typeof CHAPTERS[0] & { index: n
 
       <motion.div style={{ y: bodyY }} className="col-span-12 md:col-span-5 md:[direction:ltr]">
         <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/40">Chapter {n}</p>
-        <h3 className="mt-4 font-display text-5xl leading-[0.9] tracking-[-0.03em] text-white md:text-7xl">
+        <h3 className="mt-4 font-display text-[11vw] leading-[0.9] tracking-[-0.03em] text-white sm:text-5xl md:text-7xl">
           {title.split(" ").slice(0, -1).join(" ")} <em className="font-editorial italic text-white/70">{title.split(" ").slice(-1)}</em>.
         </h3>
         <p className="mt-6 max-w-sm text-base leading-relaxed text-white/60">{body}</p>
@@ -54,7 +54,7 @@ export function Numerals() {
       <div className="flex items-end justify-between px-6 pb-10 pt-32 md:px-10">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/40">Index — 005</p>
-          <h2 className="mt-6 font-display text-6xl font-medium leading-[0.9] tracking-[-0.04em] text-white md:text-8xl">
+          <h2 className="mt-6 font-display text-[13vw] font-medium leading-[0.9] tracking-[-0.04em] text-white sm:text-6xl md:text-8xl">
             Read in <em className="font-editorial italic text-white/70">three acts.</em>
           </h2>
         </div>
