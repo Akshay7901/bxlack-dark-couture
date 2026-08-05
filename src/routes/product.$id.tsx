@@ -55,25 +55,25 @@ function ProductPage() {
 
   return (
     <AppShell>
-      <section className="pt-20 md:pt-24">
-        <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-12 px-6 md:grid-cols-12 md:gap-10 md:px-12">
+      <section className="pt-12 md:pt-14">
+        <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-8 px-6 md:grid-cols-12 md:gap-6 md:px-12">
           {/* Left — name, price, accordions */}
           <aside className="order-2 md:order-1 md:col-span-4">
-            <div className="md:sticky md:top-24">
+            <div className="md:sticky md:top-20">
               <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">BXLACK · SS26</p>
-              <h1 className="mt-5 font-display text-[28px] uppercase leading-[1.05] tracking-[-0.01em] text-white md:text-[34px]">
+              <h1 className="mt-2 font-display text-[22px] uppercase leading-[1.05] tracking-[-0.01em] text-white md:text-[26px]">
                 {product.name}
               </h1>
-              <p className="mt-3 font-mono text-[13px] tracking-[0.05em] text-white/60">€{product.price}.00 EUR</p>
+              <p className="mt-2 font-mono text-[12px] tracking-[0.05em] text-white/60">€{product.price}.00 EUR</p>
 
-              <div className="mt-10 border-t border-white/10">
+              <div className="mt-6 border-t border-white/10">
                 {accordions.map((a) => {
                   const open = openAcc === a.id;
                   return (
                     <div key={a.id} className="border-b border-white/10">
                       <button
                         onClick={() => setOpenAcc(open ? null : a.id)}
-                        className="flex w-full items-center justify-between py-4 text-left"
+                        className="flex w-full items-center justify-between py-3 text-left"
                       >
                         <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/85">{a.title}</span>
                         {open ? <Minus size={12} className="text-white/50" /> : <Plus size={12} className="text-white/50" />}
@@ -84,7 +84,7 @@ function ProductPage() {
                         transition={{ duration: 0.4, ease: [0.7, 0, 0.2, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="pb-5 pr-4 font-editorial text-[13px] leading-[1.7] tracking-[0.01em] text-white/55">{a.body}</p>
+                        <p className="pb-4 pr-4 font-editorial text-[12px] leading-[1.7] tracking-[0.01em] text-white/55">{a.body}</p>
                       </motion.div>
                     </div>
                   );
@@ -95,7 +95,7 @@ function ProductPage() {
 
           {/* Middle — product image */}
           <div className="order-1 flex items-start justify-center md:order-2 md:col-span-4">
-            <div className="relative aspect-[3/4] w-full max-w-[400px] overflow-hidden bg-[oklch(0.08_0_0)]">
+            <div className="relative aspect-[3/4] w-full max-w-[260px] overflow-hidden bg-[oklch(0.08_0_0)]">
               <motion.img
                 key={activeImg}
                 initial={{ opacity: 0, scale: 1.02 }}
@@ -107,15 +107,15 @@ function ProductPage() {
                 loading="lazy"
               />
               {isBack && (
-                <div className="absolute right-4 top-4">
-                  <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.3em] text-white backdrop-blur">
+                <div className="absolute right-3 top-3">
+                  <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.3em] text-white backdrop-blur">
                     Back view
                   </span>
                 </div>
               )}
               {!isBack && gallery.length > 1 && (
-                <div className="absolute left-4 top-4">
-                  <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.3em] text-white backdrop-blur">
+                <div className="absolute left-3 top-3">
+                  <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.3em] text-white backdrop-blur">
                     Front view
                   </span>
                 </div>
@@ -123,12 +123,12 @@ function ProductPage() {
 
               {/* Gallery thumbnails */}
               {gallery.length > 1 && (
-                <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-3">
+                <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-3">
                   {gallery.map((img, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveImg(i)}
-                      className={`group relative h-14 w-11 overflow-hidden border transition-all ${activeImg === i ? "border-white" : "border-white/20 hover:border-white/60"}`}
+                      className={`group relative h-12 w-9 overflow-hidden border transition-all ${activeImg === i ? "border-white" : "border-white/20 hover:border-white/60"}`}
                       aria-label={`View ${i === 0 ? "front" : "back"}`}
                     >
                       <img src={img} alt="" className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100" />
@@ -141,14 +141,14 @@ function ProductPage() {
 
           {/* Right — sizes + add to cart */}
           <aside className="order-3 md:col-span-4">
-            <div className="md:sticky md:top-24">
+            <div className="md:sticky md:top-20">
               <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">Select Size</p>
-              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
                 {["S", "M", "L", "XL", "XXL"].map((s) => (
                   <button
                     key={s}
                     onClick={() => setSize(s)}
-                    className={`font-mono text-[12px] uppercase tracking-[0.22em] transition-colors ${size === s ? "text-white underline underline-offset-[8px] decoration-[1.5px]" : "text-white/45 hover:text-white/80"}`}
+                    className={`font-mono text-[11px] uppercase tracking-[0.22em] transition-colors ${size === s ? "text-white underline underline-offset-[6px] decoration-[1.5px]" : "text-white/45 hover:text-white/80"}`}
                   >
                     {s}
                   </button>
@@ -157,12 +157,12 @@ function ProductPage() {
 
               <button
                 data-cursor="Add"
-                className="mt-10 w-full border border-white bg-white py-[16px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
+                className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
               >
                 Add to Cart — €{product.price}.00
               </button>
 
-              <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/35">
+              <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.28em] text-white/35">
                 Complimentary express · Numbered 1/50
               </p>
             </div>
