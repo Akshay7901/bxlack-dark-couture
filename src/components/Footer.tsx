@@ -36,7 +36,7 @@ export function Footer() {
                 <ul className="mt-5 space-y-3">
                   {c.l.map((i) => (
                     <li key={i}>
-                      <Link to="/shop" className="text-sm text-light-grey/90 transition-colors hover:text-white">{i}</Link>
+                      <Link to="/shop" search={{ type: "All" }} className="text-sm text-light-grey/90 transition-colors hover:text-white">{i}</Link>
                     </li>
                   ))}
                 </ul>

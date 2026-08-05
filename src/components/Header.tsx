@@ -57,14 +57,6 @@ export function Header({ onCart }: { onCart: () => void }) {
               <ChevronDown size={11} className="shrink-0 transition-transform duration-300 group-hover:rotate-180" />
               <span className="absolute -bottom-1 left-0 h-px w-0 bg-white transition-all duration-500 group-hover:w-full" />
             </button>
-            <Link
-              aria-hidden
-              tabIndex={-1}
-              to="/shop"
-              className="sr-only"
-            >
-              Collection
-            </Link>
 
             <AnimatePresence>
               {dropdownOpen && (

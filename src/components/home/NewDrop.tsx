@@ -12,7 +12,7 @@ export function NewDrop() {
             New <em className="font-editorial italic text-white/70">arrivals.</em>
           </h2>
         </div>
-        <Link to="/shop" data-cursor="View" className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/70 hover:text-white">
+        <Link to="/shop" search={{ type: "All" }} data-cursor="View" className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/70 hover:text-white">
           View all 05 pieces →
         </Link>
       </div>

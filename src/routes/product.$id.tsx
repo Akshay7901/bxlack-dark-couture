@@ -175,7 +175,7 @@ function ProductPage() {
             <h2 className="font-display text-5xl leading-[0.9] tracking-[-0.03em] text-white md:text-7xl">
               You may also <em className="font-editorial italic text-white/60">consider.</em>
             </h2>
-            <Link to="/shop" className="hidden font-mono text-[11px] uppercase tracking-[0.3em] text-white/60 hover:text-white md:block" data-cursor="View">View all →</Link>
+            <Link to="/shop" search={{ type: "All" }} className="hidden font-mono text-[11px] uppercase tracking-[0.3em] text-white/60 hover:text-white md:block" data-cursor="View">View all →</Link>
           </div>
           <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
             {others.map((o, i) => (
