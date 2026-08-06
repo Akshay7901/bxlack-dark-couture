@@ -46,6 +46,15 @@ export function Hero() {
     setIsHovering(false);
   };
 
+  const handleTouch = (e: React.TouchEvent<HTMLDivElement>) => {
+    const rect = imgWrap.current?.getBoundingClientRect();
+    const touch = e.touches[0];
+    if (!rect || !touch) return;
+    cursorX.set(touch.clientX - rect.left);
+    cursorY.set(touch.clientY - rect.top);
+    setIsHovering(true);
+  };
+
   const maskImage = useMotionTemplate`
     radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, #000 0%, #000 42%, rgba(0,0,0,0.72) 55%, rgba(0,0,0,0.28) 70%, transparent 100%)
   `;
@@ -60,6 +69,10 @@ export function Hero() {
         className="absolute inset-0 flex items-center justify-center"
         onMouseMove={handleMove}
         onMouseLeave={handleLeave}
+        onTouchStart={handleTouch}
+        onTouchMove={handleTouch}
+        onTouchEnd={handleLeave}
+        onTouchCancel={handleLeave}
       >
         <img
           src={hero.url}
