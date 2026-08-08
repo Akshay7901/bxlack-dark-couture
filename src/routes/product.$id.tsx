@@ -62,13 +62,11 @@ function ProductPage() {
     );
   }
 
-  const others = all.filter((p) => p.id !== product.id).slice(0, 4);
   const gallery = (
     product.gallery && product.gallery.length > 0
       ? product.gallery
       : [product.image, ...(product.backImage ? [product.backImage] : [])]
   ).filter(Boolean);
-  const isBack = Boolean(product.backImage) && activeImg === 1;
 
   const accordions = [
     {
@@ -90,29 +88,17 @@ function ProductPage() {
 
   return (
     <AppShell>
-      <section className="pt-24 sm:pt-28 md:pt-14">
-        <div className="mx-auto mb-6 max-w-[1600px] px-5 sm:px-6 md:mb-8 md:px-12">
-          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
-            <Link to="/shop" search={{ type: "All" }} className="transition-colors hover:text-white">All Categories</Link>
-            <span className="text-white/25">/</span>
-            <Link to="/shop" search={{ type: product.category }} className="transition-colors hover:text-white">
-              {product.category === "Tshirt" ? "T-Shirt" : product.category}
-            </Link>
-            <span className="text-white/25">/</span>
-            <span className="text-white/70">{product.name}</span>
-          </nav>
-        </div>
-        <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-8 px-5 sm:px-6 md:grid-cols-12 md:gap-6 md:px-12">
+      <section className="pt-24 sm:pt-28 md:pt-16">
+        <div className="mx-auto grid max-w-[1500px] grid-cols-1 items-center gap-10 px-5 sm:px-6 md:grid-cols-12 md:gap-8 md:px-12">
           {/* Left — name, price, accordions */}
           <aside className="order-2 md:order-1 md:col-span-4">
-            <div className="md:sticky md:top-20">
-              <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">BXLACK · SS26</p>
-              <h1 className="mt-2 font-display text-[20px] uppercase leading-[1.05] tracking-[-0.01em] text-white sm:text-[22px] md:text-[26px]">
+            <div>
+              <h1 className="font-display text-[22px] uppercase leading-[1.1] tracking-[-0.01em] text-white md:text-[28px]">
                 {product.name}
               </h1>
-              <p className="mt-2 font-mono text-[12px] tracking-[0.05em] text-white/60">₹{product.price} INR</p>
+              <p className="mt-2 font-mono text-[12px] tracking-[0.05em] text-white/60">₹{product.price}</p>
 
-              <div className="mt-6 border-t border-white/10">
+              <div className="mt-8 border-t border-white/10">
                 {accordions.map((a) => {
                   const open = openAcc === a.id;
                   return (
@@ -149,25 +135,10 @@ function ProductPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: [0.7, 0, 0.2, 1] }}
                 src={gallery[activeImg]}
-                alt={`${product.name} — ${isBack ? "back" : "front"}`}
+                alt={product.name}
                 className="h-full w-full object-contain"
                 loading="lazy"
               />
-              {isBack && (
-                <div className="absolute right-3 top-3">
-                  <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.3em] text-white backdrop-blur">
-                    Back view
-                  </span>
-                </div>
-              )}
-              {!isBack && gallery.length > 1 && (
-                <div className="absolute left-3 top-3">
-                  <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.3em] text-white backdrop-blur">
-                    Front view
-                  </span>
-                </div>
-              )}
-
             </div>
 
             {/* Gallery thumbnails */}
@@ -211,44 +182,10 @@ function ProductPage() {
                 Add to Cart — ₹{product.price}
               </button>
 
-              <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.28em] text-white/35">
-                Complimentary express · Numbered 1/50
-              </p>
             </div>
           </aside>
         </div>
 
-        {/* Recommended */}
-        <div className="mx-auto mt-20 max-w-[1600px] border-t border-white/10 px-5 pt-12 sm:px-6 md:mt-40 md:px-10 md:pt-16">
-          <div className="flex items-end justify-between gap-4">
-            <h2 className="font-display text-3xl leading-[0.9] tracking-[-0.03em] text-white sm:text-5xl md:text-7xl">
-              You may also <em className="font-editorial italic text-white/60">consider.</em>
-            </h2>
-            <Link to="/shop" search={{ type: "All" }} className="hidden font-mono text-[11px] uppercase tracking-[0.3em] text-white/60 hover:text-white md:block" data-cursor="View">View all →</Link>
-          </div>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:mt-12 md:grid-cols-4 md:gap-6">
-            {others.map((o, i) => (
-              <motion.div
-                key={o.id}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.9 }}
-                className="group"
-              >
-                <Link to="/product/$id" params={{ id: o.id }} data-cursor="View" className="block">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-[oklch(0.08_0_0)]">
-                    <img src={o.image} alt={o.name} className="h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" loading="lazy" />
-                  </div>
-                  <div className="mt-3 flex items-baseline justify-between gap-2">
-                    <p className="min-w-0 truncate font-display text-sm text-white sm:text-lg">{o.name}</p>
-                    <p className="shrink-0 font-mono text-[11px] text-white/70 sm:text-xs">₹{o.price}</p>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
         <div className="h-20 md:h-32" />
       </section>
     </AppShell>
