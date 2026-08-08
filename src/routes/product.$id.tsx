@@ -171,19 +171,7 @@ function ProductPage() {
           {/* Middle — product image */}
           <div className="order-1 md:order-2 md:col-span-4">
             <div className="mx-auto w-full max-w-[520px]">
-            <div className="relative aspect-[4/5] w-full overflow-hidden bg-[oklch(0.08_0_0)]">
-              <motion.img
-                key={activeImg}
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, ease: [0.7, 0, 0.2, 1] }}
-                src={gallery[activeImg]}
-                alt={product.name}
-                className="h-full w-full object-contain"
-                loading="lazy"
-              />
-            </div>
-
+            <ScrollGallery images={gallery as string[]} alt={product.name} />
             </div>
           </div>
 
