@@ -20,6 +20,12 @@ export const Route = createFileRoute("/shop")({
 });
 
 const types = ["All", "Tshirt", "Shirt", "Jeans"] as const;
+const pageTitles: Record<string, string> = {
+  All: "All Products",
+  Tshirt: "T-Shirts",
+  Shirt: "Shirts",
+  Jeans: "Jeans",
+};
 const sizes = ["S", "M", "L", "XL", "XXL"] as const;
 
 function ShopPage() {
@@ -36,6 +42,12 @@ function ShopPage() {
     <AppShell hideNewsletter>
       <section className="pt-28 md:pt-40">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
+          <div className="mb-6 flex items-baseline justify-between gap-4 md:mb-8">
+            <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
+            <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
+              {filtered.length} {filtered.length === 1 ? "item" : "items"}
+            </span>
+          </div>
           {filtered.length === 0 ? (
             <div className="flex h-[40vh] items-center justify-center">
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/50">No pieces in this category.</p>
