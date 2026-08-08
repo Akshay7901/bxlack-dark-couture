@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/product/$id")({
 
 
 function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
-  const [index, setIndex] = useState(0);
+  const [[index, dir], setState] = useState<[number, number]>([0, 1]);
   const ref = useRef<HTMLDivElement>(null);
   const lock = useRef(0);
 
@@ -35,10 +35,8 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
       if (now - lock.current < 420) return;
       if (Math.abs(e.deltaY) < 8) return;
       lock.current = now;
-      setIndex((i) => {
-        const next = e.deltaY > 0 ? i + 1 : i - 1;
-        return (next + images.length) % images.length;
-      });
+      const d = e.deltaY > 0 ? 1 : -1;
+      setState(([i]) => [(i + d + images.length) % images.length, d]);
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
@@ -46,16 +44,20 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
 
   return (
     <div ref={ref} className="relative aspect-[4/5] w-full overflow-hidden bg-[oklch(0.08_0_0)]">
-      <motion.img
-        key={index}
-        initial={{ opacity: 0, scale: 1.02 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
-        src={images[index]}
-        alt={alt}
-        className="h-full w-full object-contain"
-        loading="lazy"
-      />
+      <AnimatePresence initial={false} mode="popLayout" custom={dir}>
+        <motion.img
+          key={index}
+          custom={dir}
+          initial={{ y: dir > 0 ? "100%" : "-100%", opacity: 0 }}
+          animate={{ y: "0%", opacity: 1 }}
+          exit={{ y: dir > 0 ? "-100%" : "100%", opacity: 0 }}
+          transition={{ duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
+          src={images[index]}
+          alt={alt}
+          className="absolute inset-0 h-full w-full object-contain"
+          loading="lazy"
+        />
+      </AnimatePresence>
       {images.length > 1 && (
         <div className="pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
           {images.map((_, i) => (
