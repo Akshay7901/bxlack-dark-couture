@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Newsletter } from "@/components/Newsletter";
 import logoAsset from "@/assets/bxlack-logo.png.asset.json";
 
@@ -17,9 +18,9 @@ const MAISON = [
 ];
 
 const SOCIAL = [
-  { label: "Instagram", href: "https://instagram.com" },
-  { label: "TikTok", href: "https://tiktok.com" },
-  { label: "Vimeo", href: "https://vimeo.com" },
+  { label: "Instagram", href: "https://instagram.com", Icon: Instagram },
+  { label: "Facebook", href: "https://facebook.com", Icon: Facebook },
+  { label: "X", href: "https://x.com", Icon: Twitter },
 ];
 
 const linkClass =
@@ -67,11 +68,18 @@ export function Footer() {
 
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mid-grey/70">Follow</p>
-            <ul className="mt-5 space-y-3">
-              {SOCIAL.map((s) => (
-                <li key={s.label}>
-                  <a href={s.href} target="_blank" rel="noreferrer" className={linkClass}>
-                    {s.label}
+            <ul className="mt-5 flex items-center gap-3">
+              {SOCIAL.map(({ label, href, Icon }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-light-grey/20 text-light-grey/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/70 hover:text-white"
+                  >
+                    <Icon size={16} strokeWidth={1.5} />
                   </a>
                 </li>
               ))}
@@ -91,7 +99,7 @@ export function Footer() {
         <div className="mt-10 flex flex-col justify-between gap-3 border-t border-light-grey/10 pt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-mid-grey/70 sm:text-[10px] sm:tracking-[0.25em] md:flex-row md:gap-4">
           <span>© 2026 BXLACK Maison. All rights reserved.</span>
           <span>Antwerp · Tokyo · Paris</span>
-          <span>Instagram — TikTok — Vimeo</span>
+          <span>Instagram — Facebook — X</span>
         </div>
       </div>
     </footer>
