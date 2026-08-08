@@ -3,8 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Product } from "@/lib/products";
 
-const sizes = ["S", "M", "L", "XL", "XXL"] as const;
-
 export function ProductCard({ product }: { product: Product }) {
   const gallery = (
     product.gallery && product.gallery.length > 0
@@ -23,14 +21,14 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <div className="group">
       <Link to="/product/$id" params={{ id: product.id }} className="block">
-        <div className="relative h-[clamp(300px,62vh,640px)] overflow-hidden bg-[#141414]">
+        <div className="relative h-[clamp(320px,70vh,720px)] overflow-hidden bg-[#0A0A0A]">
           {gallery.map((src, i) => (
             <img
               key={`${src}-${i}`}
               src={src}
               alt={i === 0 ? product.name : ""}
               aria-hidden={i !== 0 ? true : undefined}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] ${
+              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] ${
                 i === index ? "opacity-100" : "opacity-0"
               }`}
               loading="lazy"
@@ -77,16 +75,6 @@ export function ProductCard({ product }: { product: Product }) {
             {product.compareAt ? (
               <span className="font-mono text-[11px] text-white/35 line-through sm:text-xs">₹{product.compareAt}</span>
             ) : null}
-          </div>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {sizes.map((s) => (
-              <span
-                key={s}
-                className="border border-white/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-white/55"
-              >
-                {s}
-              </span>
-            ))}
           </div>
         </div>
       </Link>
