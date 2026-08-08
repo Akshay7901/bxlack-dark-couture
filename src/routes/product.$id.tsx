@@ -130,7 +130,7 @@ function ProductPage() {
       <section className="relative pt-24 sm:pt-28 md:pt-20 lg:pt-16">
         <div className="mx-auto grid max-w-[1500px] grid-cols-1 items-center gap-10 px-5 sm:px-6 md:grid-cols-12 md:gap-x-10 md:gap-y-12 md:px-8 lg:gap-8 lg:px-12">
           {/* Left — name, price, accordions */}
-          <aside className="order-2 md:order-2 md:col-span-5 md:self-start lg:order-1 lg:col-span-4 lg:self-center">
+          <aside className="order-2 md:order-2 md:col-span-5 md:self-center lg:order-1 lg:col-span-4 lg:self-center">
             <div>
               <h1 className="font-display text-[28px] uppercase leading-[1.1] tracking-[-0.01em] text-white md:text-[36px] lg:text-[42px]">
                 {product.name}
