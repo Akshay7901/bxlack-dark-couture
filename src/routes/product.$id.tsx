@@ -170,8 +170,8 @@ function ProductPage() {
           </div>
 
           {/* Right — sizes + add to cart */}
-          <aside className="order-3 md:col-span-5 md:col-start-8 md:self-start lg:col-span-4 lg:col-start-auto">
-            <div className="lg:sticky lg:top-20">
+          <aside className="order-3 md:col-span-5 md:col-start-8 md:self-start lg:col-span-4 lg:col-start-auto lg:self-center">
+            <div>
               <div className="flex items-baseline justify-between">
                 <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">Select Size</p>
                 <button
