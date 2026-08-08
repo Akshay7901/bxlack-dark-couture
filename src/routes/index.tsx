@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Hero } from "@/components/home/Hero";
-import { NewArrivals } from "@/components/home/NewArrivals";
+import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { GraphicFeature } from "@/components/home/GraphicFeature";
 import { HeritageFeature } from "@/components/home/HeritageFeature";
 
@@ -13,7 +13,7 @@ function Index() {
   return (
     <AppShell>
       <Hero />
-      <NewArrivals />
+      <ShopByCategory />
       <GraphicFeature />
       <HeritageFeature />
     </AppShell>
