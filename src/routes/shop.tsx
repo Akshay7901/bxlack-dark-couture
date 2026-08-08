@@ -1,7 +1,6 @@
-import { useMemo, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { products } from "@/lib/products";
 
@@ -21,156 +20,28 @@ export const Route = createFileRoute("/shop")({
 });
 
 const types = ["All", "Tshirt", "Shirt", "Jeans"] as const;
-const typeLabels: Record<string, string> = { All: "All", Tshirt: "T-Shirt", Shirt: "Shirt", Jeans: "Jeans" };
 const sizes = ["S", "M", "L", "XL", "XXL"] as const;
-const sorts = [
-  { id: "featured", label: "Featured" },
-  { id: "price-asc", label: "Price: low to high" },
-  { id: "price-desc", label: "Price: high to low" },
-  { id: "name", label: "Alphabetical" },
-] as const;
-
-function Dropdown({
-  label,
-  value,
-  children,
-}: {
-  label: string;
-  value?: string;
-  children: (close: () => void) => React.ReactNode;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative" onMouseLeave={() => setOpen(false)}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-white/70 transition-colors hover:text-white"
-      >
-        {label}
-        {value ? <span className="text-white">{value}</span> : null}
-        <ChevronDown size={12} strokeWidth={1.5} className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open ? (
-        <div className="absolute left-0 top-full z-30 mt-3 min-w-[190px] border border-white/10 bg-[#111111] p-2 shadow-2xl">
-          {children(() => setOpen(false))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function Option({ active, onClick, children }: { active?: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`block w-full px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.25em] transition-colors ${
-        active ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
 
 function ShopPage() {
   const { type } = Route.useSearch();
-  const navigate = useNavigate();
-  const [size, setSize] = useState<string>("All");
-  const [sort, setSort] = useState<string>("featured");
-  const [dense, setDense] = useState(false);
 
   const selectedType: (typeof types)[number] =
     types.includes(type as (typeof types)[number]) ? (type as (typeof types)[number]) : "All";
 
   const filtered = useMemo(() => {
-    const base = selectedType === "All" ? products : products.filter((p) => p.category === selectedType);
-    const sorted = [...base];
-    if (sort === "price-asc") sorted.sort((a, b) => a.price - b.price);
-    if (sort === "price-desc") sorted.sort((a, b) => b.price - a.price);
-    if (sort === "name") sorted.sort((a, b) => a.name.localeCompare(b.name));
-    return sorted;
-  }, [selectedType, sort]);
+    return selectedType === "All" ? products : products.filter((p) => p.category === selectedType);
+  }, [selectedType]);
 
   return (
-    <AppShell>
+    <AppShell hideNewsletter>
       <section className="pt-28 md:pt-40">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
-          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">Collection — SS26</p>
-          <h1 className="mt-5 font-display text-[15vw] font-medium leading-[0.85] tracking-[-0.04em] sm:text-6xl md:mt-6 md:text-[10vw]">
-            {selectedType === "All" ? (
-              <>The <em className="font-editorial italic text-white/70">index.</em></>
-            ) : (
-              <>{typeLabels[selectedType]}<em className="font-editorial italic text-white/70">.</em></>
-            )}
-          </h1>
-        </div>
-
-        <div className="sticky top-[68px] z-20 mt-8 border-y border-white/10 bg-noir/85 backdrop-blur-xl md:mt-14">
-          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-5 py-4 sm:px-6 md:px-10">
-            <div className="flex items-center gap-5 md:gap-8">
-              <Dropdown label="Product type" value={typeLabels[selectedType]}>
-                {(close) =>
-                  types.map((t) => (
-                    <Option
-                      key={t}
-                      active={t === selectedType}
-                      onClick={() => {
-                        navigate({ to: "/shop", search: { type: t } });
-                        close();
-                      }}
-                    >
-                      {typeLabels[t]}
-                    </Option>
-                  ))
-                }
-              </Dropdown>
-              <Dropdown label="Size" value={size === "All" ? undefined : size}>
-                {(close) =>
-                  ["All", ...sizes].map((s) => (
-                    <Option key={s} active={s === size} onClick={() => { setSize(s); close(); }}>
-                      {s}
-                    </Option>
-                  ))
-                }
-              </Dropdown>
-            </div>
-
-            <div className="flex items-center gap-5 md:gap-8">
-              <span className="hidden font-mono text-[10px] uppercase tracking-[0.28em] text-white/45 sm:block">
-                {filtered.length} {filtered.length === 1 ? "item" : "items"}
-              </span>
-              <Dropdown label="Sort" value={sorts.find((s) => s.id === sort)?.label}>
-                {(close) =>
-                  sorts.map((s) => (
-                    <Option key={s.id} active={s.id === sort} onClick={() => { setSort(s.id); close(); }}>
-                      {s.label}
-                    </Option>
-                  ))
-                }
-              </Dropdown>
-              <button
-                type="button"
-                onClick={() => setDense((d) => !d)}
-                aria-label="Toggle grid density"
-                className="hidden gap-[3px] border border-white/15 p-2 transition-colors hover:border-white/40 md:flex"
-              >
-                {Array.from({ length: dense ? 9 : 4 }).map((_, i) => (
-                  <span key={i} className={`block bg-white/60 ${dense ? "h-[3px] w-[3px]" : "h-[5px] w-[5px]"}`} />
-                ))}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-8 max-w-[1600px] px-5 sm:px-6 md:mt-12 md:px-10">
           {filtered.length === 0 ? (
             <div className="flex h-[40vh] items-center justify-center">
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/50">No pieces in this category.</p>
             </div>
           ) : (
-            <div className={`grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 md:gap-x-6 md:gap-y-14 ${dense ? "md:grid-cols-5" : "md:grid-cols-4"}`}>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 md:grid-cols-4 md:gap-x-6 md:gap-y-14">
               {filtered.map((p, i) => (
                 <motion.article
                   key={p.id}

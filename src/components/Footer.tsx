@@ -34,13 +34,13 @@ const SOCIAL = [
 const linkClass =
   "relative inline-block text-sm text-light-grey/80 transition-colors hover:text-white after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-500 hover:after:scale-x-100";
 
-export function Footer() {
+export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
   return (
     <footer className="grain relative overflow-hidden border-t border-light-grey/10 bg-noir px-5 pb-10 pt-16 sm:px-6 md:px-10 md:pt-24">
       <div className="mx-auto max-w-[1600px]">
-        <Newsletter />
+        {hideNewsletter ? null : <Newsletter />}
 
-        <div className="mt-16 grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-3 lg:grid-cols-5 md:mt-24">
+        <div className={`grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-3 lg:grid-cols-5 ${hideNewsletter ? "" : "mt-16 md:mt-24"}`}>
           <div className="col-span-2 sm:col-span-1">
             <img src={logoAsset.url} alt="BXLACK" className="h-10 w-auto object-contain" />
             <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-light-grey/60">

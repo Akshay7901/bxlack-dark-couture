@@ -5,7 +5,7 @@ import { Footer } from "./Footer";
 import { Loader } from "./Loader";
 import { CartDrawer } from "./CartDrawer";
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, hideNewsletter }: { children: ReactNode; hideNewsletter?: boolean }) {
   const [cart, setCart] = useState(false);
   return (
     <div className="grain relative min-h-screen bg-noir text-white">
@@ -13,7 +13,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Header onCart={() => setCart(true)} />
       <CartDrawer open={cart} onClose={() => setCart(false)} />
       <main>{children}</main>
-      <Footer />
+      <Footer hideNewsletter={hideNewsletter} />
     </div>
   );
 }
