@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ShippingRouteImport } from './routes/shipping'
+import { Route as ReturnsRouteImport } from './routes/returns'
 import { Route as NewDropRouteImport } from './routes/new-drop'
 import { Route as LookbookRouteImport } from './routes/lookbook'
 import { Route as JournalRouteImport } from './routes/journal'
@@ -26,6 +27,11 @@ const ShopRoute = ShopRouteImport.update({
 const ShippingRoute = ShippingRouteImport.update({
   id: '/shipping',
   path: '/shipping',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReturnsRoute = ReturnsRouteImport.update({
+  id: '/returns',
+  path: '/returns',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewDropRoute = NewDropRouteImport.update({
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/journal': typeof JournalRoute
   '/lookbook': typeof LookbookRoute
   '/new-drop': typeof NewDropRoute
+  '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/journal': typeof JournalRoute
   '/lookbook': typeof LookbookRoute
   '/new-drop': typeof NewDropRoute
+  '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/journal': typeof JournalRoute
   '/lookbook': typeof LookbookRoute
   '/new-drop': typeof NewDropRoute
+  '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/lookbook'
     | '/new-drop'
+    | '/returns'
     | '/shipping'
     | '/shop'
     | '/product/$id'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/lookbook'
     | '/new-drop'
+    | '/returns'
     | '/shipping'
     | '/shop'
     | '/product/$id'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/lookbook'
     | '/new-drop'
+    | '/returns'
     | '/shipping'
     | '/shop'
     | '/product/$id'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   JournalRoute: typeof JournalRoute
   LookbookRoute: typeof LookbookRoute
   NewDropRoute: typeof NewDropRoute
+  ReturnsRoute: typeof ReturnsRoute
   ShippingRoute: typeof ShippingRoute
   ShopRoute: typeof ShopRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/shipping'
       fullPath: '/shipping'
       preLoaderRoute: typeof ShippingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/returns': {
+      id: '/returns'
+      path: '/returns'
+      fullPath: '/returns'
+      preLoaderRoute: typeof ReturnsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/new-drop': {
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   JournalRoute: JournalRoute,
   LookbookRoute: LookbookRoute,
   NewDropRoute: NewDropRoute,
+  ReturnsRoute: ReturnsRoute,
   ShippingRoute: ShippingRoute,
   ShopRoute: ShopRoute,
   ProductIdRoute: ProductIdRoute,
