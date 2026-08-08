@@ -48,7 +48,7 @@ export function NewDrop() {
                   <p className="font-display text-xl text-white">{p.name}</p>
                   <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">{p.category}</p>
                 </div>
-                <p className="font-mono text-sm text-white/80">€{p.price}</p>
+                <p className="font-mono text-sm text-white/80">₹{p.price}</p>
               </div>
             </motion.div>
           ))}

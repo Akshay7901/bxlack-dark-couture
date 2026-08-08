@@ -48,7 +48,7 @@ function NewDropPage() {
                     <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/70">{hero.tag}</p>
                     <p className="mt-4 font-display text-4xl leading-none text-white md:text-6xl">{hero.name}</p>
                   </div>
-                  <p className="font-mono text-sm text-white">€{hero.price}</p>
+                  <p className="font-mono text-sm text-white">₹{hero.price}</p>
                 </div>
               </div>
             </Link>
@@ -88,7 +88,7 @@ function NewDropPage() {
                   </div>
                   <div className="mt-4 flex items-baseline justify-between">
                     <p className="font-display text-2xl text-white">{p.name}</p>
-                    <p className="font-mono text-sm text-white/80">€{p.price}</p>
+                    <p className="font-mono text-sm text-white/80">₹{p.price}</p>
                   </div>
                 </Link>
               </motion.div>

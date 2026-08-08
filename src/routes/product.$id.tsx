@@ -17,7 +17,7 @@ export const Route = createFileRoute("/product/$id")({
           { title: `${loaderData.product.name} — BXLACK` },
           { name: "description", content: `${loaderData.product.name} · ${loaderData.product.tag}. Numbered, small-batch.` },
           { property: "og:title", content: `${loaderData.product.name} — BXLACK` },
-          { property: "og:description", content: `${loaderData.product.tag} · €${loaderData.product.price}. Cut in Antwerp, finished in Tokyo.` },
+          { property: "og:description", content: `${loaderData.product.tag} · ₹${loaderData.product.price}. Cut in Antwerp, finished in Tokyo.` },
         ]
       : [{ title: "BXLACK" }, { name: "robots", content: "noindex" }],
   }),
@@ -64,7 +64,7 @@ function ProductPage() {
               <h1 className="mt-2 font-display text-[20px] uppercase leading-[1.05] tracking-[-0.01em] text-white sm:text-[22px] md:text-[26px]">
                 {product.name}
               </h1>
-              <p className="mt-2 font-mono text-[12px] tracking-[0.05em] text-white/60">€{product.price}.00 EUR</p>
+              <p className="mt-2 font-mono text-[12px] tracking-[0.05em] text-white/60">₹{product.price} INR</p>
 
               <div className="mt-6 border-t border-white/10">
                 {accordions.map((a) => {
@@ -159,7 +159,7 @@ function ProductPage() {
                 data-cursor="Add"
                 className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
               >
-                Add to Cart — €{product.price}.00
+                Add to Cart — ₹{product.price}
               </button>
 
               <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.28em] text-white/35">
@@ -193,7 +193,7 @@ function ProductPage() {
                   </div>
                   <div className="mt-3 flex items-baseline justify-between gap-2">
                     <p className="min-w-0 truncate font-display text-sm text-white sm:text-lg">{o.name}</p>
-                    <p className="shrink-0 font-mono text-[11px] text-white/70 sm:text-xs">€{o.price}</p>
+                    <p className="shrink-0 font-mono text-[11px] text-white/70 sm:text-xs">₹{o.price}</p>
                   </div>
                 </Link>
               </motion.div>
