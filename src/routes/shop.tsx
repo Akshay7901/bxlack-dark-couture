@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
 import { products } from "@/lib/products";
-import shopBg from "@/assets/shop-bg.jpg";
+import { SilkBackdrop } from "@/components/SilkBackdrop";
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -41,21 +41,7 @@ function ShopPage() {
 
   return (
     <AppShell hideNewsletter>
-      {/* Editorial silk backdrop */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <motion.img
-          src={shopBg}
-          alt=""
-          width={1920}
-          height={1280}
-          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-70"
-          initial={{ scale: 1.14, opacity: 0 }}
-          animate={{ scale: 1.06, opacity: 0.7 }}
-          transition={{ duration: 2.4, ease: [0.7, 0, 0.2, 1] }}
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,5,5,0.55),rgba(5,5,5,0.82)_45%,rgba(5,5,5,0.95))]" />
-        <div className="absolute inset-0 bg-[radial-gradient(110%_80%_at_50%_35%,transparent_40%,rgba(0,0,0,0.8)_100%)]" />
-      </div>
+      <SilkBackdrop />
 
       <section className="relative pt-28 md:pt-40">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
