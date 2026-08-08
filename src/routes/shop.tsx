@@ -43,9 +43,9 @@ function ShopPage() {
     <AppShell hideNewsletter>
       <SilkBackdrop />
 
-      <section className="relative pt-28 md:pt-40">
+      <section className="relative pt-20 md:pt-24">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
-          <div className="mb-6 flex items-baseline justify-between gap-4 md:mb-8">
+          <div className="mb-3 flex items-baseline justify-between gap-4 md:mb-4">
             <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
             <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
               {filtered.length} {filtered.length === 1 ? "item" : "items"}
