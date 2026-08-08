@@ -42,9 +42,9 @@ export function SilkBackdrop() {
         width={1920}
         height={1280}
         style={{ x: x1, y: scrollY1, translateY: y1 }}
-        className="absolute -inset-[8%] h-[116%] w-[116%] object-cover opacity-100"
-        initial={{ scale: 1.16, opacity: 0 }}
-        animate={{ scale: 1.06, opacity: 1 }}
+        className="absolute left-1/2 top-1/2 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2 object-cover opacity-100"
+        initial={{ scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 2.4, ease: [0.7, 0, 0.2, 1] }}
       />
 
