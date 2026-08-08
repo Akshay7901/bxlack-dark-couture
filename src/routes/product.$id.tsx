@@ -132,10 +132,10 @@ function ProductPage() {
           {/* Left — name, price, accordions */}
           <aside className="order-2 md:order-2 md:col-span-5 md:self-start lg:order-1 lg:col-span-4 lg:self-center">
             <div>
-              <h1 className="font-display text-[22px] uppercase leading-[1.1] tracking-[-0.01em] text-white md:text-[28px]">
+              <h1 className="font-display text-[28px] uppercase leading-[1.1] tracking-[-0.01em] text-white md:text-[36px] lg:text-[42px]">
                 {product.name}
               </h1>
-              <p className="mt-2 font-mono text-[12px] tracking-[0.05em] text-white/60">₹{product.price}</p>
+              <p className="mt-3 font-mono text-[15px] tracking-[0.05em] text-white/70 md:text-[16px]">₹{product.price}</p>
 
               <div className="mt-8 border-t border-white/10">
                 {accordions.map((a) => {
@@ -146,8 +146,8 @@ function ProductPage() {
                         onClick={() => setOpenAcc(open ? null : a.id)}
                         className="flex w-full items-center justify-between py-3 text-left"
                       >
-                        <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/85">{a.title}</span>
-                        {open ? <Minus size={12} className="text-white/50" /> : <Plus size={12} className="text-white/50" />}
+                        <span className="font-mono text-[13px] uppercase tracking-[0.24em] text-white/85">{a.title}</span>
+                        {open ? <Minus size={14} className="text-white/50" /> : <Plus size={14} className="text-white/50" />}
                       </button>
                       <motion.div
                         initial={false}
@@ -155,7 +155,7 @@ function ProductPage() {
                         transition={{ duration: 0.4, ease: [0.7, 0, 0.2, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="pb-4 pr-4 font-editorial text-[12px] leading-[1.7] tracking-[0.01em] text-white/55">{a.body}</p>
+                        <p className="pb-4 pr-4 font-editorial text-[15px] leading-[1.7] tracking-[0.01em] text-white/60">{a.body}</p>
                       </motion.div>
                     </div>
                   );
