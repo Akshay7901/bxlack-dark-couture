@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Heart } from "lucide-react";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
@@ -26,6 +26,8 @@ function ProductPage() {
   const [size, setSize] = useState("M");
   const [activeImg, setActiveImg] = useState(0);
   const [openAcc, setOpenAcc] = useState<string | null>("details");
+  const [openSizeChart, setOpenSizeChart] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
@@ -73,11 +75,6 @@ function ProductPage() {
       id: "details",
       title: "Product Details",
       body: "Cut and sewn in Antwerp from 260gsm heavyweight organic cotton. Screen-printed graphic finished by hand in Tokyo. Boxy fit, dropped shoulder, ribbed collar. Numbered piece of fifty.",
-    },
-    {
-      id: "size",
-      title: "Size Chart",
-      body: "XS · 48 / S · 50 / M · 52 / L · 54 / XL · 56 (chest, cm). Model wears M and is 186cm. Runs true to size — size down for a closer silhouette.",
     },
     {
       id: "ship",
