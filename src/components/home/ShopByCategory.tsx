@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { products } from "@/lib/products";
+import wreckTee from "@/assets/wreck-tee-back.png.asset.json";
 
 const categories = [
   { label: "Shirt", type: "Shirt" },
@@ -9,6 +10,7 @@ const categories = [
 ] as const;
 
 function imageFor(type: string) {
+  if (type === "Tshirt") return wreckTee.url;
   return products.find((p) => p.category === type)?.image ?? products[0].image;
 }
 
