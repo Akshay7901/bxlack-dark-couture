@@ -18,9 +18,8 @@ export type Product = {
 
 export const products: Product[] = [
   { id: "venus-flytrap-tee", name: "Venus Flytrap Tee", price: 220, category: "Tshirt", image: venusModel, backImage: venusBackModel, tag: "SS26 / 000" },
-  { id: "obsidian-coat", name: "Obsidian Overcoat", price: 890, category: "Shirt", image: p1, tag: "SS26 / 001" },
-  { id: "void-cargo", name: "Void Cargo Trouser", price: 420, category: "Jeans", image: p2, tag: "SS26 / 002" },
-  { id: "shadow-hood", name: "Shadow Hooded Anorak", price: 560, category: "Tshirt", image: p3, tag: "SS26 / 003" },
-  { id: "onyx-biker", name: "Onyx Biker Jacket", price: 1240, category: "Shirt", image: p4, tag: "SS26 / 004" },
-  { id: "eclipse-knit", name: "Eclipse Cable Knit", price: 380, category: "Tshirt", image: p5, tag: "SS26 / 005" },
+  { id: "shadow-tee", name: "Shadow Jersey Tee", price: 240, category: "Tshirt", image: p3, tag: "SS26 / 001" },
+  { id: "obsidian-shirt", name: "Obsidian Camp Shirt", price: 390, category: "Shirt", image: p1, tag: "SS26 / 002" },
+  { id: "void-denim", name: "Void Raw Denim", price: 420, category: "Jeans", image: p2, tag: "SS26 / 003" },
+  { id: "onyx-denim", name: "Onyx Washed Denim", price: 460, category: "Jeans", image: p4, tag: "SS26 / 004" },
 ];
