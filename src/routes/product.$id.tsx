@@ -70,7 +70,6 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
 function ProductPage() {
   const { id } = Route.useParams();
   const [size, setSize] = useState("M");
-  const [activeImg, setActiveImg] = useState(0);
   const [openAcc, setOpenAcc] = useState<string | null>("details");
   const [openSizeChart, setOpenSizeChart] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
