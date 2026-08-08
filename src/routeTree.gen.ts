@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ShippingRouteImport } from './routes/shipping'
 import { Route as ReturnsRouteImport } from './routes/returns'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewDropRouteImport } from './routes/new-drop'
 import { Route as LookbookRouteImport } from './routes/lookbook'
 import { Route as JournalRouteImport } from './routes/journal'
@@ -32,6 +33,11 @@ const ShippingRoute = ShippingRouteImport.update({
 const ReturnsRoute = ReturnsRouteImport.update({
   id: '/returns',
   path: '/returns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewDropRoute = NewDropRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/journal': typeof JournalRoute
   '/lookbook': typeof LookbookRoute
   '/new-drop': typeof NewDropRoute
+  '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/shop': typeof ShopRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/journal': typeof JournalRoute
   '/lookbook': typeof LookbookRoute
   '/new-drop': typeof NewDropRoute
+  '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/shop': typeof ShopRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/journal': typeof JournalRoute
   '/lookbook': typeof LookbookRoute
   '/new-drop': typeof NewDropRoute
+  '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
   '/shop': typeof ShopRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/lookbook'
     | '/new-drop'
+    | '/privacy'
     | '/returns'
     | '/shipping'
     | '/shop'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/lookbook'
     | '/new-drop'
+    | '/privacy'
     | '/returns'
     | '/shipping'
     | '/shop'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/lookbook'
     | '/new-drop'
+    | '/privacy'
     | '/returns'
     | '/shipping'
     | '/shop'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   JournalRoute: typeof JournalRoute
   LookbookRoute: typeof LookbookRoute
   NewDropRoute: typeof NewDropRoute
+  PrivacyRoute: typeof PrivacyRoute
   ReturnsRoute: typeof ReturnsRoute
   ShippingRoute: typeof ShippingRoute
   ShopRoute: typeof ShopRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/returns'
       fullPath: '/returns'
       preLoaderRoute: typeof ReturnsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/new-drop': {
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   JournalRoute: JournalRoute,
   LookbookRoute: LookbookRoute,
   NewDropRoute: NewDropRoute,
+  PrivacyRoute: PrivacyRoute,
   ReturnsRoute: ReturnsRoute,
   ShippingRoute: ShippingRoute,
   ShopRoute: ShopRoute,
