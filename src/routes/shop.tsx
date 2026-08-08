@@ -70,14 +70,6 @@ function ShopPage() {
                           loading="lazy"
                         />
                       ) : null}
-                      {p.badge ? (
-                        <span className="absolute left-3 top-3 border border-white/15 bg-black/60 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.25em] text-white backdrop-blur-md sm:text-[9px]">
-                          {p.badge}
-                        </span>
-                      ) : null}
-                      <span className="absolute right-3 top-3 font-mono text-[8px] uppercase tracking-[0.25em] text-white/45 sm:text-[9px]">
-                        {p.tag}
-                      </span>
                     </div>
 
                     <div className="mt-4">
