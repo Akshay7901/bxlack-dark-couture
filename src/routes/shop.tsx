@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
-import { SilkBackdrop } from "@/components/SilkBackdrop";
+import { StudioBackdrop } from "@/components/StudioBackdrop";
 import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/shop")({
@@ -44,7 +44,7 @@ function ShopPage() {
 
   return (
     <AppShell hideNewsletter>
-      <SilkBackdrop />
+      <StudioBackdrop />
 
       <section className="relative pt-16 md:pt-20">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
