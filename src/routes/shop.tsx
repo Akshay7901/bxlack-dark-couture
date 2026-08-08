@@ -40,8 +40,46 @@ function ShopPage() {
 
   return (
     <AppShell hideNewsletter>
-      <section className="pt-28 md:pt-40">
+      {/* Ambient background field */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
+        {/* fine grid */}
+        <div
+          className="absolute inset-0 opacity-[0.18]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(255,255,255,0.055) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.055) 1px, transparent 1px)",
+            backgroundSize: "80px 80px",
+            maskImage: "radial-gradient(120% 90% at 50% 0%, #000 20%, transparent 85%)",
+          }}
+        />
+        {/* soft top glow */}
+        <div className="absolute inset-x-0 top-0 h-[70vh] bg-[radial-gradient(60%_100%_at_50%_-10%,rgba(255,255,255,0.09),transparent_70%)]" />
+        {/* slow drifting halo */}
+        <motion.div
+          className="absolute left-1/2 top-1/3 h-[70vh] w-[70vh] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05),transparent_65%)] blur-3xl"
+          animate={{ x: ["-55%", "-45%", "-55%"], y: ["-6%", "6%", "-6%"] }}
+          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+        />
+        {/* grain */}
+        <div
+          className="absolute inset-0 opacity-[0.16] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
+          }}
+        />
+        {/* vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(100%_80%_at_50%_50%,transparent_45%,rgba(0,0,0,0.75)_100%)]" />
+      </div>
+
+      <section className="relative pt-28 md:pt-40">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 select-none font-sans text-[22vw] font-bold leading-none tracking-tighter text-white/[0.025] md:text-[16vw]"
+          >
+            BXLACK
+          </span>
           <div className="mb-6 flex items-baseline justify-between gap-4 md:mb-8">
             <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
             <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
