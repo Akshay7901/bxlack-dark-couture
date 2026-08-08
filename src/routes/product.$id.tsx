@@ -191,12 +191,12 @@ function ProductPage() {
                   XS · 48 / S · 50 / M · 52 / L · 54 / XL · 56 (chest, cm). Model wears M and is 186cm. Runs true to size — size down for a closer silhouette.
                 </p>
               </motion.div>
-              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 {["S", "M", "L", "XL", "XXL"].map((s) => (
                   <button
                     key={s}
                     onClick={() => setSize(s)}
-                    className={`font-mono text-[11px] uppercase tracking-[0.22em] transition-colors ${size === s ? "text-white underline underline-offset-[6px] decoration-[1.5px]" : "text-white/45 hover:text-white/80"}`}
+                    className={`flex h-10 min-w-[44px] items-center justify-center border px-3 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors ${size === s ? "border-white bg-white text-black" : "border-white/25 text-white/55 hover:border-white/70 hover:text-white"}`}
                   >
                     {s}
                   </button>
