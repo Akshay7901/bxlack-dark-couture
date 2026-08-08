@@ -21,7 +21,7 @@ export function GraphicFeature() {
           <Link
             to="/shop"
             search={{ type: "Tshirt" }}
-            className="pointer-events-auto font-mono text-[10px] uppercase tracking-[0.35em] text-foreground transition-opacity hover:opacity-60 sm:text-[11px]"
+            className="pointer-events-auto font-mono text-[10px] uppercase tracking-[0.35em] text-foreground transition-opacity hover:underline hover:underline-offset-8 hover:opacity-80 sm:text-[11px]"
           >
             Shop This
           </Link>
