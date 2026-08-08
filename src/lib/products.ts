@@ -12,6 +12,7 @@ export type Product = {
   category: string;
   image: string;
   backImage?: string;
+  gallery?: string[];
   tag?: string;
   compareAt?: number;
   badge?: string;
