@@ -12,6 +12,7 @@ export type CatalogProduct = {
   description: string | null;
   image_path: string | null;
   back_image_path: string | null;
+  gallery_paths: string[];
   sort_order: number;
   published: boolean;
 };
@@ -19,6 +20,7 @@ export type CatalogProduct = {
 export type CatalogProductWithUrls = CatalogProduct & {
   imageUrl: string | null;
   backImageUrl: string | null;
+  galleryUrls: string[];
 };
 
 export const CATEGORIES = ["Tshirt", "Shirt", "Jeans"] as const;
@@ -41,12 +43,15 @@ export async function signStoragePaths(paths: string[]): Promise<Record<string, 
 }
 
 async function withUrls(rows: CatalogProduct[]): Promise<CatalogProductWithUrls[]> {
-  const paths = rows.flatMap((r) => [r.image_path, r.back_image_path].filter(Boolean) as string[]);
+  const paths = rows.flatMap(
+    (r) => [r.image_path, r.back_image_path, ...(r.gallery_paths ?? [])].filter(Boolean) as string[],
+  );
   const map = await signStoragePaths(paths);
   return rows.map((r) => ({
     ...r,
     imageUrl: r.image_path ? map[r.image_path] ?? null : null,
     backImageUrl: r.back_image_path ? map[r.back_image_path] ?? null : null,
+    galleryUrls: (r.gallery_paths ?? []).map((p) => map[p]).filter(Boolean) as string[],
   }));
 }
 
@@ -77,6 +82,7 @@ export type ProductInput = {
   description: string | null;
   image_path: string | null;
   back_image_path: string | null;
+  gallery_paths: string[];
   sort_order: number;
   published: boolean;
 };
@@ -117,6 +123,7 @@ export function slugify(value: string) {
 
 /** Maps a database product onto the shape the storefront card/detail UI expects. */
 export function toCardProduct(p: CatalogProductWithUrls) {
+  const gallery = [p.imageUrl, p.backImageUrl, ...p.galleryUrls].filter(Boolean) as string[];
   return {
     id: p.slug,
     name: p.name,
@@ -124,6 +131,7 @@ export function toCardProduct(p: CatalogProductWithUrls) {
     category: p.category,
     image: p.imageUrl ?? "",
     backImage: p.backImageUrl ?? undefined,
+    gallery,
     tag: p.tag ?? undefined,
     compareAt: p.compare_at ?? undefined,
     badge: p.badge ?? undefined,

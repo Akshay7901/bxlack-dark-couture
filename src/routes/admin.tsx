@@ -44,6 +44,7 @@ const emptyForm: ProductInput = {
   description: null,
   image_path: null,
   back_image_path: null,
+  gallery_paths: [],
   sort_order: 0,
   published: true,
 };
@@ -258,6 +259,7 @@ function ProductForm({
             description: product.description,
             image_path: product.image_path,
             back_image_path: product.back_image_path,
+            gallery_paths: product.gallery_paths ?? [],
             sort_order: product.sort_order,
             published: product.published,
           }
@@ -268,6 +270,7 @@ function ProductForm({
   const [form, setForm] = useState<ProductInput>(initial);
   const [frontPreview, setFrontPreview] = useState<string | null>(product?.imageUrl ?? null);
   const [backPreview, setBackPreview] = useState<string | null>(product?.backImageUrl ?? null);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>(product?.galleryUrls ?? []);
   const [busy, setBusy] = useState(false);
 
   const set = <K extends keyof ProductInput>(key: K, value: ProductInput[K]) =>
@@ -290,6 +293,26 @@ function ProductForm({
     } finally {
       setBusy(false);
     }
+  };
+
+  const handleGalleryUpload = async (files: File[]) => {
+    if (files.length === 0) return;
+    setBusy(true);
+    try {
+      const uploaded = await Promise.all(files.map((f) => uploadProductImage(f)));
+      setForm((f) => ({ ...f, gallery_paths: [...f.gallery_paths, ...uploaded] }));
+      setGalleryPreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+      toast.success(`${uploaded.length} image${uploaded.length > 1 ? "s" : ""} uploaded`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const removeGalleryAt = (i: number) => {
+    setForm((f) => ({ ...f, gallery_paths: f.gallery_paths.filter((_, idx) => idx !== i) }));
+    setGalleryPreviews((prev) => prev.filter((_, idx) => idx !== i));
   };
 
   const save = async (e: React.FormEvent) => {
@@ -419,6 +442,38 @@ function ProductForm({
             setBackPreview(null);
           }}
         />
+
+        <div className="md:col-span-2">
+          <span className={labelClass}>Additional images (gallery)</span>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {galleryPreviews.map((src, i) => (
+              <div key={`${src}-${i}`} className="relative h-24 w-20 overflow-hidden border border-white/12 bg-white/5">
+                <img src={src} alt="" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeGalleryAt(i)}
+                  className="absolute right-0 top-0 bg-black/70 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/80 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => {
+              const files = Array.from(e.target.files ?? []);
+              e.target.value = "";
+              void handleGalleryUpload(files);
+            }}
+            className="mt-3 block w-full font-mono text-[10px] text-white/50 file:mr-3 file:border file:border-white/20 file:bg-transparent file:px-3 file:py-1.5 file:font-mono file:text-[10px] file:uppercase file:tracking-[0.24em] file:text-white/80"
+          />
+          <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
+            Shown after the front and back shots on the shop card and product page · 1600 × 2000px
+          </p>
+        </div>
       </div>
 
       <label className="mt-6 flex items-center gap-3">

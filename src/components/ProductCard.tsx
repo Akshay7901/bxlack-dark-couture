@@ -6,7 +6,11 @@ import type { Product } from "@/lib/products";
 const sizes = ["S", "M", "L", "XL", "XXL"] as const;
 
 export function ProductCard({ product }: { product: Product }) {
-  const gallery = [product.image, product.backImage].filter(Boolean) as string[];
+  const gallery = (
+    product.gallery && product.gallery.length > 0
+      ? product.gallery
+      : [product.image, product.backImage]
+  ).filter(Boolean) as string[];
   const [index, setIndex] = useState(0);
   const multi = gallery.length > 1;
 
@@ -22,7 +26,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="relative aspect-[4/5] overflow-hidden bg-[#141414]">
           {gallery.map((src, i) => (
             <img
-              key={src}
+              key={`${src}-${i}`}
               src={src}
               alt={i === 0 ? product.name : ""}
               aria-hidden={i !== 0 ? true : undefined}
@@ -55,7 +59,7 @@ export function ProductCard({ product }: { product: Product }) {
               <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5">
                 {gallery.map((src, i) => (
                   <span
-                    key={src}
+                    key={`${src}-${i}`}
                     className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${
                       i === index ? "bg-foreground" : "bg-foreground/35"
                     }`}

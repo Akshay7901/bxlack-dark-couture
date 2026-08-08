@@ -63,8 +63,12 @@ function ProductPage() {
   }
 
   const others = all.filter((p) => p.id !== product.id).slice(0, 4);
-  const gallery = [product.image, ...(product.backImage ? [product.backImage] : [])];
-  const isBack = product.backImage && activeImg === 1;
+  const gallery = (
+    product.gallery && product.gallery.length > 0
+      ? product.gallery
+      : [product.image, ...(product.backImage ? [product.backImage] : [])]
+  ).filter(Boolean);
+  const isBack = Boolean(product.backImage) && activeImg === 1;
 
   const accordions = [
     {
@@ -171,7 +175,7 @@ function ProductPage() {
                       key={i}
                       onClick={() => setActiveImg(i)}
                       className={`group relative h-12 w-9 overflow-hidden border transition-all ${activeImg === i ? "border-white" : "border-white/20 hover:border-white/60"}`}
-                      aria-label={`View ${i === 0 ? "front" : "back"}`}
+                      aria-label={`View image ${i + 1}`}
                     >
                       <img src={img} alt="" className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100" />
                     </button>
