@@ -110,7 +110,6 @@ export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
 
         <div className="mt-10 flex flex-col justify-between gap-3 border-t border-light-grey/10 pt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-mid-grey/70 sm:text-[10px] sm:tracking-[0.25em] md:flex-row md:gap-4">
           <span>© 2026 BXLACK Maison. All rights reserved.</span>
-          <span>Antwerp · Tokyo · Paris</span>
           <span className="flex gap-4">
             <Link to="/privacy" className="transition-colors hover:text-white">Privacy</Link>
             <Link to="/terms" className="transition-colors hover:text-white">Terms</Link>
