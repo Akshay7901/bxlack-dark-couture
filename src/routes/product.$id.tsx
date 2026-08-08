@@ -141,21 +141,6 @@ function ProductPage() {
               />
             </div>
 
-            {/* Gallery thumbnails */}
-            {gallery.length > 1 && (
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-                {gallery.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImg(i)}
-                    className={`group relative h-20 w-16 overflow-hidden border transition-all ${activeImg === i ? "border-white" : "border-white/20 hover:border-white/60"}`}
-                    aria-label={`View image ${i + 1}`}
-                  >
-                    <img src={img} alt="" className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100" />
-                  </button>
-                ))}
-              </div>
-            )}
             </div>
           </div>
 
