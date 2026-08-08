@@ -23,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <div className="group">
       <Link to="/product/$id" params={{ id: product.id }} className="block">
-        <div className="relative h-[clamp(220px,48vh,520px)] overflow-hidden bg-[#141414]">
+        <div className="relative h-[clamp(300px,62vh,640px)] overflow-hidden bg-[#141414]">
           {gallery.map((src, i) => (
             <img
               key={`${src}-${i}`}
