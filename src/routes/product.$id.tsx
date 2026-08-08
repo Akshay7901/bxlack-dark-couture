@@ -58,13 +58,6 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
           loading="lazy"
         />
       </AnimatePresence>
-      {images.length > 1 && (
-        <div className="pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-          {images.map((_, i) => (
-            <span key={i} className={`h-[3px] w-5 transition-colors ${i === index ? "bg-white" : "bg-white/25"}`} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
