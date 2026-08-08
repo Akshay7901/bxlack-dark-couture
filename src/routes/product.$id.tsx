@@ -140,8 +140,9 @@ function ProductPage() {
           </aside>
 
           {/* Middle — product image */}
-          <div className="order-1 flex items-start justify-center md:order-2 md:col-span-4">
-            <div className="relative aspect-[3/4] w-full max-w-[320px] overflow-hidden bg-[oklch(0.08_0_0)] sm:max-w-[280px] md:max-w-[260px]">
+          <div className="order-1 md:order-2 md:col-span-4">
+            <div className="mx-auto w-full max-w-[520px]">
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-[oklch(0.08_0_0)]">
               <motion.img
                 key={activeImg}
                 initial={{ opacity: 0, scale: 1.02 }}
@@ -149,7 +150,7 @@ function ProductPage() {
                 transition={{ duration: 0.8, ease: [0.7, 0, 0.2, 1] }}
                 src={gallery[activeImg]}
                 alt={`${product.name} — ${isBack ? "back" : "front"}`}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
                 loading="lazy"
               />
               {isBack && (
@@ -167,21 +168,23 @@ function ProductPage() {
                 </div>
               )}
 
-              {/* Gallery thumbnails */}
-              {gallery.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-3">
-                  {gallery.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveImg(i)}
-                      className={`group relative h-12 w-9 overflow-hidden border transition-all ${activeImg === i ? "border-white" : "border-white/20 hover:border-white/60"}`}
-                      aria-label={`View image ${i + 1}`}
-                    >
-                      <img src={img} alt="" className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100" />
-                    </button>
-                  ))}
-                </div>
-              )}
+            </div>
+
+            {/* Gallery thumbnails */}
+            {gallery.length > 1 && (
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                {gallery.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImg(i)}
+                    className={`group relative h-20 w-16 overflow-hidden border transition-all ${activeImg === i ? "border-white" : "border-white/20 hover:border-white/60"}`}
+                    aria-label={`View image ${i + 1}`}
+                  >
+                    <img src={img} alt="" className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100" />
+                  </button>
+                ))}
+              </div>
+            )}
             </div>
           </div>
 
