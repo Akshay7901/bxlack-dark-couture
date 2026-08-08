@@ -44,6 +44,7 @@ const emptyForm: ProductInput = {
   description: null,
   image_path: null,
   back_image_path: null,
+  gallery_paths: [],
   sort_order: 0,
   published: true,
 };
@@ -258,6 +259,7 @@ function ProductForm({
             description: product.description,
             image_path: product.image_path,
             back_image_path: product.back_image_path,
+            gallery_paths: product.gallery_paths ?? [],
             sort_order: product.sort_order,
             published: product.published,
           }
