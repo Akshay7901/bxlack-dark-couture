@@ -79,7 +79,7 @@ function ProductPage() {
 
   if (isLoading) {
     return (
-      <AppShell>
+      <AppShell hideNewsletter>
         <div className="flex min-h-[70vh] items-center justify-center">
           <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading piece…</p>
         </div>
@@ -89,7 +89,7 @@ function ProductPage() {
 
   if (!product) {
     return (
-      <AppShell>
+      <AppShell hideNewsletter>
         <div className="flex min-h-[70vh] flex-col items-center justify-center gap-5 px-6 text-center">
           <h1 className="font-display text-3xl uppercase tracking-[-0.02em]">Piece not found</h1>
           <Link
@@ -124,7 +124,7 @@ function ProductPage() {
   ];
 
   return (
-    <AppShell>
+    <AppShell hideNewsletter>
       <section className="pt-24 sm:pt-28 md:pt-16">
         <div className="mx-auto grid max-w-[1500px] grid-cols-1 items-center gap-10 px-5 sm:px-6 md:grid-cols-12 md:gap-8 md:px-12">
           {/* Left — name, price, accordions */}
