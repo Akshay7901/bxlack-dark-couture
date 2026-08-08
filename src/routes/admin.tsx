@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
+import { AdminTeam } from "@/components/admin/AdminTeam";
 import {
   CATEGORIES,
   createProduct,
@@ -66,8 +67,7 @@ function AdminPage() {
       <Shell>
         <h1 className="font-display text-3xl uppercase tracking-[-0.02em]">Not authorised</h1>
         <p className="mt-3 max-w-md font-mono text-[11px] leading-relaxed text-white/50">
-          This account ({user.email}) does not have admin access. Ask an existing admin to grant the admin role to this
-          account, then reload.
+          This account ({user.email}) does not have studio access. Only an existing admin can create admin accounts.
         </p>
         <button
           onClick={async () => {
@@ -82,7 +82,7 @@ function AdminPage() {
     );
   }
 
-  return <AdminDashboard email={user.email ?? ""} />;
+  return <AdminDashboard email={user.email ?? ""} userId={user.id} />;
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -93,7 +93,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AdminDashboard({ email }: { email: string }) {
+function AdminDashboard({ email, userId }: { email: string; userId: string }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: products = [], isLoading } = useQuery({
@@ -229,6 +229,8 @@ function AdminDashboard({ email }: { email: string }) {
           </table>
         )}
       </div>
+
+      <AdminTeam currentUserId={userId} />
     </Shell>
   );
 }
