@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Newsletter } from "@/components/Newsletter";
+import logoAsset from "@/assets/bxlack-logo.png.asset.json";
 
 const SHOP = [
   { label: "All Pieces", type: "All" as const },
@@ -32,7 +33,7 @@ export function Footer() {
 
         <div className="mt-16 grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-4 md:mt-24">
           <div className="col-span-2 sm:col-span-1">
-            <p className="font-display text-2xl leading-none text-white">BXLACK</p>
+            <img src={logoAsset.url} alt="BXLACK" className="h-10 w-auto object-contain" />
             <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-light-grey/60">
               Born to stand apart. Designed in Antwerp, made in limited runs.
             </p>
@@ -78,8 +79,13 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 select-none md:mt-24">
-          <p className="font-display text-[18vw] font-medium leading-[0.8] tracking-[-0.05em] text-white/[0.06]">BXLACK</p>
+        <div className="mt-16 flex select-none justify-center md:mt-24">
+          <img
+            src={logoAsset.url}
+            alt=""
+            aria-hidden
+            className="h-auto w-[70vw] max-w-[900px] object-contain opacity-[0.07]"
+          />
         </div>
 
         <div className="mt-10 flex flex-col justify-between gap-3 border-t border-light-grey/10 pt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-mid-grey/70 sm:text-[10px] sm:tracking-[0.25em] md:flex-row md:gap-4">
