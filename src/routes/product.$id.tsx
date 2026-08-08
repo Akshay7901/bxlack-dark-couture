@@ -43,7 +43,7 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
   }, [images.length]);
 
   return (
-    <div ref={ref} className="relative aspect-[4/5] w-full overflow-hidden bg-[oklch(0.08_0_0)]">
+    <div ref={ref} className="relative aspect-[4/5] w-full overflow-hidden bg-transparent">
       <AnimatePresence initial={false} mode="popLayout" custom={dir}>
         <motion.img
           key={index}
