@@ -144,7 +144,25 @@ function ProductPage() {
           {/* Right — sizes + add to cart */}
           <aside className="order-3 md:col-span-4">
             <div className="md:sticky md:top-20">
-              <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">Select Size</p>
+              <div className="flex items-baseline justify-between">
+                <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">Select Size</p>
+                <button
+                  onClick={() => setOpenSizeChart((v) => !v)}
+                  className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/50 underline underline-offset-4 transition-colors hover:text-white"
+                >
+                  Size Chart
+                </button>
+              </div>
+              <motion.div
+                initial={false}
+                animate={{ height: openSizeChart ? "auto" : 0, opacity: openSizeChart ? 1 : 0 }}
+                transition={{ duration: 0.4, ease: [0.7, 0, 0.2, 1] }}
+                className="overflow-hidden"
+              >
+                <p className="pt-3 font-editorial text-[12px] leading-[1.7] text-white/55">
+                  XS · 48 / S · 50 / M · 52 / L · 54 / XL · 56 (chest, cm). Model wears M and is 186cm. Runs true to size — size down for a closer silhouette.
+                </p>
+              </motion.div>
               <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
                 {["S", "M", "L", "XL", "XXL"].map((s) => (
                   <button
@@ -162,6 +180,15 @@ function ProductPage() {
                 className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
               >
                 Add to Cart — ₹{product.price}
+              </button>
+
+              <button
+                onClick={() => setWishlisted((v) => !v)}
+                data-cursor="Save"
+                className={`mt-3 flex w-full items-center justify-center gap-2 border py-[13px] font-mono text-[11px] uppercase tracking-[0.32em] transition-colors ${wishlisted ? "border-white text-white" : "border-white/25 text-white/60 hover:border-white hover:text-white"}`}
+              >
+                <Heart size={13} className={wishlisted ? "fill-white" : ""} />
+                {wishlisted ? "Wishlisted" : "Add to Wishlist"}
               </button>
 
             </div>
