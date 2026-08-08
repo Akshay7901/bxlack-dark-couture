@@ -41,7 +41,7 @@ function ShopPage() {
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/50">No pieces in this category.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 md:grid-cols-4 md:gap-x-6 md:gap-y-14">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 md:gap-x-8 md:gap-y-14">
               {filtered.map((p, i) => (
                 <motion.article
                   key={p.id}
@@ -52,7 +52,7 @@ function ShopPage() {
                   className="group"
                 >
                   <Link to="/product/$id" params={{ id: p.id }} className="block">
-                    <div className="relative aspect-[3/4] overflow-hidden bg-[#141414]">
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[#141414]">
                       <img
                         src={p.image}
                         alt={p.name}
@@ -81,18 +81,18 @@ function ShopPage() {
                     </div>
 
                     <div className="mt-4">
-                      <h2 className="font-sans text-[13px] leading-snug text-white/90 sm:text-sm">{p.name}</h2>
+                      <h2 className="font-sans text-sm leading-snug text-white/90 sm:text-[15px]">{p.name}</h2>
                       <div className="mt-2 flex items-baseline gap-2">
-                        <span className="font-mono text-xs text-white sm:text-[13px]">€{p.price}</span>
+                        <span className="font-mono text-[13px] text-white sm:text-sm">€{p.price}</span>
                         {p.compareAt ? (
-                          <span className="font-mono text-[10px] text-white/35 line-through sm:text-[11px]">€{p.compareAt}</span>
+                          <span className="font-mono text-[11px] text-white/35 line-through sm:text-xs">€{p.compareAt}</span>
                         ) : null}
                       </div>
-                      <div className="mt-3 flex gap-1.5">
+                      <div className="mt-3 flex flex-wrap gap-1.5">
                         {sizes.map((s) => (
                           <span
                             key={s}
-                            className="border border-white/12 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.15em] text-white/40"
+                            className="border border-white/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-white/55"
                           >
                             {s}
                           </span>
