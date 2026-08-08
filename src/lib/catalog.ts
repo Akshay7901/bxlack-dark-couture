@@ -114,3 +114,18 @@ export function slugify(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+/** Maps a database product onto the shape the storefront card/detail UI expects. */
+export function toCardProduct(p: CatalogProductWithUrls) {
+  return {
+    id: p.slug,
+    name: p.name,
+    price: p.price,
+    category: p.category,
+    image: p.imageUrl ?? "",
+    backImage: p.backImageUrl ?? undefined,
+    tag: p.tag ?? undefined,
+    compareAt: p.compare_at ?? undefined,
+    badge: p.badge ?? undefined,
+  };
+}
