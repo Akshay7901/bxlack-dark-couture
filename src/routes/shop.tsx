@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
 import { products } from "@/lib/products";
+import shopBg from "@/assets/shop-bg.jpg";
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -40,36 +41,20 @@ function ShopPage() {
 
   return (
     <AppShell hideNewsletter>
-      {/* Ambient background field */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
-        {/* fine grid */}
-        <div
-          className="absolute inset-0 opacity-[0.18]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(255,255,255,0.055) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.055) 1px, transparent 1px)",
-            backgroundSize: "80px 80px",
-            maskImage: "radial-gradient(120% 90% at 50% 0%, #000 20%, transparent 85%)",
-          }}
+      {/* Editorial silk backdrop */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <motion.img
+          src={shopBg}
+          alt=""
+          width={1920}
+          height={1280}
+          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-70"
+          initial={{ scale: 1.14, opacity: 0 }}
+          animate={{ scale: 1.06, opacity: 0.7 }}
+          transition={{ duration: 2.4, ease: [0.7, 0, 0.2, 1] }}
         />
-        {/* soft top glow */}
-        <div className="absolute inset-x-0 top-0 h-[70vh] bg-[radial-gradient(60%_100%_at_50%_-10%,rgba(255,255,255,0.09),transparent_70%)]" />
-        {/* slow drifting halo */}
-        <motion.div
-          className="absolute left-1/2 top-1/3 h-[70vh] w-[70vh] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05),transparent_65%)] blur-3xl"
-          animate={{ x: ["-55%", "-45%", "-55%"], y: ["-6%", "6%", "-6%"] }}
-          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-        />
-        {/* grain */}
-        <div
-          className="absolute inset-0 opacity-[0.16] mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
-          }}
-        />
-        {/* vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(100%_80%_at_50%_50%,transparent_45%,rgba(0,0,0,0.75)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,5,5,0.55),rgba(5,5,5,0.82)_45%,rgba(5,5,5,0.95))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(110%_80%_at_50%_35%,transparent_40%,rgba(0,0,0,0.8)_100%)]" />
       </div>
 
       <section className="relative pt-28 md:pt-40">
