@@ -109,7 +109,6 @@
   html {
     background-color: var(--color-noir);
     color: var(--color-foreground);
-    cursor: none;
   }
   * {
     border-color: var(--color-border);
@@ -129,9 +128,6 @@
   ::selection {
     background: var(--color-foreground);
     color: var(--color-noir);
-  }
-  a, button {
-    cursor: none;
   }
 }
 
