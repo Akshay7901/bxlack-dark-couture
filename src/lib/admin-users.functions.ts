@@ -48,11 +48,17 @@ export const bootstrapFirstAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-async function assertCallerIsAdmin(supabase: {
-  rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" | "user" }) => PromiseLike<{ data: unknown }>;
-}, userId: string) {
-  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-  if (data !== true) throw new Error("Forbidden");
+async function assertCallerIsAdmin(supabase: unknown, userId: string) {
+  const client = supabase as {
+    from: (table: string) => any;
+  };
+  const { data } = await client
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (!data) throw new Error("Forbidden");
 }
 
 export const listAdmins = createServerFn({ method: "GET" })
