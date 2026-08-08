@@ -77,9 +77,8 @@ function Option({ active, onClick, children }: { active?: boolean; onClick: () =
 function ShopPage() {
   const { type } = Route.useSearch();
   const navigate = useNavigate();
-  const [size, setSize] = useState<string>("All");
-  const [sort, setSort] = useState<string>("featured");
-  const [dense, setDense] = useState(false);
+  const [sort] = useState<string>("featured");
+  const [dense] = useState(false);
 
   const selectedType: (typeof types)[number] =
     types.includes(type as (typeof types)[number]) ? (type as (typeof types)[number]) : "All";
@@ -94,77 +93,9 @@ function ShopPage() {
   }, [selectedType, sort]);
 
   return (
-    <AppShell>
+    <AppShell hideNewsletter>
       <section className="pt-28 md:pt-40">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
-          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">Collection — SS26</p>
-          <h1 className="mt-5 font-display text-[15vw] font-medium leading-[0.85] tracking-[-0.04em] sm:text-6xl md:mt-6 md:text-[10vw]">
-            {selectedType === "All" ? (
-              <>The <em className="font-editorial italic text-white/70">index.</em></>
-            ) : (
-              <>{typeLabels[selectedType]}<em className="font-editorial italic text-white/70">.</em></>
-            )}
-          </h1>
-        </div>
-
-        <div className="sticky top-[68px] z-20 mt-8 border-y border-white/10 bg-noir/85 backdrop-blur-xl md:mt-14">
-          <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-5 py-4 sm:px-6 md:px-10">
-            <div className="flex items-center gap-5 md:gap-8">
-              <Dropdown label="Product type" value={typeLabels[selectedType]}>
-                {(close) =>
-                  types.map((t) => (
-                    <Option
-                      key={t}
-                      active={t === selectedType}
-                      onClick={() => {
-                        navigate({ to: "/shop", search: { type: t } });
-                        close();
-                      }}
-                    >
-                      {typeLabels[t]}
-                    </Option>
-                  ))
-                }
-              </Dropdown>
-              <Dropdown label="Size" value={size === "All" ? undefined : size}>
-                {(close) =>
-                  ["All", ...sizes].map((s) => (
-                    <Option key={s} active={s === size} onClick={() => { setSize(s); close(); }}>
-                      {s}
-                    </Option>
-                  ))
-                }
-              </Dropdown>
-            </div>
-
-            <div className="flex items-center gap-5 md:gap-8">
-              <span className="hidden font-mono text-[10px] uppercase tracking-[0.28em] text-white/45 sm:block">
-                {filtered.length} {filtered.length === 1 ? "item" : "items"}
-              </span>
-              <Dropdown label="Sort" value={sorts.find((s) => s.id === sort)?.label}>
-                {(close) =>
-                  sorts.map((s) => (
-                    <Option key={s.id} active={s.id === sort} onClick={() => { setSort(s.id); close(); }}>
-                      {s.label}
-                    </Option>
-                  ))
-                }
-              </Dropdown>
-              <button
-                type="button"
-                onClick={() => setDense((d) => !d)}
-                aria-label="Toggle grid density"
-                className="hidden gap-[3px] border border-white/15 p-2 transition-colors hover:border-white/40 md:flex"
-              >
-                {Array.from({ length: dense ? 9 : 4 }).map((_, i) => (
-                  <span key={i} className={`block bg-white/60 ${dense ? "h-[3px] w-[3px]" : "h-[5px] w-[5px]"}`} />
-                ))}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-8 max-w-[1600px] px-5 sm:px-6 md:mt-12 md:px-10">
           {filtered.length === 0 ? (
             <div className="flex h-[40vh] items-center justify-center">
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/50">No pieces in this category.</p>
