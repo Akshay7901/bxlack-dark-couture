@@ -45,12 +45,6 @@ function ShopPage() {
 
       <section className="relative pt-28 md:pt-40">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 select-none font-sans text-[22vw] font-bold leading-none tracking-tighter text-white/[0.025] md:text-[16vw]"
-          >
-            BXLACK
-          </span>
           <div className="mb-6 flex items-baseline justify-between gap-4 md:mb-8">
             <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
             <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
