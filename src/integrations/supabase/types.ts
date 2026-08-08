@@ -22,6 +22,7 @@ export type Database = {
           compare_at: number | null
           created_at: string
           description: string | null
+          gallery_paths: string[]
           id: string
           image_path: string | null
           name: string
@@ -39,6 +40,7 @@ export type Database = {
           compare_at?: number | null
           created_at?: string
           description?: string | null
+          gallery_paths?: string[]
           id?: string
           image_path?: string | null
           name: string
@@ -56,6 +58,7 @@ export type Database = {
           compare_at?: number | null
           created_at?: string
           description?: string | null
+          gallery_paths?: string[]
           id?: string
           image_path?: string | null
           name?: string
