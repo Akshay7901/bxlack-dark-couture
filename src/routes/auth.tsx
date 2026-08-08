@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { bootstrapFirstAdmin, hasAnyAdmin } from "@/lib/admin-users.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -15,17 +17,23 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  ssr: false,
   component: AuthPage,
 });
 
 function AuthPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const { data: adminState, refetch } = useQuery({
+    queryKey: ["has-any-admin"],
+    queryFn: () => hasAnyAdmin(),
+  });
+  const needsBootstrap = adminState?.hasAdmin === false;
 
   useEffect(() => {
     if (!loading && user) navigate({ to: "/admin", replace: true });
@@ -36,23 +44,13 @@ function AuthPage() {
     setBusy(true);
     setMessage(null);
     try {
-      if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        navigate({ to: "/admin", replace: true });
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin + "/admin" },
-        });
-        if (error) throw error;
-        setMessage(
-          data.session
-            ? "Account created."
-            : "Check your inbox to confirm your email, then sign in.",
-        );
+      if (needsBootstrap) {
+        await bootstrapFirstAdmin({ data: { email, password } });
+        await refetch();
       }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      navigate({ to: "/admin", replace: true });
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -65,8 +63,13 @@ function AuthPage() {
       <div className="w-full max-w-sm">
         <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">BXLACK · Studio</p>
         <h1 className="mt-3 font-display text-3xl uppercase leading-none tracking-[-0.02em]">
-          {mode === "signin" ? "Sign in" : "Create account"}
+          {needsBootstrap ? "Create first admin" : "Sign in"}
         </h1>
+        <p className="mt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.22em] text-white/35">
+          {needsBootstrap
+            ? "No admin exists yet — set up the owner account. This form closes once created."
+            : "Studio access is invite-only. Admins are created from inside the studio."}
+        </p>
 
         <form onSubmit={submit} className="mt-8 space-y-4">
           <label className="block">
@@ -96,23 +99,13 @@ function AuthPage() {
             disabled={busy}
             className="w-full border border-white bg-white py-[13px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
           >
-            {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Sign up"}
+            {busy ? "Please wait…" : needsBootstrap ? "Create admin & sign in" : "Sign in"}
           </button>
         </form>
 
         {message ? (
           <p className="mt-4 font-mono text-[11px] leading-relaxed text-white/60">{message}</p>
         ) : null}
-
-        <button
-          onClick={() => {
-            setMode(mode === "signin" ? "signup" : "signin");
-            setMessage(null);
-          }}
-          className="mt-6 font-mono text-[10px] uppercase tracking-[0.28em] text-white/40 transition-colors hover:text-white"
-        >
-          {mode === "signin" ? "No account? Sign up" : "Have an account? Sign in"}
-        </button>
       </div>
     </div>
   );
