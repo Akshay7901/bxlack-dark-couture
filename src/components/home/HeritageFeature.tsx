@@ -17,11 +17,11 @@ export function HeritageFeature() {
           loading="lazy"
         />
 
-        <div className="pointer-events-none absolute inset-0 flex items-end justify-center pb-10 sm:pb-14 md:pb-20">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-start pl-6 sm:pl-10 md:pl-16">
           <Link
             to="/shop"
             search={{ type: "Shirt" }}
-            className="pointer-events-auto rounded-full border border-white/40 bg-black/40 px-7 py-3 font-mono text-[10px] uppercase tracking-[0.35em] text-foreground backdrop-blur-md transition-colors hover:border-white hover:bg-foreground hover:text-background sm:text-[11px]"
+            className="pointer-events-auto font-mono text-[10px] uppercase tracking-[0.35em] text-foreground transition-opacity hover:opacity-60 sm:text-[11px]"
           >
             Shop This
           </Link>
