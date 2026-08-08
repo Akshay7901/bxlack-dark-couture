@@ -46,7 +46,7 @@ function ShopPage() {
     <AppShell hideNewsletter>
       <SilkBackdrop />
 
-      <section className="relative pt-20 md:pt-24">
+      <section className="relative pt-16 md:pt-20">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
           <div className="mb-3 flex items-baseline justify-between gap-4 md:mb-4">
             <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
