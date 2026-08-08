@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import heritageAsset from "@/assets/heritage-shirt.png.asset.json";
+import heritageAsset from "@/assets/heritage-shirt-fuji.png.asset.json";
 
 export function HeritageFeature() {
   return (
@@ -8,7 +8,7 @@ export function HeritageFeature() {
       <div className="relative w-full">
         <motion.img
           src={heritageAsset.url}
-          alt="BXLACK embroidered camp-collar shirt worn against a concrete warehouse wall"
+          alt="BXLACK embroidered camp-collar shirt worn at sunrise before a snow-capped mountain"
           className="block h-auto w-full object-contain"
           initial={{ scale: 1.08, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
