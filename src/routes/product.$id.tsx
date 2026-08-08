@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
-import { SilkBackdrop } from "@/components/SilkBackdrop";
+import { StudioBackdrop } from "@/components/StudioBackdrop";
 import { Plus, Minus, Heart } from "lucide-react";
 
 export const Route = createFileRoute("/product/$id")({
@@ -126,7 +126,7 @@ function ProductPage() {
 
   return (
     <AppShell hideNewsletter>
-      <SilkBackdrop />
+      <StudioBackdrop />
       <section className="relative pt-24 sm:pt-28 md:pt-20 lg:pt-16">
         <div className="mx-auto grid max-w-[1500px] grid-cols-1 items-center gap-10 px-5 sm:px-6 md:grid-cols-12 md:gap-x-10 md:gap-y-12 md:px-8 lg:gap-8 lg:px-12">
           {/* Left — name, price, accordions */}
