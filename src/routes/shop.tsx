@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
 import { products } from "@/lib/products";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
+import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -27,8 +28,6 @@ const pageTitles: Record<string, string> = {
   Shirt: "Shirts",
   Jeans: "Jeans",
 };
-const sizes = ["S", "M", "L", "XL", "XXL"] as const;
-
 function ShopPage() {
   const { type } = Route.useSearch();
 
@@ -66,47 +65,7 @@ function ShopPage() {
                   transition={{ delay: i * 0.05, duration: 0.8, ease: [0.7, 0, 0.2, 1] }}
                   className="group"
                 >
-                  <Link to="/product/$id" params={{ id: p.id }} className="block">
-                    <div className="relative aspect-[4/5] overflow-hidden bg-[#141414]">
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className={`absolute inset-0 h-full w-full object-cover transition-all duration-[1.2s] ease-[cubic-bezier(0.7,0,0.2,1)] ${
-                          p.backImage ? "group-hover:opacity-0" : "group-hover:scale-105"
-                        }`}
-                        loading="lazy"
-                      />
-                      {p.backImage ? (
-                        <img
-                          src={p.backImage}
-                          alt=""
-                          aria-hidden
-                          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-[1.2s] ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:opacity-100"
-                          loading="lazy"
-                        />
-                      ) : null}
-                    </div>
-
-                    <div className="mt-4">
-                      <h2 className="font-sans text-sm leading-snug text-white/90 sm:text-[15px]">{p.name}</h2>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="font-mono text-[13px] text-white sm:text-sm">₹{p.price}</span>
-                        {p.compareAt ? (
-                          <span className="font-mono text-[11px] text-white/35 line-through sm:text-xs">₹{p.compareAt}</span>
-                        ) : null}
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-1.5">
-                        {sizes.map((s) => (
-                          <span
-                            key={s}
-                            className="border border-white/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-white/55"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </Link>
+                  <ProductCard product={p} />
                 </motion.article>
               ))}
             </div>
