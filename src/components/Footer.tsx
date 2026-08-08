@@ -87,15 +87,6 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 flex select-none justify-center md:mt-24">
-          <img
-            src={logoAsset.url}
-            alt=""
-            aria-hidden
-            className="h-auto w-[70vw] max-w-[900px] object-contain opacity-[0.07]"
-          />
-        </div>
-
         <div className="mt-10 flex flex-col justify-between gap-3 border-t border-light-grey/10 pt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-mid-grey/70 sm:text-[10px] sm:tracking-[0.25em] md:flex-row md:gap-4">
           <span>© 2026 BXLACK Maison. All rights reserved.</span>
           <span>Antwerp · Tokyo · Paris</span>
