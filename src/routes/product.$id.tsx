@@ -135,25 +135,10 @@ function ProductPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: [0.7, 0, 0.2, 1] }}
                 src={gallery[activeImg]}
-                alt={`${product.name} — ${isBack ? "back" : "front"}`}
+                alt={product.name}
                 className="h-full w-full object-contain"
                 loading="lazy"
               />
-              {isBack && (
-                <div className="absolute right-3 top-3">
-                  <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.3em] text-white backdrop-blur">
-                    Back view
-                  </span>
-                </div>
-              )}
-              {!isBack && gallery.length > 1 && (
-                <div className="absolute left-3 top-3">
-                  <span className="flex items-center gap-2 border border-white/40 bg-black/30 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.3em] text-white backdrop-blur">
-                    Front view
-                  </span>
-                </div>
-              )}
-
             </div>
 
             {/* Gallery thumbnails */}
