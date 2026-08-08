@@ -48,21 +48,11 @@ export const bootstrapFirstAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-async function assertCallerIsAdmin(
-  supabase: {
-    from: (table: "user_roles") => {
-      select: (columns: string) => {
-        eq: (column: string, value: string) => {
-          eq: (column: string, value: string) => {
-            maybeSingle: () => PromiseLike<{ data: unknown }>;
-          };
-        };
-      };
-    };
-  },
-  userId: string,
-) {
-  const { data } = await supabase
+async function assertCallerIsAdmin(supabase: unknown, userId: string) {
+  const client = supabase as {
+    from: (table: string) => any;
+  };
+  const { data } = await client
     .from("user_roles")
     .select("id")
     .eq("user_id", userId)
