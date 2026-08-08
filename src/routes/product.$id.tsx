@@ -56,6 +56,17 @@ function ProductPage() {
   return (
     <AppShell>
       <section className="pt-24 sm:pt-28 md:pt-14">
+        <div className="mx-auto mb-6 max-w-[1600px] px-5 sm:px-6 md:mb-8 md:px-12">
+          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
+            <Link to="/shop" search={{ type: "All" }} className="transition-colors hover:text-white">All Categories</Link>
+            <span className="text-white/25">/</span>
+            <Link to="/shop" search={{ type: product.category }} className="transition-colors hover:text-white">
+              {product.category === "Tshirt" ? "T-Shirt" : product.category}
+            </Link>
+            <span className="text-white/25">/</span>
+            <span className="text-white/70">{product.name}</span>
+          </nav>
+        </div>
         <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-8 px-5 sm:px-6 md:grid-cols-12 md:gap-6 md:px-12">
           {/* Left — name, price, accordions */}
           <aside className="order-2 md:order-1 md:col-span-4">
