@@ -32,7 +32,7 @@ export function HeritageFeature() {
               the street.
             </p>
             <Link
-              to="/shop"
+              to="/shop" search={{ type: "All" }}
               className="mt-6 inline-block border-b border-foreground/40 pb-1 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground transition-colors hover:border-foreground sm:text-[11px]"
             >
               Discover the piece
