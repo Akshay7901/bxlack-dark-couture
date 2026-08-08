@@ -182,44 +182,10 @@ function ProductPage() {
                 Add to Cart — ₹{product.price}
               </button>
 
-              <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.28em] text-white/35">
-                Complimentary express · Numbered 1/50
-              </p>
             </div>
           </aside>
         </div>
 
-        {/* Recommended */}
-        <div className="mx-auto mt-20 max-w-[1600px] border-t border-white/10 px-5 pt-12 sm:px-6 md:mt-40 md:px-10 md:pt-16">
-          <div className="flex items-end justify-between gap-4">
-            <h2 className="font-display text-3xl leading-[0.9] tracking-[-0.03em] text-white sm:text-5xl md:text-7xl">
-              You may also <em className="font-editorial italic text-white/60">consider.</em>
-            </h2>
-            <Link to="/shop" search={{ type: "All" }} className="hidden font-mono text-[11px] uppercase tracking-[0.3em] text-white/60 hover:text-white md:block" data-cursor="View">View all →</Link>
-          </div>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:mt-12 md:grid-cols-4 md:gap-6">
-            {others.map((o, i) => (
-              <motion.div
-                key={o.id}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.9 }}
-                className="group"
-              >
-                <Link to="/product/$id" params={{ id: o.id }} data-cursor="View" className="block">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-[oklch(0.08_0_0)]">
-                    <img src={o.image} alt={o.name} className="h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-110" loading="lazy" />
-                  </div>
-                  <div className="mt-3 flex items-baseline justify-between gap-2">
-                    <p className="min-w-0 truncate font-display text-sm text-white sm:text-lg">{o.name}</p>
-                    <p className="shrink-0 font-mono text-[11px] text-white/70 sm:text-xs">₹{o.price}</p>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
         <div className="h-20 md:h-32" />
       </section>
     </AppShell>
