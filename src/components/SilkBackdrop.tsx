@@ -42,20 +42,20 @@ export function SilkBackdrop() {
         width={1920}
         height={1280}
         style={{ x: x1, y: scrollY1, translateY: y1 }}
-        className="absolute -inset-[8%] h-[116%] w-[116%] object-cover opacity-70"
+        className="absolute -inset-[8%] h-[116%] w-[116%] object-cover opacity-100"
         initial={{ scale: 1.16, opacity: 0 }}
-        animate={{ scale: 1.06, opacity: 0.7 }}
+        animate={{ scale: 1.06, opacity: 1 }}
         transition={{ duration: 2.4, ease: [0.7, 0, 0.2, 1] }}
       />
 
       <motion.div
         style={{ x: x2, y: scrollY2, translateY: y2 }}
-        className="absolute left-1/2 top-1/4 h-[80vh] w-[80vh] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.07),transparent_65%)] blur-3xl"
+        className="absolute left-1/2 top-1/4 h-[80vh] w-[80vh] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.12),transparent_65%)] blur-3xl"
       />
       <motion.div
         animate={{ opacity: [0.35, 0.6, 0.35] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -left-1/4 top-1/2 h-[60vh] w-[120vw] -rotate-12 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.045),transparent)] blur-2xl"
+        className="absolute -left-1/4 top-1/2 h-[60vh] w-[120vw] -rotate-12 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] blur-2xl"
       />
 
       <motion.div
@@ -71,8 +71,8 @@ export function SilkBackdrop() {
         />
       </motion.div>
 
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,5,5,0.55),rgba(5,5,5,0.82)_45%,rgba(5,5,5,0.95))]" />
-      <div className="absolute inset-0 bg-[radial-gradient(110%_80%_at_50%_35%,transparent_40%,rgba(0,0,0,0.8)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,5,5,0.15),rgba(5,5,5,0.35)_50%,rgba(5,5,5,0.6))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_35%,transparent_45%,rgba(0,0,0,0.55)_100%)]" />
     </div>
   );
 }
