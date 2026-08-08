@@ -17,6 +17,14 @@ const MAISON = [
   { label: "New Drop", to: "/new-drop" },
 ];
 
+const SERVICES = [
+  { label: "Size Guide", to: "/size-guide" },
+  { label: "Shipping", to: "/shipping" },
+  { label: "Returns", to: "/returns" },
+  { label: "FAQ", to: "/faq" },
+  { label: "Contact", to: "/contact" },
+];
+
 const SOCIAL = [
   { label: "Instagram", href: "https://instagram.com", Icon: Instagram },
   { label: "Facebook", href: "https://facebook.com", Icon: Facebook },
@@ -32,7 +40,7 @@ export function Footer() {
       <div className="mx-auto max-w-[1600px]">
         <Newsletter />
 
-        <div className="mt-16 grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-4 md:mt-24">
+        <div className="mt-16 grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-3 lg:grid-cols-5 md:mt-24">
           <div className="col-span-2 sm:col-span-1">
             <img src={logoAsset.url} alt="BXLACK" className="h-10 w-auto object-contain" />
             <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-light-grey/60">
@@ -67,6 +75,19 @@ export function Footer() {
           </div>
 
           <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mid-grey/70">Client Services</p>
+            <ul className="mt-5 space-y-3">
+              {SERVICES.map((s) => (
+                <li key={s.label}>
+                  <Link to={s.to} className={linkClass}>
+                    {s.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mid-grey/70">Follow</p>
             <ul className="mt-5 flex items-center gap-3">
               {SOCIAL.map(({ label, href, Icon }) => (
@@ -90,7 +111,10 @@ export function Footer() {
         <div className="mt-10 flex flex-col justify-between gap-3 border-t border-light-grey/10 pt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-mid-grey/70 sm:text-[10px] sm:tracking-[0.25em] md:flex-row md:gap-4">
           <span>© 2026 BXLACK Maison. All rights reserved.</span>
           <span>Antwerp · Tokyo · Paris</span>
-          <span>Instagram — Facebook — X</span>
+          <span className="flex gap-4">
+            <Link to="/privacy" className="transition-colors hover:text-white">Privacy</Link>
+            <Link to="/terms" className="transition-colors hover:text-white">Terms</Link>
+          </span>
         </div>
       </div>
     </footer>
