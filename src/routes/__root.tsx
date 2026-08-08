@@ -14,21 +14,28 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+    <div className="grain flex min-h-screen flex-col items-center justify-center bg-noir px-6 text-center text-white">
+      <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-mid-grey/70">Error — 404</p>
+      <h1 className="mt-6 font-display text-[26vw] font-medium leading-[0.8] tracking-[-0.05em] md:text-[14vw]">
+        Lost in <em className="font-editorial italic text-white/60">black.</em>
+      </h1>
+      <p className="mt-6 max-w-sm text-sm leading-relaxed text-light-grey/60">
+        This page was never cut, or it has already sold out of the archive.
+      </p>
+      <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+        <Link
+          to="/"
+          className="border border-light-grey/25 px-8 py-4 font-mono text-[10px] uppercase tracking-[0.3em] transition-colors hover:bg-white hover:text-noir"
+        >
+          Home
+        </Link>
+        <Link
+          to="/shop"
+          search={{ type: "All" }}
+          className="border border-light-grey/25 px-8 py-4 font-mono text-[10px] uppercase tracking-[0.3em] transition-colors hover:bg-white hover:text-noir"
+        >
+          Shop the collection
+        </Link>
       </div>
     </div>
   );
