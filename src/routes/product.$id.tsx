@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
@@ -21,10 +21,55 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 
+function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
+  const [index, setIndex] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const lock = useRef(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || images.length < 2) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const now = Date.now();
+      if (now - lock.current < 420) return;
+      if (Math.abs(e.deltaY) < 8) return;
+      lock.current = now;
+      setIndex((i) => {
+        const next = e.deltaY > 0 ? i + 1 : i - 1;
+        return (next + images.length) % images.length;
+      });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [images.length]);
+
+  return (
+    <div ref={ref} className="relative aspect-[4/5] w-full overflow-hidden bg-[oklch(0.08_0_0)]">
+      <motion.img
+        key={index}
+        initial={{ opacity: 0, scale: 1.02 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
+        src={images[index]}
+        alt={alt}
+        className="h-full w-full object-contain"
+        loading="lazy"
+      />
+      {images.length > 1 && (
+        <div className="pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+          {images.map((_, i) => (
+            <span key={i} className={`h-[3px] w-5 transition-colors ${i === index ? "bg-white" : "bg-white/25"}`} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProductPage() {
   const { id } = Route.useParams();
   const [size, setSize] = useState("M");
-  const [activeImg, setActiveImg] = useState(0);
   const [openAcc, setOpenAcc] = useState<string | null>("details");
   const [openSizeChart, setOpenSizeChart] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
@@ -125,19 +170,7 @@ function ProductPage() {
           {/* Middle — product image */}
           <div className="order-1 md:order-2 md:col-span-4">
             <div className="mx-auto w-full max-w-[520px]">
-            <div className="relative aspect-[4/5] w-full overflow-hidden bg-[oklch(0.08_0_0)]">
-              <motion.img
-                key={activeImg}
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, ease: [0.7, 0, 0.2, 1] }}
-                src={gallery[activeImg]}
-                alt={product.name}
-                className="h-full w-full object-contain"
-                loading="lazy"
-              />
-            </div>
-
+            <ScrollGallery images={gallery as string[]} alt={product.name} />
             </div>
           </div>
 
