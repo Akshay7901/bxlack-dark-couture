@@ -104,9 +104,9 @@ export function Header({ onCart }: { onCart: () => void }) {
             <ShoppingBag className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
             <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-medium text-black">0</span>
           </button>
-          <button aria-label="Profile" className="hover:text-white">
+          <Link to="/admin" aria-label="Account" className="hover:text-white">
             <User className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
-          </button>
+          </Link>
         </div>
       </div>
     </header>

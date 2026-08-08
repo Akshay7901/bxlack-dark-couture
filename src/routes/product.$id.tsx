@@ -1,37 +1,68 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { products } from "@/lib/products";
+import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { Plus, Minus } from "lucide-react";
 
 export const Route = createFileRoute("/product/$id")({
-  loader: ({ params }) => {
-    const product = products.find((p) => p.id === params.id);
-    if (!product) throw notFound();
-    return { product };
-  },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.product.name} — BXLACK` },
-          { name: "description", content: `${loaderData.product.name} · ${loaderData.product.tag}. Numbered, small-batch.` },
-          { property: "og:title", content: `${loaderData.product.name} — BXLACK` },
-          { property: "og:description", content: `${loaderData.product.tag} · ₹${loaderData.product.price}. Cut in Antwerp, finished in Tokyo.` },
-        ]
-      : [{ title: "BXLACK" }, { name: "robots", content: "noindex" }],
+  head: () => ({
+    meta: [
+      { title: "Product — BXLACK SS26" },
+      { name: "description", content: "A numbered, small-batch BXLACK piece. Cut in Antwerp, finished in Tokyo." },
+      { property: "og:title", content: "Product — BXLACK SS26" },
+      { property: "og:description", content: "A numbered, small-batch BXLACK piece from the SS26 collection." },
+      { property: "og:type", content: "product" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
   }),
   component: ProductPage,
 });
 
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { id } = Route.useParams();
   const [size, setSize] = useState("M");
   const [activeImg, setActiveImg] = useState(0);
   const [openAcc, setOpenAcc] = useState<string | null>("details");
 
-  const others = products.filter((p) => p.id !== product.id).slice(0, 4);
+  const { data, isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetchProducts(),
+  });
+
+  const all = (data ?? []).map(toCardProduct);
+  const product = all.find((p) => p.id === id);
+
+  if (isLoading) {
+    return (
+      <AppShell>
+        <div className="flex min-h-[70vh] items-center justify-center">
+          <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading piece…</p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (!product) {
+    return (
+      <AppShell>
+        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-5 px-6 text-center">
+          <h1 className="font-display text-3xl uppercase tracking-[-0.02em]">Piece not found</h1>
+          <Link
+            to="/shop"
+            search={{ type: "All" }}
+            className="border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/70 hover:border-white hover:text-white"
+          >
+            Back to shop
+          </Link>
+        </div>
+      </AppShell>
+    );
+  }
+
+  const others = all.filter((p) => p.id !== product.id).slice(0, 4);
   const gallery = [product.image, ...(product.backImage ? [product.backImage] : [])];
   const isBack = product.backImage && activeImg === 1;
 

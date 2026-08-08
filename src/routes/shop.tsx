@@ -1,8 +1,8 @@
-import { useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { products } from "@/lib/products";
+import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -34,9 +34,13 @@ function ShopPage() {
   const selectedType: (typeof types)[number] =
     types.includes(type as (typeof types)[number]) ? (type as (typeof types)[number]) : "All";
 
-  const filtered = useMemo(() => {
-    return selectedType === "All" ? products : products.filter((p) => p.category === selectedType);
-  }, [selectedType]);
+  const { data, isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetchProducts(),
+  });
+
+  const all = (data ?? []).map(toCardProduct);
+  const filtered = selectedType === "All" ? all : all.filter((p) => p.category === selectedType);
 
   return (
     <AppShell hideNewsletter>
@@ -50,7 +54,11 @@ function ShopPage() {
               {filtered.length} {filtered.length === 1 ? "item" : "items"}
             </span>
           </div>
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            <div className="flex h-[40vh] items-center justify-center">
+              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading collection…</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="flex h-[40vh] items-center justify-center">
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/50">No pieces in this category.</p>
             </div>
