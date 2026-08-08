@@ -29,12 +29,12 @@ export function StudioBackdrop() {
   const grainY = useTransform(sy, (v) => v * -50);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#080808]">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#0A0A0A]">
       {/* deep vignette base */}
-      <div className="absolute inset-0 bg-[radial-gradient(130%_100%_at_50%_0%,rgba(40,40,40,0.9),rgba(8,8,8,1)_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(130%_100%_at_50%_0%,rgba(26,26,26,0.95),rgba(10,10,10,1)_62%)]" />
 
       {/* fine vertical pinstripes */}
-      <div className="absolute inset-0 opacity-[0.07] [background-image:repeating-linear-gradient(90deg,rgba(255,255,255,0.7)_0px,rgba(255,255,255,0.7)_1px,transparent_1px,transparent_92px)]" />
+      <div className="absolute inset-0 opacity-[0.04] [background-image:repeating-linear-gradient(90deg,rgba(255,255,255,0.6)_0px,rgba(255,255,255,0.6)_1px,transparent_1px,transparent_120px)]" />
 
       {/* overhead light cone */}
       <motion.div
@@ -44,7 +44,7 @@ export function StudioBackdrop() {
         transition={{ duration: 2, ease: [0.7, 0, 0.2, 1] }}
         className="absolute -top-[22vh] left-1/2 h-[135vh] w-[95vw] max-w-[1500px] origin-top -translate-x-1/2 blur-2xl
                    [clip-path:polygon(38%_0%,62%_0%,100%_100%,0%_100%)]
-                   bg-[linear-gradient(to_bottom,rgba(255,255,255,0.16),rgba(255,255,255,0.05)_45%,transparent_85%)]"
+                   bg-[linear-gradient(to_bottom,rgba(255,255,255,0.10),rgba(255,255,255,0.035)_45%,transparent_85%)]"
       />
 
       {/* breathing floor pool */}
@@ -52,18 +52,18 @@ export function StudioBackdrop() {
         animate={{ opacity: [0.4, 0.7, 0.4] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         className="absolute bottom-[-28vh] left-1/2 h-[62vh] w-[120vw] -translate-x-1/2 rounded-[50%] blur-3xl
-                   bg-[radial-gradient(ellipse_at_center,rgba(214,205,190,0.16),transparent_65%)]"
+                   bg-[radial-gradient(ellipse_at_center,rgba(196,199,204,0.12),transparent_65%)]"
       />
 
       {/* cursor-following soft light */}
       <motion.div
         style={{ x: glowX, y: glowY }}
         className="absolute left-1/2 top-[38%] h-[70vh] w-[70vh] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px]
-                   bg-[radial-gradient(circle,rgba(255,255,255,0.10),transparent_65%)]"
+                   bg-[radial-gradient(circle,rgba(230,232,236,0.07),transparent_65%)]"
       />
 
       {/* grain */}
-      <motion.div style={{ x: grainX, y: grainY }} className="absolute -inset-[10%] opacity-[0.16] mix-blend-overlay">
+      <motion.div style={{ x: grainX, y: grainY }} className="absolute -inset-[10%] opacity-[0.10] mix-blend-overlay">
         <div
           className="h-full w-full"
           style={{
