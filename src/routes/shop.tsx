@@ -75,9 +75,9 @@ function ShopPage() {
                     <div className="mt-4">
                       <h2 className="font-sans text-sm leading-snug text-white/90 sm:text-[15px]">{p.name}</h2>
                       <div className="mt-2 flex items-baseline gap-2">
-                        <span className="font-mono text-[13px] text-white sm:text-sm">€{p.price}</span>
+                        <span className="font-mono text-[13px] text-white sm:text-sm">₹{p.price}</span>
                         {p.compareAt ? (
-                          <span className="font-mono text-[11px] text-white/35 line-through sm:text-xs">€{p.compareAt}</span>
+                          <span className="font-mono text-[11px] text-white/35 line-through sm:text-xs">₹{p.compareAt}</span>
                         ) : null}
                       </div>
                       <div className="mt-3 flex flex-wrap gap-1.5">
