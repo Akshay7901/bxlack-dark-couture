@@ -7,6 +7,7 @@ import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { Plus, Minus, Heart } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist";
+import { SignInPrompt } from "@/components/SignInPrompt";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
@@ -70,6 +71,7 @@ function ProductPage() {
   const [openAcc, setOpenAcc] = useState<string | null>("details");
   const [openSizeChart, setOpenSizeChart] = useState(false);
   const { has, toggle } = useWishlist();
+  const [signInOpen, setSignInOpen] = useState(false);
   const wishlisted = has(id);
 
   const { data, isLoading } = useQuery({
@@ -215,7 +217,9 @@ function ProductPage() {
               </button>
 
               <button
-                onClick={() => toggle(id)}
+                onClick={() => {
+                  if (!toggle(id)) setSignInOpen(true);
+                }}
                 data-cursor="Save"
                 className={`mt-3 flex w-full items-center justify-center gap-2 border py-[13px] font-mono text-[11px] uppercase tracking-[0.32em] transition-colors ${wishlisted ? "border-white text-white" : "border-white/25 text-white/60 hover:border-white hover:text-white"}`}
               >
@@ -229,6 +233,7 @@ function ProductPage() {
 
         <div className="h-20 md:h-32" />
       </section>
+      <SignInPrompt open={signInOpen} onClose={() => setSignInOpen(false)} />
     </AppShell>
   );
 }
