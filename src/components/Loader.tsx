@@ -2,12 +2,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export function Loader() {
-  const [gone, setGone] = useState(true);
+  const [gone, setGone] = useState(false);
   useEffect(() => {
-    if (sessionStorage.getItem("bxlack:intro")) return;
-    sessionStorage.setItem("bxlack:intro", "1");
-    setGone(false);
-    const t = setTimeout(() => setGone(true), 1400);
+    const t = setTimeout(() => setGone(true), 2200);
     return () => clearTimeout(t);
   }, []);
   const letters = "BXLACK".split("");
