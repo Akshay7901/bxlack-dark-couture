@@ -53,8 +53,8 @@ function AccountPage() {
         });
         if (error) throw error;
         if (!data.session) {
-          setNotice("Check your inbox — confirm your email to activate the account.");
-          return;
+          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+          if (signInError) throw signInError;
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
