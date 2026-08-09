@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { Plus, Minus, Heart } from "lucide-react";
+import { useWishlist } from "@/lib/wishlist";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
@@ -68,7 +69,8 @@ function ProductPage() {
   const [size, setSize] = useState("M");
   const [openAcc, setOpenAcc] = useState<string | null>("details");
   const [openSizeChart, setOpenSizeChart] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
+  const { has, toggle } = useWishlist();
+  const wishlisted = has(id);
 
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
@@ -213,7 +215,7 @@ function ProductPage() {
               </button>
 
               <button
-                onClick={() => setWishlisted((v) => !v)}
+                onClick={() => toggle(id)}
                 data-cursor="Save"
                 className={`mt-3 flex w-full items-center justify-center gap-2 border py-[13px] font-mono text-[11px] uppercase tracking-[0.32em] transition-colors ${wishlisted ? "border-white text-white" : "border-white/25 text-white/60 hover:border-white hover:text-white"}`}
               >
