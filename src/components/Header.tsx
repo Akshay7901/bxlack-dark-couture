@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { Heart, ShoppingBag, User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/bxlack-logo.png.asset.json";
+import { useWishlist } from "@/lib/wishlist";
 
 const collectionTypes = ["All", "Tshirt", "Shirt", "Jeans"] as const;
 
@@ -10,6 +11,8 @@ export function Header({ onCart }: { onCart: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { ids: wishlistIds } = useWishlist();
+  const wishlistCount = wishlistIds.length;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
