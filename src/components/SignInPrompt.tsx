@@ -46,7 +46,7 @@ export function SignInPrompt({
             </h2>
             <p className="mt-3 font-editorial text-[14px] leading-[1.7] text-white/55">{message}</p>
             <Link
-              to="/auth"
+              to="/account"
               onClick={onClose}
               className="mt-7 block w-full border border-white bg-white py-[13px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
             >

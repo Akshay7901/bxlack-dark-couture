@@ -118,7 +118,7 @@ export function Header({ onCart }: { onCart: () => void }) {
               </span>
             ) : null}
           </button>
-          <Link to="/admin" aria-label="Account" className="hover:text-white">
+          <Link to="/account" aria-label="Account" className="hover:text-white">
             <User className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
           </Link>
         </div>

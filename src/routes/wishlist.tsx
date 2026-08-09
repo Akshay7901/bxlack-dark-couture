@@ -58,7 +58,7 @@ function WishlistPage() {
               Sign in to view the pieces you've saved.
             </p>
             <Link
-              to="/auth"
+              to="/account"
               className="border border-white bg-white px-6 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white"
             >
               Sign in
