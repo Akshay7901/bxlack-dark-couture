@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
-const KEY = "bxlack:wishlist";
 const EVENT = "bxlack:wishlist-change";
+const keyFor = (userId: string) => `bxlack:wishlist:${userId}`;
 
-function read(): string[] {
-  if (typeof window === "undefined") return [];
+function read(userId: string | null): string[] {
+  if (typeof window === "undefined" || !userId) return [];
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const raw = window.localStorage.getItem(keyFor(userId));
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed.filter((v) => typeof v === "string") : [];
   } catch {
@@ -14,16 +15,18 @@ function read(): string[] {
   }
 }
 
-function write(ids: string[]) {
-  window.localStorage.setItem(KEY, JSON.stringify(ids));
+function write(userId: string, ids: string[]) {
+  window.localStorage.setItem(keyFor(userId), JSON.stringify(ids));
   window.dispatchEvent(new CustomEvent(EVENT));
 }
 
 export function useWishlist() {
+  const { user, loading } = useAuth();
+  const userId = user?.id ?? null;
   const [ids, setIds] = useState<string[]>([]);
 
   useEffect(() => {
-    const sync = () => setIds(read());
+    const sync = () => setIds(read(userId));
     sync();
     window.addEventListener(EVENT, sync);
     window.addEventListener("storage", sync);
@@ -31,18 +34,38 @@ export function useWishlist() {
       window.removeEventListener(EVENT, sync);
       window.removeEventListener("storage", sync);
     };
-  }, []);
+  }, [userId]);
 
-  const toggle = useCallback((id: string) => {
-    const current = read();
-    write(current.includes(id) ? current.filter((x) => x !== id) : [...current, id]);
-  }, []);
+  /** Returns false when the visitor is signed out (caller should prompt to sign in). */
+  const toggle = useCallback(
+    (id: string) => {
+      if (!userId) return false;
+      const current = read(userId);
+      write(userId, current.includes(id) ? current.filter((x) => x !== id) : [...current, id]);
+      return true;
+    },
+    [userId],
+  );
 
-  const remove = useCallback((id: string) => {
-    write(read().filter((x) => x !== id));
-  }, []);
+  const remove = useCallback(
+    (id: string) => {
+      if (!userId) return;
+      write(userId, read(userId).filter((x) => x !== id));
+    },
+    [userId],
+  );
 
-  const clear = useCallback(() => write([]), []);
+  const clear = useCallback(() => {
+    if (userId) write(userId, []);
+  }, [userId]);
 
-  return { ids, has: (id: string) => ids.includes(id), toggle, remove, clear };
+  return {
+    ids,
+    isSignedIn: Boolean(userId),
+    authLoading: loading,
+    has: (id: string) => ids.includes(id),
+    toggle,
+    remove,
+    clear,
+  };
 }
