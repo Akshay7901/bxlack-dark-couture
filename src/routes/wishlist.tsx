@@ -21,7 +21,7 @@ export const Route = createFileRoute("/wishlist")({
 });
 
 function WishlistPage() {
-  const { ids, remove, clear } = useWishlist();
+  const { ids, remove, clear, isSignedIn, authLoading } = useWishlist();
   const { data, isLoading } = useQuery({ queryKey: ["products"], queryFn: () => fetchProducts() });
 
   const all = (data ?? []).map(toCardProduct);
@@ -50,7 +50,21 @@ function WishlistPage() {
           </div>
         </div>
 
-        {isLoading && ids.length > 0 ? (
+        {authLoading ? (
+          <p className="py-24 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading…</p>
+        ) : !isSignedIn ? (
+          <div className="flex flex-col items-center justify-center gap-6 py-28 text-center">
+            <p className="font-editorial text-[16px] text-white/55">
+              Sign in to view the pieces you've saved.
+            </p>
+            <Link
+              to="/auth"
+              className="border border-white bg-white px-6 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white"
+            >
+              Sign in
+            </Link>
+          </div>
+        ) : isLoading && ids.length > 0 ? (
           <p className="py-24 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading…</p>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-6 py-28 text-center">
