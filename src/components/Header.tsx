@@ -97,9 +97,14 @@ export function Header({ onCart }: { onCart: () => void }) {
 
         {/* Right: Wishlist, Cart, Profile */}
         <div className="flex items-center justify-end gap-3.5 text-white/80 sm:gap-5">
-          <button aria-label="Wishlist" className="hover:text-white">
+          <Link to="/wishlist" aria-label="Wishlist" data-cursor="Open" className="relative hover:text-white">
             <Heart className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
-          </button>
+            {wishlistCount > 0 ? (
+              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-medium text-black">
+                {wishlistCount}
+              </span>
+            ) : null}
+          </Link>
           <button aria-label="Cart" onClick={onCart} data-cursor="Open" className="relative hover:text-white">
             <ShoppingBag className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
             <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-medium text-black">0</span>
