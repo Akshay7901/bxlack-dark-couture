@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 
@@ -7,6 +7,11 @@ import { CartDrawer } from "./CartDrawer";
 
 export function AppShell({ children, hideNewsletter }: { children: ReactNode; hideNewsletter?: boolean }) {
   const [cart, setCart] = useState(false);
+  useEffect(() => {
+    const open = () => setCart(true);
+    window.addEventListener("bxlack:open-cart", open);
+    return () => window.removeEventListener("bxlack:open-cart", open);
+  }, []);
   return (
     <div className="grain relative min-h-screen bg-noir text-white">
       <Loader />

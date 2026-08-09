@@ -4,6 +4,7 @@ import { Heart, ShoppingBag, User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/bxlack-logo.png.asset.json";
 import { useWishlist } from "@/lib/wishlist";
+import { useCart } from "@/lib/cart";
 
 const collectionTypes = ["All", "Tshirt", "Shirt", "Jeans"] as const;
 
@@ -13,6 +14,7 @@ export function Header({ onCart }: { onCart: () => void }) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { ids: wishlistIds } = useWishlist();
   const wishlistCount = wishlistIds.length;
+  const { count: cartCount } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -110,7 +112,11 @@ export function Header({ onCart }: { onCart: () => void }) {
           </Link>
           <button aria-label="Cart" onClick={onCart} data-cursor="Open" className="relative hover:text-white">
             <ShoppingBag className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
-            <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-medium text-black">0</span>
+            {cartCount > 0 ? (
+              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-medium text-black">
+                {cartCount}
+              </span>
+            ) : null}
           </button>
           <Link to="/admin" aria-label="Account" className="hover:text-white">
             <User className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
