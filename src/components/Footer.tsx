@@ -36,7 +36,7 @@ const linkClass =
 
 export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
   return (
-    <footer className="grain relative overflow-hidden border-t border-light-grey/10 bg-noir px-5 pb-10 pt-16 sm:px-6 md:px-10 md:pt-24">
+    <footer className="relative overflow-hidden border-t border-light-grey/10 bg-noir px-5 pb-10 pt-16 sm:px-6 md:px-10 md:pt-24">
       <div className="mx-auto max-w-[1600px]">
         {hideNewsletter ? null : <Newsletter />}
 

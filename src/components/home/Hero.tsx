@@ -35,6 +35,7 @@ export function Hero() {
   const RADIUS = "clamp(120px, 16vw, 240px)";
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (typeof window !== "undefined" && !window.matchMedia("(pointer: fine)").matches) return;
     const rect = imgWrap.current?.getBoundingClientRect();
     if (!rect) return;
     cursorX.set(e.clientX - rect.left);
@@ -95,7 +96,7 @@ export function Hero() {
             maskSize: "cover",
             WebkitMaskRepeat: "no-repeat",
             maskRepeat: "no-repeat",
-            willChange: "mask-image, -webkit-mask-image, opacity, transform",
+            willChange: isHovering ? "mask-image, -webkit-mask-image, opacity, transform" : "auto",
           }}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
