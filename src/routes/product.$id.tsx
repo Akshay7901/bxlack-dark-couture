@@ -8,6 +8,7 @@ import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { Plus, Minus, Heart } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist";
 import { SignInPrompt } from "@/components/SignInPrompt";
+import { useCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
@@ -71,6 +72,7 @@ function ProductPage() {
   const [openAcc, setOpenAcc] = useState<string | null>("details");
   const [openSizeChart, setOpenSizeChart] = useState(false);
   const { has, toggle } = useWishlist();
+  const { add } = useCart();
   const [signInOpen, setSignInOpen] = useState(false);
   const wishlisted = has(id);
 
@@ -211,6 +213,10 @@ function ProductPage() {
 
               <button
                 data-cursor="Add"
+                onClick={() => {
+                  add(id, size);
+                  window.dispatchEvent(new CustomEvent("bxlack:open-cart"));
+                }}
                 className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
               >
                 Add to Cart — ₹{product.price}
