@@ -35,6 +35,7 @@ export function Hero() {
   const RADIUS = "clamp(120px, 16vw, 240px)";
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (typeof window !== "undefined" && !window.matchMedia("(pointer: fine)").matches) return;
     const rect = imgWrap.current?.getBoundingClientRect();
     if (!rect) return;
     cursorX.set(e.clientX - rect.left);
