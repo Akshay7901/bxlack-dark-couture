@@ -59,8 +59,6 @@ export function Hero() {
     radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, #000 0%, #000 42%, rgba(0,0,0,0.72) 55%, rgba(0,0,0,0.28) 70%, transparent 100%)
   `;
 
-  const revealScale = useTransform(hoverValue, [0, 1], [1.04, 1]);
-
   return (
     <section ref={ref} className="relative h-screen w-full overflow-hidden bg-noir">
       <motion.div
@@ -77,7 +75,7 @@ export function Hero() {
         <img
           src={hero.url}
           alt="BXLACK SS2026 campaign"
-          className="h-[112%] w-full translate-y-[6%] object-cover object-top"
+          className="absolute left-0 top-0 h-[112%] w-full translate-y-[6%] object-cover object-top"
           width={1672}
           height={941}
         />
@@ -85,10 +83,9 @@ export function Hero() {
           src={heroBack.url}
           alt=""
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-[112%] w-full translate-y-[6%] object-cover object-top"
+          className="pointer-events-none absolute left-0 top-0 h-[112%] w-full translate-y-[6%] object-cover object-top"
           style={{
             opacity: hoverValue,
-            scale: revealScale,
             WebkitMaskImage: maskImage,
             maskImage: maskImage,
             WebkitMaskSize: "cover",
