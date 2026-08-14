@@ -75,7 +75,7 @@ export function Hero() {
         <img
           src={hero.url}
           alt="BXLACK SS2026 campaign"
-          className="absolute left-0 top-0 h-[112%] w-full translate-y-[6%] object-cover object-top"
+          className="absolute left-0 top-0 h-full w-full object-cover object-top"
           width={1672}
           height={941}
         />
@@ -83,7 +83,7 @@ export function Hero() {
           src={heroBack.url}
           alt=""
           aria-hidden
-          className="pointer-events-none absolute left-0 top-0 h-[112%] w-full translate-y-[6%] object-cover object-top"
+          className="pointer-events-none absolute left-0 top-0 h-full w-full object-cover object-top"
           style={{
             opacity: hoverValue,
             WebkitMaskImage: maskImage,
