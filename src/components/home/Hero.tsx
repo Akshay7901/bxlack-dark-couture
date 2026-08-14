@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate, animate } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import hero from "@/assets/bxlack-hero.png.asset.json";
-import heroBack from "@/assets/bxlack-hero-back.png.asset.json";
+import hero from "@/assets/hero-front-v2.png.asset.json";
+import heroBack from "@/assets/hero-back-v2.png.asset.json";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
