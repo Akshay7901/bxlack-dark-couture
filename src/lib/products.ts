@@ -19,9 +19,9 @@ export type Product = {
 };
 
 export const products: Product[] = [
-  { id: "venus-flytrap-tee", name: "Venus Flytrap Tee", price: 4999, compareAt: 6499, badge: "New Arrival", category: "Tshirt", image: venusModel, backImage: venusBackModel, tag: "SS26 / 000" },
-  { id: "shadow-tee", name: "Shadow Jersey Tee", price: 5499, compareAt: 6999, badge: "New Arrival", category: "Tshirt", image: p3, tag: "SS26 / 001" },
-  { id: "obsidian-shirt", name: "Obsidian Camp Shirt", price: 6499, compareAt: 7999, badge: "Best Seller", category: "Shirt", image: p1, tag: "SS26 / 002" },
-  { id: "void-denim", name: "Void Raw Denim", price: 6999, category: "Jeans", image: p2, tag: "SS26 / 003" },
-  { id: "onyx-denim", name: "Onyx Washed Denim", price: 7999, compareAt: 8999, badge: "Hot Selling", category: "Jeans", image: p4, tag: "SS26 / 004" },
+  { id: "shipwreck-tee", name: "Shipwreck Tee", price: 4999, compareAt: 6499, badge: "New Arrival", category: "Tshirt", image: venusModel, backImage: venusBackModel, tag: "BXK-TS-002 / FW25" },
+  { id: "stone-logo-tee", name: "Stone Logo Tee", price: 4499, compareAt: 5999, badge: "New Arrival", category: "Tshirt", image: p3, tag: "BXK-TS-003 / FW25" },
+  { id: "floral-camp-shirt", name: "Floral Camp Shirt", price: 6499, compareAt: 7999, badge: "Best Seller", category: "Shirt", image: p1, tag: "BXK-SH-001 / FW25" },
+  { id: "balloon-panel-jeans", name: "Balloon Panel Jeans", price: 6999, compareAt: 8499, category: "Jeans", image: p2, tag: "BXK-PT-001 / FW25" },
+  { id: "washed-carpenter-jeans", name: "Washed Carpenter Jeans", price: 7999, compareAt: 8999, badge: "Hot Selling", category: "Jeans", image: p4, tag: "BXK-PT-002 / FW25" },
 ];
