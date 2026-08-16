@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { AdminTeam } from "@/components/admin/AdminTeam";
+import { CategoryManager } from "@/components/admin/CategoryManager";
 import {
   CATEGORIES,
   createProduct,
@@ -230,6 +231,8 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           </table>
         )}
       </div>
+
+      <CategoryManager />
 
       <AdminTeam currentUserId={userId} />
     </Shell>

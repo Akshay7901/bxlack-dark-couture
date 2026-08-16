@@ -113,6 +113,66 @@ export async function uploadProductImage(file: File): Promise<string> {
   return path;
 }
 
+export type CatalogCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  image_path: string | null;
+  sort_order: number;
+};
+
+export type CatalogCategoryWithUrl = CatalogCategory & {
+  imageUrl: string | null;
+};
+
+export type CategoryInput = {
+  name: string;
+  slug: string;
+  image_path: string | null;
+  sort_order: number;
+};
+
+export async function fetchCategories(): Promise<CatalogCategoryWithUrl[]> {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  if (error) throw error;
+  const rows = (data ?? []) as CatalogCategory[];
+  const paths = rows.map((r) => r.image_path).filter(Boolean) as string[];
+  const map = await signStoragePaths(paths);
+  return rows.map((r) => ({
+    ...r,
+    imageUrl: r.image_path ? map[r.image_path] ?? null : null,
+  }));
+}
+
+export async function createCategory(input: CategoryInput) {
+  const { error } = await supabase.from("categories").insert(input);
+  if (error) throw error;
+}
+
+export async function updateCategory(id: string, input: Partial<CategoryInput>) {
+  const { error } = await supabase.from("categories").update(input).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteCategory(id: string) {
+  const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function uploadCategoryImage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const path = `categories/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("product-images").upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
+  if (error) throw error;
+  return path;
+}
+
 export function slugify(value: string) {
   return value
     .toLowerCase()
