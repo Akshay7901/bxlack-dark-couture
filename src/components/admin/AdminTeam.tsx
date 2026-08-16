@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createAdminUser, listAdmins, removeAdminUser } from "@/lib/admin-users.functions";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 
 export function AdminTeam({ currentUserId }: { currentUserId: string }) {
   const qc = useQueryClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [open, setOpen] = useState(false);
+  const { confirm, dialog } = useConfirm();
 
   const { data: admins = [], isLoading } = useQuery({
     queryKey: ["admins"],
@@ -40,17 +42,18 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
   const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-white/40";
 
   return (
-    <section className="mt-16 border-t border-white/10 pt-10">
+    <section>
+      {dialog}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="font-display text-2xl uppercase tracking-[-0.01em]">Studio access</h2>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">
+          <h2 className="font-display text-xl uppercase tracking-[-0.01em]">Team</h2>
+          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
             Only admins can create another admin. Public sign-up is closed.
           </p>
         </div>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/80 hover:border-white hover:text-white"
+          className="border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/80 transition-colors hover:border-white hover:text-white"
         >
           {open ? "Cancel" : "Add admin"}
         </button>
@@ -67,7 +70,13 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
         >
           <label className="block">
             <span className={labelClass}>Email</span>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+            />
           </label>
           <label className="block">
             <span className={labelClass}>Temporary password</span>
@@ -92,29 +101,45 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
         </form>
       ) : null}
 
-      <ul className="mt-8 divide-y divide-white/[0.07] border-t border-white/10">
+      <div className="mt-8 border-t border-white/10">
         {isLoading ? (
-          <li className="py-4 font-mono text-[11px] uppercase tracking-[0.28em] text-white/40">Loading…</li>
+          <p className="py-10 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+            Loading…
+          </p>
+        ) : admins.length === 0 ? (
+          <p className="py-10 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+            No admins found
+          </p>
         ) : (
-          admins.map((a) => (
-            <li key={a.userId} className="flex items-center justify-between gap-4 py-4">
-              <span className="font-sans text-[13px] text-white/85">{a.email}</span>
-              {a.userId === currentUserId ? (
-                <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">You</span>
-              ) : (
-                <button
-                  onClick={() => {
-                    if (confirm(`Remove admin access and delete ${a.email}?`)) remove.mutate(a.userId);
-                  }}
-                  className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 hover:text-white"
-                >
-                  Remove
-                </button>
-              )}
-            </li>
-          ))
+          <ul className="divide-y divide-white/[0.07]">
+            {admins.map((a) => (
+              <li key={a.userId} className="flex items-center justify-between gap-4 py-4">
+                <span className="font-sans text-[13px] text-white/85">{a.email}</span>
+                {a.userId === currentUserId ? (
+                  <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">
+                    You
+                  </span>
+                ) : (
+                  <button
+                    onClick={() =>
+                      confirm({
+                        title: "Remove admin",
+                        message: `This permanently deletes the account for ${a.email} and revokes studio access. This cannot be undone.`,
+                        confirmLabel: "Remove admin",
+                        destructive: true,
+                        onConfirm: () => remove.mutate(a.userId),
+                      })
+                    }
+                    className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 transition-colors hover:text-white"
+                  >
+                    Remove
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+      </div>
     </section>
   );
 }

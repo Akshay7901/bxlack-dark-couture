@@ -8,16 +8,22 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next);
-      setUser(next?.user ?? null);
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
+    try {
+      const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+        setSession(next);
+        setUser(next?.user ?? null);
+      });
+      supabase.auth.getSession().then(({ data }) => {
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        setLoading(false);
+      }).catch(() => setLoading(false));
+      return () => sub.subscription.unsubscribe();
+    } catch {
+      // Supabase isn't configured (e.g. missing env vars) — treat as signed out
+      // instead of crashing every page that renders this hook.
       setLoading(false);
-    });
-    return () => sub.subscription.unsubscribe();
+    }
   }, []);
 
   return { session, user, loading };

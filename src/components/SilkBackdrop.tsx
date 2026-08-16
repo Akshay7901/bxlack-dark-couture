@@ -1,20 +1,39 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import shopBg from "@/assets/shop-bg.jpg";
 
+/**
+ * Pointer-driven parallax only runs on fine-pointer (mouse) devices — on touch
+ * devices there's no hover/mouse-move signal worth animating for, so we skip
+ * attaching the listener and spring computation entirely there.
+ */
+function useFinePointer() {
+  const [fine, setFine] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: fine)");
+    setFine(mq.matches);
+    const onChange = () => setFine(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return fine;
+}
+
 export function SilkBackdrop() {
+  const finePointer = useFinePointer();
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const { scrollY } = useScroll();
 
   useEffect(() => {
+    if (!finePointer) return;
     const onMove = (e: PointerEvent) => {
       mx.set(e.clientX / window.innerWidth - 0.5);
       my.set(e.clientY / window.innerHeight - 0.5);
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
-  }, [mx, my]);
+  }, [finePointer, mx, my]);
 
   const spring = { stiffness: 60, damping: 22, mass: 0.6 };
   const sx = useSpring(mx, spring);
@@ -29,10 +48,6 @@ export function SilkBackdrop() {
   const x2 = useTransform(sx, (v) => v * 60);
   const y2 = useTransform(sy, (v) => v * 44);
   const scrollY2 = useSpring(useTransform(scrollY, [0, 1400], [0, 140]), { stiffness: 80, damping: 26 });
-
-  // layer 3 — grain drift (moves most)
-  const x3 = useTransform(sx, (v) => v * -90);
-  const y3 = useTransform(sy, (v) => v * -70);
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
@@ -52,24 +67,6 @@ export function SilkBackdrop() {
         style={{ x: x2, y: scrollY2, translateY: y2 }}
         className="absolute left-1/2 top-1/4 h-[80vh] w-[80vh] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.12),transparent_65%)] blur-3xl"
       />
-      <motion.div
-        animate={{ opacity: [0.35, 0.6, 0.35] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -left-1/4 top-1/2 h-[60vh] w-[120vw] -rotate-12 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] blur-2xl"
-      />
-
-      <motion.div
-        style={{ x: x3, y: y3 }}
-        className="absolute -inset-[10%] opacity-[0.18] mix-blend-overlay"
-      >
-        <div
-          className="h-full w-full"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
-          }}
-        />
-      </motion.div>
 
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,5,5,0.15),rgba(5,5,5,0.35)_50%,rgba(5,5,5,0.6))]" />
       <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_35%,transparent_45%,rgba(0,0,0,0.55)_100%)]" />

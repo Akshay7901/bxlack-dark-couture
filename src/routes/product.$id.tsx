@@ -9,21 +9,27 @@ import { Plus, Minus, Heart } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { useCart } from "@/lib/cart";
+import { SizeChartModal } from "@/components/SizeChartModal";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
     meta: [
       { title: "Product — BXLACK SS26" },
-      { name: "description", content: "A numbered, small-batch BXLACK piece. Cut in Antwerp, finished in Tokyo." },
+      {
+        name: "description",
+        content: "A numbered, small-batch BXLACK piece. Cut in Antwerp, finished in Tokyo.",
+      },
       { property: "og:title", content: "Product — BXLACK SS26" },
-      { property: "og:description", content: "A numbered, small-batch BXLACK piece from the SS26 collection." },
+      {
+        property: "og:description",
+        content: "A numbered, small-batch BXLACK piece from the SS26 collection.",
+      },
       { property: "og:type", content: "product" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ProductPage,
 });
-
 
 function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
   const [[index, dir], setState] = useState<[number, number]>([0, 1]);
@@ -88,7 +94,9 @@ function ProductPage() {
     return (
       <AppShell hideNewsletter>
         <div className="flex min-h-[70vh] items-center justify-center">
-          <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading piece…</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+            Loading piece…
+          </p>
         </div>
       </AppShell>
     );
@@ -141,7 +149,9 @@ function ProductPage() {
               <h1 className="font-display text-[28px] uppercase leading-[1.1] tracking-[-0.01em] text-white md:text-[36px] lg:text-[42px]">
                 {product.name}
               </h1>
-              <p className="mt-3 font-mono text-[15px] tracking-[0.05em] text-white/70 md:text-[16px]">₹{product.price}</p>
+              <p className="mt-3 font-mono text-[15px] tracking-[0.05em] text-white/70 md:text-[16px]">
+                ₹{product.price}
+              </p>
 
               <div className="mt-8 border-t border-white/10">
                 {accordions.map((a) => {
@@ -152,8 +162,14 @@ function ProductPage() {
                         onClick={() => setOpenAcc(open ? null : a.id)}
                         className="flex w-full items-center justify-between py-3 text-left"
                       >
-                        <span className="font-mono text-[13px] uppercase tracking-[0.24em] text-white/85">{a.title}</span>
-                        {open ? <Minus size={14} className="text-white/50" /> : <Plus size={14} className="text-white/50" />}
+                        <span className="font-mono text-[13px] uppercase tracking-[0.24em] text-white/85">
+                          {a.title}
+                        </span>
+                        {open ? (
+                          <Minus size={14} className="text-white/50" />
+                        ) : (
+                          <Plus size={14} className="text-white/50" />
+                        )}
                       </button>
                       <motion.div
                         initial={false}
@@ -161,7 +177,9 @@ function ProductPage() {
                         transition={{ duration: 0.4, ease: [0.7, 0, 0.2, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="pb-4 pr-4 font-editorial text-[15px] leading-[1.7] tracking-[0.01em] text-white/60">{a.body}</p>
+                        <p className="pb-4 pr-4 font-editorial text-[15px] leading-[1.7] tracking-[0.01em] text-white/60">
+                          {a.body}
+                        </p>
                       </motion.div>
                     </div>
                   );
@@ -173,7 +191,7 @@ function ProductPage() {
           {/* Middle — product image */}
           <div className="order-1 md:order-1 md:col-span-7 lg:order-2 lg:col-span-4">
             <div className="mx-auto w-full max-w-[520px] md:max-w-[440px] lg:max-w-[520px]">
-            <ScrollGallery images={gallery as string[]} alt={product.name} />
+              <ScrollGallery images={gallery as string[]} alt={product.name} />
             </div>
           </div>
 
@@ -181,24 +199,16 @@ function ProductPage() {
           <aside className="order-3 md:col-span-5 md:col-start-8 md:self-start lg:col-span-4 lg:col-start-auto lg:self-center">
             <div>
               <div className="flex items-baseline justify-between">
-                <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">Select Size</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">
+                  Select Size
+                </p>
                 <button
-                  onClick={() => setOpenSizeChart((v) => !v)}
+                  onClick={() => setOpenSizeChart(true)}
                   className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/50 underline underline-offset-4 transition-colors hover:text-white"
                 >
                   Size Chart
                 </button>
               </div>
-              <motion.div
-                initial={false}
-                animate={{ height: openSizeChart ? "auto" : 0, opacity: openSizeChart ? 1 : 0 }}
-                transition={{ duration: 0.4, ease: [0.7, 0, 0.2, 1] }}
-                className="overflow-hidden"
-              >
-                <p className="pt-3 font-editorial text-[12px] leading-[1.7] text-white/55">
-                  XS · 48 / S · 50 / M · 52 / L · 54 / XL · 56 (chest, cm). Model wears M and is 186cm. Runs true to size — size down for a closer silhouette.
-                </p>
-              </motion.div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {["S", "M", "L", "XL", "XXL"].map((s) => (
                   <button
@@ -232,7 +242,6 @@ function ProductPage() {
                 <Heart size={13} className={wishlisted ? "fill-white" : ""} />
                 {wishlisted ? "Wishlisted" : "Add to Wishlist"}
               </button>
-
             </div>
           </aside>
         </div>
@@ -240,6 +249,13 @@ function ProductPage() {
         <div className="h-20 md:h-32" />
       </section>
       <SignInPrompt open={signInOpen} onClose={() => setSignInOpen(false)} />
+      <SizeChartModal
+        open={openSizeChart}
+        onClose={() => setOpenSizeChart(false)}
+        category={product.category}
+        selectedSize={size}
+        onSelectSize={setSize}
+      />
     </AppShell>
   );
 }

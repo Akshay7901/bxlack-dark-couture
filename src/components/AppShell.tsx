@@ -2,10 +2,17 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 
-import { Loader } from "./Loader";
 import { CartDrawer } from "./CartDrawer";
 
-export function AppShell({ children, hideNewsletter }: { children: ReactNode; hideNewsletter?: boolean }) {
+export function AppShell({
+  children,
+  hideNewsletter,
+  hideFooter,
+}: {
+  children: ReactNode;
+  hideNewsletter?: boolean;
+  hideFooter?: boolean;
+}) {
   const [cart, setCart] = useState(false);
   useEffect(() => {
     const open = () => setCart(true);
@@ -14,11 +21,10 @@ export function AppShell({ children, hideNewsletter }: { children: ReactNode; hi
   }, []);
   return (
     <div className="grain relative min-h-screen bg-noir text-white">
-      <Loader />
       <Header onCart={() => setCart(true)} />
       <CartDrawer open={cart} onClose={() => setCart(false)} />
       <main>{children}</main>
-      <Footer hideNewsletter={hideNewsletter} />
+      {hideFooter ? null : <Footer hideNewsletter={hideNewsletter} />}
     </div>
   );
 }

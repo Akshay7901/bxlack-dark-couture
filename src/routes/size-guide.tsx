@@ -1,21 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
-
-const ROWS = [
-  { size: "S", chest: "104", length: "70", shoulder: "48", waist: "76" },
-  { size: "M", chest: "110", length: "72", shoulder: "50", waist: "81" },
-  { size: "L", chest: "116", length: "74", shoulder: "52", waist: "86" },
-  { size: "XL", chest: "122", length: "76", shoulder: "54", waist: "91" },
-  { size: "XXL", chest: "128", length: "78", shoulder: "56", waist: "96" },
-];
+import { SIZE_ROWS } from "@/lib/sizing";
 
 export const Route = createFileRoute("/size-guide")({
   head: () => ({
     meta: [
       { title: "Size Guide — BXLACK" },
-      { name: "description", content: "BXLACK measurements in centimetres for t-shirts, shirts and denim, plus fit and measuring guidance." },
+      {
+        name: "description",
+        content:
+          "BXLACK measurements in centimetres for t-shirts, shirts and denim, plus fit and measuring guidance.",
+      },
       { property: "og:title", content: "Size Guide — BXLACK" },
-      { property: "og:description", content: "Measurements, fit notes and how to measure for BXLACK pieces." },
+      {
+        property: "og:description",
+        content: "Measurements, fit notes and how to measure for BXLACK pieces.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/size-guide" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -63,7 +63,7 @@ function SizeGuidePage() {
             </tr>
           </thead>
           <tbody>
-            {ROWS.map((r) => (
+            {SIZE_ROWS.map((r) => (
               <tr key={r.size} className="border-t border-light-grey/10 text-sm text-light-grey/80">
                 <td className="py-4 font-mono text-white">{r.size}</td>
                 <td className="py-4">{r.chest} cm</td>
