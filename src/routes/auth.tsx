@@ -79,7 +79,7 @@ function AuthPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 font-mono text-[12px] text-white outline-none transition-colors focus:border-white/60"
+              className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 font-mono text-base text-white outline-none transition-colors focus:border-white/60 sm:text-[12px]"
             />
           </label>
           <label className="block">
@@ -90,7 +90,7 @@ function AuthPage() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 font-mono text-[12px] text-white outline-none transition-colors focus:border-white/60"
+              className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 font-mono text-base text-white outline-none transition-colors focus:border-white/60 sm:text-[12px]"
             />
           </label>
 

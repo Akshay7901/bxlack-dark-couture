@@ -168,7 +168,7 @@ function GatePage({
                 placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="min-w-0 flex-1 border border-white/20 bg-black/30 px-4 py-3 font-mono text-[12px] text-white outline-none backdrop-blur-sm transition-colors placeholder:text-white/35 focus:border-white/60"
+                className="min-w-0 flex-1 border border-white/20 bg-black/30 px-4 py-3 font-mono text-base text-white outline-none backdrop-blur-sm transition-colors placeholder:text-white/35 focus:border-white/60 sm:text-[12px]"
               />
               <button
                 type="submit"
@@ -192,7 +192,7 @@ function GatePage({
                 placeholder="Access code"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-40 border border-white/20 bg-black/30 px-3 py-2.5 font-mono text-[12px] text-white outline-none backdrop-blur-sm transition-colors placeholder:text-white/35 focus:border-white/60"
+                className="w-40 border border-white/20 bg-black/30 px-3 py-2.5 font-mono text-base text-white outline-none backdrop-blur-sm transition-colors placeholder:text-white/35 focus:border-white/60 sm:text-[12px]"
               />
               <button
                 type="submit"

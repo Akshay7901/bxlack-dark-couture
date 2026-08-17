@@ -26,7 +26,7 @@ const CHANNELS = [
 ];
 
 const inputClass =
-  "w-full border-b border-light-grey/20 bg-transparent py-4 text-sm text-white outline-none transition-colors placeholder:text-mid-grey/60 focus:border-white";
+  "w-full border-b border-light-grey/20 bg-transparent py-4 text-base text-white outline-none transition-colors placeholder:text-mid-grey/60 focus:border-white sm:text-sm";
 
 function ContactPage() {
   const [sent, setSent] = useState(false);
