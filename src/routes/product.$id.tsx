@@ -92,21 +92,26 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
         </AnimatePresence>
       </div>
       {images.length > 1 ? (
-        <div className="mt-4 flex items-center justify-center gap-2">
-          {images.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              aria-label={`Show image ${i + 1} of ${images.length}`}
-              onClick={() => {
-                if (i === index) return;
-                setState([i, i > index ? 1 : -1]);
-              }}
-              className={`h-1.5 rounded-full transition-all ${
-                i === index ? "w-5 bg-white" : "w-1.5 bg-white/30 hover:bg-white/55"
-              }`}
-            />
-          ))}
+        <div className="mt-4 flex flex-col items-center gap-2">
+          <div className="flex items-center gap-2">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Show image ${i + 1} of ${images.length}`}
+                onClick={() => {
+                  if (i === index) return;
+                  setState([i, i > index ? 1 : -1]);
+                }}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === index ? "w-5 bg-white" : "w-1.5 bg-white/30 hover:bg-white/55"
+                }`}
+              />
+            ))}
+          </div>
+          <p className="hidden font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 md:block">
+            Scroll to view more images
+          </p>
         </div>
       ) : null}
     </div>
