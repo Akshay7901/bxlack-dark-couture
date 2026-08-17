@@ -11,40 +11,7 @@ import { useRef, useState, useEffect } from "react";
 import hero from "@/assets/hero-front-v2.png.asset.json";
 import heroBack from "@/assets/hero-back-v2.png.asset.json";
 
-/**
- * `100svh`/`h-svh` isn't understood by older mobile browsers (pre ~2022), which then
- * ignore the height declaration entirely rather than falling back to `100vh` — leaving
- * the hero with no defined height at all. This measures the real visible viewport via
- * `window.innerHeight` (universally supported) and exposes it as a CSS variable so the
- * hero's height stays correct and stable everywhere, no CSS feature support required.
- */
-function useStableViewportHeight() {
-  useEffect(() => {
-    const root = document.documentElement;
-    const setVh = () => {
-      const vh = window.innerHeight * 0.01;
-      const current = parseFloat(root.style.getPropertyValue("--app-vh"));
-      // Only shrink, never grow — keeps the value pinned to the smallest state the
-      // mobile browser's address bar produces, instead of jumping around as it
-      // shows/hides while scrolling.
-      if (!current || vh <= current) root.style.setProperty("--app-vh", `${vh}px`);
-    };
-    setVh();
-    const onOrientationChange = () => {
-      root.style.removeProperty("--app-vh");
-      setVh();
-    };
-    window.addEventListener("resize", setVh);
-    window.addEventListener("orientationchange", onOrientationChange);
-    return () => {
-      window.removeEventListener("resize", setVh);
-      window.removeEventListener("orientationchange", onOrientationChange);
-    };
-  }, []);
-}
-
 export function Hero() {
-  useStableViewportHeight();
   const ref = useRef<HTMLDivElement>(null);
   const imgWrap = useRef<HTMLDivElement>(null);
 
@@ -101,11 +68,7 @@ export function Hero() {
   `;
 
   return (
-    <section
-      ref={ref}
-      className="relative w-full overflow-hidden bg-noir"
-      style={{ height: "calc(var(--app-vh, 1vh) * 100)" }}
-    >
+    <section ref={ref} className="hero-vh relative w-full overflow-hidden bg-noir">
       <motion.div
         ref={imgWrap}
         style={{ scale, y }}

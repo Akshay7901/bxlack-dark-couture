@@ -109,6 +109,11 @@
   html {
     background-color: var(--color-noir);
     color: var(--color-foreground);
+    /* Prevent the browser from auto-adjusting scroll position when the hero
+       image finishes loading late and shifts layout above the fold — this
+       was silently undoing the launch-gate's scroll-to-top reset on slower
+       mobile connections. */
+    overflow-anchor: none;
   }
   * {
     border-color: var(--color-border);
@@ -129,6 +134,15 @@
     background: var(--color-foreground);
     color: var(--color-noir);
   }
+}
+
+/* `dvh` tracks the browser's real, currently-visible viewport height live —
+   including mobile address-bar show/hide — so the hero never falls out of
+   sync the way a JS-computed value can. `vh` is a plain fallback: unsupported
+   browsers ignore the invalid second declaration and keep the first. */
+.hero-vh {
+  height: 100vh;
+  height: 100dvh;
 }
 
 @utility grain {
