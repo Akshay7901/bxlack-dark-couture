@@ -12,4 +12,11 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // The wrapper defaults Nitro to a Cloudflare Workers build. Outside Lovable's own
+  // sandbox (i.e. any real `vite build` — locally, CI, or on Vercel) an explicit
+  // preset here takes precedence over that default, so deploys to Vercel produce
+  // Vercel-shaped output instead of a Cloudflare Workers bundle it can't run.
+  nitro: {
+    preset: "vercel",
+  },
 });
