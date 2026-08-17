@@ -1,4 +1,12 @@
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate, animate } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  useSpring,
+  useMotionTemplate,
+  animate,
+} from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import hero from "@/assets/hero-front-v2.png.asset.json";
 import heroBack from "@/assets/hero-back-v2.png.asset.json";
@@ -22,7 +30,7 @@ export function Hero() {
       isHovering ? 1 : 0,
       isHovering
         ? { type: "spring", stiffness: 500, damping: 35, mass: 0.3 }
-        : { type: "spring", stiffness: 340, damping: 32, mass: 0.4 }
+        : { type: "spring", stiffness: 340, damping: 32, mass: 0.4 },
     );
     return controls.stop;
   }, [isHovering, hoverValue]);
@@ -60,7 +68,7 @@ export function Hero() {
   `;
 
   return (
-    <section ref={ref} className="relative h-screen w-full overflow-hidden bg-noir">
+    <section ref={ref} className="relative h-svh w-full overflow-hidden bg-noir">
       <motion.div
         ref={imgWrap}
         style={{ scale, y }}
@@ -123,7 +131,6 @@ export function Hero() {
           <span>→</span>
         </motion.a>
       </motion.div>
-
     </section>
   );
 }
