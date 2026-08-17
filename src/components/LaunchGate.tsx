@@ -24,8 +24,21 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   const bypass = location.pathname.startsWith("/admin") || location.pathname.startsWith("/auth");
+  const showGate = mounted && settings?.coming_soon_enabled && !bypass && !isAdmin && !unlocked;
 
-  if (!mounted || !settings?.coming_soon_enabled || bypass || isAdmin || unlocked) {
+  useEffect(() => {
+    if (showGate) return;
+    // The gate unlock is a state swap, not a navigation, so the scroll position
+    // (often nonzero from the on-screen keyboard shifting the view while typing
+    // the code) carries straight into the real page unless we reset it. The
+    // keyboard-dismiss animation can also re-adjust scroll after this fires, so
+    // reset again on the next frame to win that race.
+    window.scrollTo(0, 0);
+    const id = requestAnimationFrame(() => window.scrollTo(0, 0));
+    return () => cancelAnimationFrame(id);
+  }, [showGate]);
+
+  if (!showGate) {
     return <>{children}</>;
   }
 
