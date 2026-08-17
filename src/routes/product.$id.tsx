@@ -35,39 +35,80 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
   const [[index, dir], setState] = useState<[number, number]>([0, 1]);
   const ref = useRef<HTMLDivElement>(null);
   const lock = useRef(0);
+  const touchStartY = useRef<number | null>(null);
+
+  const go = (d: number) => {
+    const now = Date.now();
+    if (now - lock.current < 420) return;
+    lock.current = now;
+    setState(([i]) => [(i + d + images.length) % images.length, d]);
+  };
 
   useEffect(() => {
     const el = ref.current;
     if (!el || images.length < 2) return;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const now = Date.now();
-      if (now - lock.current < 420) return;
       if (Math.abs(e.deltaY) < 8) return;
-      lock.current = now;
-      const d = e.deltaY > 0 ? 1 : -1;
-      setState(([i]) => [(i + d + images.length) % images.length, d]);
+      go(e.deltaY > 0 ? 1 : -1);
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
   }, [images.length]);
 
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0]?.clientY ?? null;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current === null || images.length < 2) return;
+    const endY = e.changedTouches[0]?.clientY ?? touchStartY.current;
+    const delta = touchStartY.current - endY;
+    touchStartY.current = null;
+    if (Math.abs(delta) < 32) return;
+    go(delta > 0 ? 1 : -1);
+  };
+
   return (
-    <div ref={ref} className="relative aspect-[4/5] w-full overflow-hidden bg-transparent">
-      <AnimatePresence initial={false} mode="popLayout" custom={dir}>
-        <motion.img
-          key={index}
-          custom={dir}
-          initial={{ y: dir > 0 ? "100%" : "-100%", opacity: 0 }}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={{ y: dir > 0 ? "-100%" : "100%", opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
-          src={images[index]}
-          alt={alt}
-          className="absolute inset-0 h-full w-full object-contain"
-          loading="lazy"
-        />
-      </AnimatePresence>
+    <div className="relative">
+      <div
+        ref={ref}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        className="relative aspect-[4/5] w-full touch-pan-x overflow-hidden bg-transparent"
+      >
+        <AnimatePresence initial={false} mode="popLayout" custom={dir}>
+          <motion.img
+            key={index}
+            custom={dir}
+            initial={{ y: dir > 0 ? "100%" : "-100%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            exit={{ y: dir > 0 ? "-100%" : "100%", opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
+            src={images[index]}
+            alt={alt}
+            className="absolute inset-0 h-full w-full object-contain"
+            loading="lazy"
+          />
+        </AnimatePresence>
+      </div>
+      {images.length > 1 ? (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Show image ${i + 1} of ${images.length}`}
+              onClick={() => {
+                if (i === index) return;
+                setState([i, i > index ? 1 : -1]);
+              }}
+              className={`h-1.5 rounded-full transition-all ${
+                i === index ? "w-5 bg-white" : "w-1.5 bg-white/30 hover:bg-white/55"
+              }`}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
