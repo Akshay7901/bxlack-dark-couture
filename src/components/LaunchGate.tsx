@@ -31,23 +31,29 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (showGate) return;
-    // The gate unlock is a state swap, not a navigation, so the scroll position
-    // (often nonzero from the on-screen keyboard shifting the view while typing
-    // the code) carries straight into the real page unless we reset it. On mobile
-    // the keyboard's own dismiss animation keeps nudging the scroll position for a
-    // few hundred ms after this fires, so a single reset loses that race — force
-    // it repeatedly for a full second to guarantee the last word.
-    const forceTop = () => {
+    // Focusing the access-code input makes the mobile browser scroll the page so
+    // the field clears the on-screen keyboard. Since unlocking swaps in the real
+    // page in place (no navigation), that scroll offset would otherwise carry
+    // straight over. Rather than reset it after the fact — which loses the race
+    // against the keyboard's own dismiss animation — lock the page from scrolling
+    // at all for as long as the gate is showing, so there's nothing to undo.
+    if (!showGate) {
       window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
+      return;
+    }
+    const body = document.body;
+    const prevPosition = body.style.position;
+    const prevTop = body.style.top;
+    const prevWidth = body.style.width;
+    body.style.position = "fixed";
+    body.style.top = "0";
+    body.style.width = "100%";
+    return () => {
+      body.style.position = prevPosition;
+      body.style.top = prevTop;
+      body.style.width = prevWidth;
+      window.scrollTo(0, 0);
     };
-    forceTop();
-    const timeouts = [0, 50, 100, 200, 300, 500, 700, 1000].map((delay) =>
-      setTimeout(forceTop, delay),
-    );
-    return () => timeouts.forEach(clearTimeout);
   }, [showGate]);
 
   if (!showGate) {
