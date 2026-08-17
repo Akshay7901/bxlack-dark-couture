@@ -27,15 +27,27 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
   const showGate = mounted && settings?.coming_soon_enabled && !bypass && !isAdmin && !unlocked;
 
   useEffect(() => {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  }, []);
+
+  useEffect(() => {
     if (showGate) return;
     // The gate unlock is a state swap, not a navigation, so the scroll position
     // (often nonzero from the on-screen keyboard shifting the view while typing
-    // the code) carries straight into the real page unless we reset it. The
-    // keyboard-dismiss animation can also re-adjust scroll after this fires, so
-    // reset again on the next frame to win that race.
-    window.scrollTo(0, 0);
-    const id = requestAnimationFrame(() => window.scrollTo(0, 0));
-    return () => cancelAnimationFrame(id);
+    // the code) carries straight into the real page unless we reset it. On mobile
+    // the keyboard's own dismiss animation keeps nudging the scroll position for a
+    // few hundred ms after this fires, so a single reset loses that race — force
+    // it repeatedly for a full second to guarantee the last word.
+    const forceTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    forceTop();
+    const timeouts = [0, 50, 100, 200, 300, 500, 700, 1000].map((delay) =>
+      setTimeout(forceTop, delay),
+    );
+    return () => timeouts.forEach(clearTimeout);
   }, [showGate]);
 
   if (!showGate) {
@@ -48,6 +60,7 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
       subheading={settings.subheading}
       launchAt={settings.launch_at}
       onUnlocked={() => {
+        (document.activeElement as HTMLElement | null)?.blur();
         localStorage.setItem(UNLOCK_KEY, "1");
         setUnlocked(true);
       }}
