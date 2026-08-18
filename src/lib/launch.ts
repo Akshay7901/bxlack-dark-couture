@@ -35,20 +35,34 @@ export async function updateLaunchPassword(newPassword: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function joinWaitlist(email: string): Promise<void> {
-  const { error } = await supabase.from("waitlist_signups").insert({ email });
+export async function joinWaitlist(input: {
+  name: string;
+  email: string;
+  instagram?: string;
+}): Promise<void> {
+  const { error } = await supabase.from("waitlist_signups").insert({
+    name: input.name,
+    email: input.email,
+    instagram: input.instagram || null,
+  });
   if (error) {
     if (error.code === "23505") throw new Error("You're already on the list.");
     throw error;
   }
 }
 
-export type WaitlistEntry = { id: string; email: string; created_at: string };
+export type WaitlistEntry = {
+  id: string;
+  name: string;
+  email: string;
+  instagram: string | null;
+  created_at: string;
+};
 
 export async function fetchWaitlist(): Promise<WaitlistEntry[]> {
   const { data, error } = await supabase
     .from("waitlist_signups")
-    .select("id, email, created_at")
+    .select("id, name, email, instagram, created_at")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];

@@ -686,8 +686,18 @@ function LaunchSection() {
                     <Mail size={16} />
                   </div>
                 }
-                title={w.email}
-                subtitle={new Date(w.created_at).toLocaleDateString()}
+                title={w.name || w.email}
+                subtitle={w.email}
+                meta={
+                  <div className="text-right">
+                    {w.instagram ? (
+                      <p className="font-mono text-[10px] text-white/50">@{w.instagram.replace(/^@/, "")}</p>
+                    ) : null}
+                    <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
+                      {new Date(w.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                }
                 onDelete={() =>
                   confirm({
                     title: "Remove signup",

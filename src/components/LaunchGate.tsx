@@ -149,7 +149,10 @@ function GatePage({
   onUnlocked: () => void;
 }) {
   const remaining = useCountdown(launchAt);
+  const [showJoinForm, setShowJoinForm] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [instagram, setInstagram] = useState("");
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
 
@@ -167,7 +170,7 @@ function GatePage({
     e.preventDefault();
     setJoining(true);
     try {
-      await joinWaitlist(email.trim());
+      await joinWaitlist({ name: name.trim(), email: email.trim(), instagram: instagram.trim() });
       setJoined(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong.");
@@ -269,30 +272,75 @@ function GatePage({
         ) : null}
 
         <div className="mt-10 w-full max-w-sm">
-          {joined ? (
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-white/70">
-              You're on the list. See you at the drop.
-            </p>
-          ) : (
-            <form onSubmit={submitEmail} className="glass flex items-stretch gap-2 p-1.5">
-              <input
-                type="email"
-                required
-                placeholder="Your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="min-w-0 flex-1 bg-transparent px-3 py-2.5 font-mono text-base text-white outline-none transition-colors placeholder:text-white/35 sm:text-[12px]"
-              />
-              <button
-                type="submit"
-                disabled={joining}
-                className="flex items-center justify-center gap-2 border border-white bg-white px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
+          <AnimatePresence mode="wait" initial={false}>
+            {joined ? (
+              <motion.p
+                key="joined"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.3 }}
+                className="font-mono text-[11px] uppercase tracking-[0.24em] text-white/70"
               >
-                {joining ? <Loader2 size={13} className="animate-spin" /> : null}
-                Join
-              </button>
-            </form>
-          )}
+                You're on the list. See you at the drop.
+              </motion.p>
+            ) : showJoinForm ? (
+              <motion.form
+                key="join-form"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.3 }}
+                onSubmit={submitEmail}
+                className="glass space-y-2.5 p-4"
+              >
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-base text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/50 sm:text-[12px]"
+                />
+                <input
+                  type="email"
+                  required
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-base text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/50 sm:text-[12px]"
+                />
+                <input
+                  type="text"
+                  placeholder="Instagram (optional)"
+                  value={instagram}
+                  onChange={(e) => setInstagram(e.target.value)}
+                  className="w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-base text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/50 sm:text-[12px]"
+                />
+                <button
+                  type="submit"
+                  disabled={joining}
+                  className="flex w-full items-center justify-center gap-2 border border-white bg-white px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
+                >
+                  {joining ? <Loader2 size={13} className="animate-spin" /> : null}
+                  Join the list
+                </button>
+              </motion.form>
+            ) : (
+              <motion.button
+                key="join-toggle"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => setShowJoinForm(true)}
+                className="w-full border border-white bg-white px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white"
+              >
+                Get Early Access
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="mt-10">
