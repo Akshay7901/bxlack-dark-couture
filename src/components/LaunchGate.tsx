@@ -220,7 +220,7 @@ function GatePage({
         animate={{ scale: 1.06, opacity: 1 }}
         style={{ x: imgX, y: imgY }}
         transition={{ duration: 3, ease: [0.7, 0, 0.2, 1] }}
-        className="absolute inset-0 h-full w-full object-cover object-[42%_36%]"
+        className="absolute inset-0 h-full w-full object-cover object-[50%_36%]"
       />
       <div className="absolute inset-0 bg-black/30" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-black/55" />
