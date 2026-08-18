@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { products } from "@/lib/products";
 import { fetchCategoryImages } from "@/lib/catalog";
-import wreckTee from "@/assets/wreck-tee-back.png.asset.json";
+import wreckTee from "@/assets/wreck-tee-back.png";
 
 const categories = [
   { label: "Shirt", type: "Shirt" },
@@ -12,7 +12,7 @@ const categories = [
 ] as const;
 
 function fallbackImageFor(type: string) {
-  if (type === "Tshirt") return wreckTee.url;
+  if (type === "Tshirt") return wreckTee;
   return products.find((p) => p.category === type)?.image ?? products[0].image;
 }
 
