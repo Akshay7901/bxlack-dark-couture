@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Plus, User } from "lucide-react";
 import { createAdminUser, listAdmins, removeAdminUser } from "@/lib/admin-users.functions";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { ListRow } from "@/components/admin/ListRow";
 
 export function AdminTeam({ currentUserId }: { currentUserId: string }) {
   const qc = useQueryClient();
@@ -53,8 +55,9 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
         </div>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/80 transition-colors hover:border-white hover:text-white"
+          className="flex items-center gap-2 border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/80 transition-colors hover:border-white hover:text-white"
         >
+          {open ? null : <Plus size={13} />}
           {open ? "Cancel" : "Add admin"}
         </button>
       </div>
@@ -101,7 +104,7 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
         </form>
       ) : null}
 
-      <div className="mt-8 border-t border-white/10">
+      <div className="mt-8 space-y-2">
         {isLoading ? (
           <p className="py-10 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
             Loading…
@@ -111,17 +114,26 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
             No admins found
           </p>
         ) : (
-          <ul className="divide-y divide-white/[0.07]">
-            {admins.map((a) => (
-              <li key={a.userId} className="flex items-center justify-between gap-4 py-4">
-                <span className="font-sans text-[13px] text-white/85">{a.email}</span>
-                {a.userId === currentUserId ? (
+          admins.map((a) => (
+            <ListRow
+              key={a.userId}
+              thumbnail={
+                <div className="flex h-full w-full items-center justify-center text-white/25">
+                  <User size={16} />
+                </div>
+              }
+              title={a.email}
+              meta={
+                a.userId === currentUserId ? (
                   <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">
                     You
                   </span>
-                ) : (
-                  <button
-                    onClick={() =>
+                ) : undefined
+              }
+              onDelete={
+                a.userId === currentUserId
+                  ? undefined
+                  : () =>
                       confirm({
                         title: "Remove admin",
                         message: `This permanently deletes the account for ${a.email} and revokes studio access. This cannot be undone.`,
@@ -129,15 +141,10 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
                         destructive: true,
                         onConfirm: () => remove.mutate(a.userId),
                       })
-                    }
-                    className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 transition-colors hover:text-white"
-                  >
-                    Remove
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+              }
+              deleteLabel={`Remove ${a.email}`}
+            />
+          ))
         )}
       </div>
     </section>

@@ -2,10 +2,20 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import {
+  Image as ImageIcon,
+  Mail,
+  Plus,
+  Rocket,
+  Shirt,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { AdminTeam } from "@/components/admin/AdminTeam";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { ListRow } from "@/components/admin/ListRow";
 import {
   CATEGORIES,
   createProduct,
@@ -135,13 +145,23 @@ function SectionHeading({ title, description }: { title: string; description?: s
   );
 }
 
-const NAV_ITEMS = [
-  { key: "products", label: "Products" },
-  { key: "categories", label: "Category images" },
-  { key: "launch", label: "Launch" },
-  { key: "team", label: "Team" },
+const NAV_GROUPS = [
+  {
+    label: "Catalog",
+    items: [
+      { key: "products", label: "Products", icon: Shirt },
+      { key: "categories", label: "Category images", icon: ImageIcon },
+    ],
+  },
+  {
+    label: "Settings",
+    items: [
+      { key: "launch", label: "Launch", icon: Rocket },
+      { key: "team", label: "Team", icon: Users },
+    ],
+  },
 ] as const;
-type NavKey = (typeof NAV_ITEMS)[number]["key"];
+type NavKey = (typeof NAV_GROUPS)[number]["items"][number]["key"];
 
 function AdminDashboard({ email, userId }: { email: string; userId: string }) {
   const navigate = useNavigate();
@@ -181,20 +201,34 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
         </div>
       </div>
 
-      <div className="mt-10 grid gap-8 md:grid-cols-[180px_1fr] md:gap-12">
-        <nav className="flex gap-2 overflow-x-auto pb-2 md:flex-col md:gap-1 md:overflow-visible md:pb-0">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => setActive(item.key)}
-              className={`shrink-0 border-l-2 px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.24em] transition-colors ${
-                active === item.key
-                  ? "border-white text-white"
-                  : "border-white/10 text-white/40 hover:border-white/40 hover:text-white/70"
-              }`}
-            >
-              {item.label}
-            </button>
+      <div className="mt-10 grid gap-8 md:grid-cols-[190px_1fr] md:gap-12">
+        <nav className="flex gap-5 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="shrink-0 md:shrink">
+              <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-white/25 md:mb-1.5 md:block md:px-3">
+                {group.label}
+              </p>
+              <div className="flex gap-2 md:flex-col md:gap-0.5">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = active === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => setActive(item.key)}
+                      className={`flex shrink-0 items-center gap-2.5 px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.22em] transition-colors ${
+                        isActive
+                          ? "bg-white/10 text-white"
+                          : "text-white/40 hover:bg-white/5 hover:text-white/70"
+                      }`}
+                    >
+                      <Icon size={13} className={isActive ? "text-white" : "text-white/35"} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </nav>
 
@@ -245,8 +279,9 @@ function ProductsSection() {
             setEditing(null);
             setCreating(true);
           }}
-          className="border border-white bg-white px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white"
+          className="flex items-center gap-2 border border-white bg-white px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white"
         >
+          <Plus size={13} />
           Add product
         </button>
       </div>
@@ -266,7 +301,7 @@ function ProductsSection() {
           }}
         />
       ) : (
-        <div className="mt-6 overflow-x-auto border-t border-white/10">
+        <div className="mt-6 space-y-2">
           {isLoading ? (
             <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
               Loading…
@@ -276,67 +311,50 @@ function ProductsSection() {
               No products yet
             </p>
           ) : (
-            <table className="w-full min-w-[640px] border-collapse">
-              <thead>
-                <tr className="border-b border-white/10 text-left font-mono text-[9px] uppercase tracking-[0.28em] text-white/35">
-                  <th className="py-3 pr-4">Image</th>
-                  <th className="py-3 pr-4">Name</th>
-                  <th className="py-3 pr-4">Category</th>
-                  <th className="py-3 pr-4">Price</th>
-                  <th className="py-3 pr-4">Status</th>
-                  <th className="py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p) => (
-                  <tr key={p.id} className="border-b border-white/[0.07]">
-                    <td className="py-3 pr-4">
-                      <div className="h-14 w-11 overflow-hidden bg-white/5">
-                        {(p.cardImageUrl ?? p.imageUrl) ? (
-                          <img
-                            src={p.cardImageUrl ?? p.imageUrl ?? ""}
-                            alt={p.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : null}
-                      </div>
-                    </td>
-                    <td className="py-3 pr-4 font-sans text-[13px] text-white/90">{p.name}</td>
-                    <td className="py-3 pr-4 font-mono text-[11px] text-white/55">{p.category}</td>
-                    <td className="py-3 pr-4 font-mono text-[11px] text-white/80">₹{p.price}</td>
-                    <td className="py-3 pr-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">
+            products.map((p, i) => (
+              <ListRow
+                key={p.id}
+                index={i + 1}
+                thumbnail={
+                  (p.cardImageUrl ?? p.imageUrl) ? (
+                    <img
+                      src={p.cardImageUrl ?? p.imageUrl ?? ""}
+                      alt={p.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : null
+                }
+                title={p.name}
+                subtitle={p.category}
+                meta={
+                  <div className="flex items-center gap-4">
+                    <span className="font-mono text-[11px] text-white/70">₹{p.price}</span>
+                    <span
+                      className={`font-mono text-[9px] uppercase tracking-[0.2em] ${
+                        p.published ? "text-white/50" : "text-white/25"
+                      }`}
+                    >
                       {p.published ? "Live" : "Hidden"}
-                    </td>
-                    <td className="py-3 text-right">
-                      <button
-                        onClick={() => {
-                          setCreating(false);
-                          setEditing(p);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="mr-4 font-mono text-[10px] uppercase tracking-[0.24em] text-white/70 hover:text-white"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() =>
-                          confirm({
-                            title: "Delete product",
-                            message: `"${p.name}" will be permanently removed. This cannot be undone.`,
-                            confirmLabel: "Delete",
-                            destructive: true,
-                            onConfirm: () => removeMutation.mutate(p.id),
-                          })
-                        }
-                        className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 hover:text-white"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  </div>
+                }
+                onEdit={() => {
+                  setCreating(false);
+                  setEditing(p);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                onDelete={() =>
+                  confirm({
+                    title: "Delete product",
+                    message: `"${p.name}" will be permanently removed. This cannot be undone.`,
+                    confirmLabel: "Delete",
+                    destructive: true,
+                    onConfirm: () => removeMutation.mutate(p.id),
+                  })
+                }
+                deleteLabel={`Delete ${p.name}`}
+              />
+            ))
           )}
         </div>
       )}
@@ -392,19 +410,56 @@ function CategoriesSection() {
           Loading…
         </p>
       ) : (
-        <div className="mt-6 flex flex-wrap gap-6">
+        <div className="mt-6 space-y-2">
           {CATEGORIES.map((category) => {
             const img: CategoryImage | undefined = byCategory.get(category);
+            const busyHere = busy === category;
             return (
-              <div key={category}>
-                <span className={labelClass}>{category}</span>
-                <ThumbField
-                  className="mt-2"
-                  preview={img?.imageUrl ?? null}
-                  disabled={busy === category}
-                  onFile={(file) => void upload(category, file)}
-                  onClear={() => void remove(category)}
-                />
+              <div
+                key={category}
+                className="flex items-center gap-4 border border-white/10 bg-white/[0.02] px-4 py-3.5 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
+              >
+                <label
+                  className={`h-12 w-12 shrink-0 overflow-hidden border border-white/10 bg-white/5 ${
+                    busyHere ? "cursor-wait opacity-50" : "cursor-pointer hover:border-white/30"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={busyHere}
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) void upload(category, file);
+                    }}
+                  />
+                  {img?.imageUrl ? (
+                    <img src={img.imageUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="flex h-full items-center justify-center font-mono text-[15px] text-white/25">
+                      +
+                    </span>
+                  )}
+                </label>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-sans text-[13px] text-white/90">{category}</p>
+                  <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+                    Click thumbnail to change
+                  </p>
+                </div>
+                {img?.imageUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => void remove(category)}
+                    disabled={busyHere}
+                    aria-label={`Remove ${category} image`}
+                    className="flex h-8 w-8 items-center justify-center border border-white/15 text-white/50 transition-colors hover:border-red-400/50 hover:text-red-300 disabled:opacity-50"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                ) : null}
               </div>
             );
           })}
@@ -613,7 +668,7 @@ function LaunchSection() {
           ) : null}
         </div>
 
-        <div className="mt-6 border-t border-white/10">
+        <div className="mt-6 space-y-2">
           {waitlistLoading ? (
             <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
               Loading…
@@ -623,32 +678,28 @@ function LaunchSection() {
               No signups yet
             </p>
           ) : (
-            <ul className="divide-y divide-white/[0.07]">
-              {waitlist.map((w) => (
-                <li key={w.id} className="flex items-center justify-between gap-4 py-3">
-                  <div>
-                    <span className="font-sans text-[13px] text-white/90">{w.email}</span>
-                    <span className="ml-3 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
-                      {new Date(w.created_at).toLocaleDateString()}
-                    </span>
+            waitlist.map((w) => (
+              <ListRow
+                key={w.id}
+                thumbnail={
+                  <div className="flex h-full w-full items-center justify-center text-white/25">
+                    <Mail size={16} />
                   </div>
-                  <button
-                    onClick={() =>
-                      confirm({
-                        title: "Remove signup",
-                        message: `Remove ${w.email} from the waitlist?`,
-                        confirmLabel: "Remove",
-                        destructive: true,
-                        onConfirm: () => removeMutation.mutate(w.id),
-                      })
-                    }
-                    className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 hover:text-white"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
+                }
+                title={w.email}
+                subtitle={new Date(w.created_at).toLocaleDateString()}
+                onDelete={() =>
+                  confirm({
+                    title: "Remove signup",
+                    message: `Remove ${w.email} from the waitlist?`,
+                    confirmLabel: "Remove",
+                    destructive: true,
+                    onConfirm: () => removeMutation.mutate(w.id),
+                  })
+                }
+                deleteLabel={`Remove ${w.email}`}
+              />
+            ))
           )}
         </div>
       </div>
