@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import signatureMark from "@/assets/signature-mark.png";
 
 export function Loader() {
   const [gone, setGone] = useState(false);
@@ -7,7 +8,6 @@ export function Loader() {
     const t = setTimeout(() => setGone(true), 2200);
     return () => clearTimeout(t);
   }, []);
-  const letters = "BXLACK".split("");
   return (
     <AnimatePresence>
       {!gone && (
@@ -17,19 +17,14 @@ export function Loader() {
           transition={{ duration: 0.8, ease: [0.7, 0, 0.3, 1] }}
           className="grain fixed inset-0 z-[10000] flex items-center justify-center bg-[oklch(0.03_0_0)]"
         >
-          <div className="flex overflow-hidden">
-            {letters.map((l, i) => (
-              <motion.span
-                key={i}
-                initial={{ y: "110%", opacity: 0 }}
-                animate={{ y: "0%", opacity: 1 }}
-                transition={{ delay: 0.15 + i * 0.08, duration: 0.9, ease: [0.7, 0, 0.2, 1] }}
-                className="font-display text-6xl font-medium tracking-[-0.04em] text-white md:text-9xl"
-              >
-                {l}
-              </motion.span>
-            ))}
-          </div>
+          <motion.img
+            src={signatureMark}
+            alt="BXLACK"
+            initial={{ opacity: 0, scale: 0.94, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 1.1, ease: [0.7, 0, 0.2, 1] }}
+            className="w-[78vw] max-w-[560px] md:w-[46vw]"
+          />
           <motion.div
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
