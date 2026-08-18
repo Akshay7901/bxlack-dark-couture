@@ -12,7 +12,7 @@ import { Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { fetchSiteSettings, joinWaitlist, verifyLaunchPassword } from "@/lib/launch";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
-import editorial from "@/assets/venus-tee-model-back.png";
+import editorial from "@/assets/gate-model-back.png";
 
 const UNLOCK_KEY = "bxlack:launch-unlocked";
 
@@ -220,11 +220,11 @@ function GatePage({
         animate={{ scale: 1.06, opacity: 1 }}
         style={{ x: imgX, y: imgY }}
         transition={{ duration: 3, ease: [0.7, 0, 0.2, 1] }}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover object-[42%_36%]"
       />
-      <div className="absolute inset-0 bg-black/55" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/70" />
-      <div className="absolute inset-0 bg-[radial-gradient(60%_55%_at_50%_45%,rgba(0,0,0,0.65),transparent_70%)]" />
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-black/55" />
+      <div className="absolute inset-0 bg-[radial-gradient(60%_55%_at_50%_45%,rgba(0,0,0,0.4),transparent_70%)]" />
 
       <div className="absolute inset-x-0 top-0 z-10 hidden items-baseline justify-between px-8 pt-8 font-mono text-[10px] uppercase tracking-[0.32em] text-white/40 sm:flex sm:px-12">
         <span>BXLACK — SS2026</span>
