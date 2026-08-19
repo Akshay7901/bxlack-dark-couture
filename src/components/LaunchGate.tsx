@@ -8,7 +8,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2, Lock, X } from "lucide-react";
 import { toast } from "sonner";
 import { fetchSiteSettings, joinWaitlist, verifyLaunchPassword } from "@/lib/launch";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
@@ -292,8 +292,21 @@ function GatePage({
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.3 }}
                 onSubmit={submitEmail}
-                className="glass space-y-2.5 p-4"
+                className="glass relative space-y-2.5 p-4"
               >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowJoinForm(false);
+                    setName("");
+                    setEmail("");
+                    setInstagram("");
+                  }}
+                  aria-label="Close"
+                  className="absolute -top-3 -right-3 flex h-7 w-7 items-center justify-center border border-white/20 bg-noir text-white/50 transition-colors hover:border-white hover:text-white"
+                >
+                  <X size={13} />
+                </button>
                 <input
                   type="text"
                   required
