@@ -69,31 +69,31 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
   };
 
   return (
-    <div className="relative">
-      <div
-        ref={ref}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-        className="relative aspect-[4/5] w-full touch-pan-x overflow-hidden bg-transparent"
-      >
-        <AnimatePresence initial={false} mode="popLayout" custom={dir}>
-          <motion.img
-            key={index}
-            custom={dir}
-            initial={{ y: dir > 0 ? "100%" : "-100%", opacity: 0 }}
-            animate={{ y: "0%", opacity: 1 }}
-            exit={{ y: dir > 0 ? "-100%" : "100%", opacity: 0 }}
-            transition={{ duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
-            src={images[index]}
-            alt={alt}
-            className="absolute inset-0 h-full w-full object-contain"
-            loading="lazy"
-          />
-        </AnimatePresence>
-      </div>
-      {images.length > 1 ? (
-        <div className="mt-4 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-2">
+    <div>
+      <div className="relative">
+        <div
+          ref={ref}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          className="relative aspect-[4/5] w-full touch-pan-x overflow-hidden bg-transparent"
+        >
+          <AnimatePresence initial={false} mode="popLayout" custom={dir}>
+            <motion.img
+              key={index}
+              custom={dir}
+              initial={{ y: dir > 0 ? "100%" : "-100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              exit={{ y: dir > 0 ? "-100%" : "100%", opacity: 0 }}
+              transition={{ duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
+              src={images[index]}
+              alt={alt}
+              className="absolute inset-0 h-full w-full object-contain"
+              loading="lazy"
+            />
+          </AnimatePresence>
+        </div>
+        {images.length > 1 ? (
+          <div className="absolute right-2 top-1/2 flex -translate-y-1/2 flex-col items-center gap-2 sm:right-3">
             {images.map((_, i) => (
               <button
                 key={i}
@@ -103,16 +103,18 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
                   if (i === index) return;
                   setState([i, i > index ? 1 : -1]);
                 }}
-                className={`h-1.5 rounded-full transition-all ${
-                  i === index ? "w-5 bg-white" : "w-1.5 bg-white/30 hover:bg-white/55"
+                className={`w-1.5 rounded-full transition-all ${
+                  i === index ? "h-5 bg-white" : "h-1.5 bg-white/30 hover:bg-white/55"
                 }`}
               />
             ))}
           </div>
-          <p className="hidden font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 md:block">
-            Scroll to view more images
-          </p>
-        </div>
+        ) : null}
+      </div>
+      {images.length > 1 ? (
+        <p className="mt-4 hidden text-center font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 md:block">
+          Scroll to view more images
+        </p>
       ) : null}
     </div>
   );
