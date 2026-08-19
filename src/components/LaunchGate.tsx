@@ -68,7 +68,6 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
 
   return (
     <GatePage
-      headline={settings.headline}
       subheading={settings.subheading}
       launchAt={settings.launch_at}
       onUnlocked={() => {
@@ -90,27 +89,6 @@ function useCountdown(target: string | null) {
     return () => clearInterval(id);
   }, [target]);
   return remaining;
-}
-
-/** Word-by-word staggered reveal, matching the login page's headline motion. */
-function RevealHeading({ text, className }: { text: string; className: string }) {
-  const words = text.split(" ");
-  return (
-    <h1 className={className}>
-      {words.map((word, i) => (
-        <span key={i} className="mr-[0.22em] inline-block overflow-hidden align-bottom last:mr-0">
-          <motion.span
-            initial={{ y: "110%", opacity: 0 }}
-            animate={{ y: "0%", opacity: 1 }}
-            transition={{ delay: 0.3 + i * 0.09, duration: 0.9, ease: [0.7, 0, 0.2, 1] }}
-            className="inline-block"
-          >
-            {word}
-          </motion.span>
-        </span>
-      ))}
-    </h1>
-  );
 }
 
 /** A single countdown unit that flips like a mechanical split-flap display when its value ticks over. */
@@ -138,12 +116,10 @@ function FlipUnit({ value, label }: { value: number | null; label: string }) {
 }
 
 function GatePage({
-  headline,
   subheading,
   launchAt,
   onUnlocked,
 }: {
-  headline: string;
   subheading: string;
   launchAt: string | null;
   onUnlocked: () => void;
@@ -244,15 +220,11 @@ function GatePage({
           BXLACK
         </motion.p>
 
-        <RevealHeading
-          text={headline}
-          className="mt-6 max-w-2xl font-display text-[13vw] uppercase leading-[0.95] tracking-[-0.03em] sm:text-6xl md:text-7xl"
-        />
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.75, duration: 0.8 }}
-          className="mt-5 max-w-md font-editorial text-[15px] leading-relaxed text-white/60"
+          transition={{ delay: 0.4, duration: 0.8 }}
+          className="mt-6 max-w-md font-editorial text-[15px] leading-relaxed text-white/60"
         >
           {subheading}
         </motion.p>
