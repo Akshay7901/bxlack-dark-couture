@@ -111,11 +111,48 @@ export async function deleteProduct(id: string) {
   if (error) throw error;
 }
 
+/**
+ * Downscales oversized images (phone photos, AI-generated art, etc. easily land at
+ * 4000px+ / several MB) before upload — otherwise every first-time visitor eats the
+ * full original download on every product/category image.
+ */
+async function compressImage(file: File, maxDimension = 1600, quality = 0.88): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/svg+xml") return file;
+
+  const bitmap = await createImageBitmap(file);
+  if (bitmap.width <= maxDimension && bitmap.height <= maxDimension && file.size < 1_500_000) {
+    bitmap.close();
+    return file;
+  }
+
+  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+  const width = Math.round(bitmap.width * scale);
+  const height = Math.round(bitmap.height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+
+  const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
+  const blob: Blob | null = await new Promise((resolve) =>
+    canvas.toBlob(resolve, outputType, quality),
+  );
+  if (!blob || blob.size >= file.size) return file;
+
+  const ext = outputType === "image/png" ? "png" : "jpg";
+  return new File([blob], file.name.replace(/\.[^.]+$/, `.${ext}`), { type: outputType });
+}
+
 export async function uploadProductImage(file: File): Promise<string> {
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const compressed = await compressImage(file);
+  const ext = compressed.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const path = `uploads/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage.from("product-images").upload(path, file, {
-    cacheControl: "3600",
+  const { error } = await supabase.storage.from("product-images").upload(path, compressed, {
+    cacheControl: "31536000",
     upsert: false,
   });
   if (error) throw error;
