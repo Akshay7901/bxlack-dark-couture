@@ -16,13 +16,16 @@ export function HeritageFeature() {
           transition={{ duration: 1.4, ease: [0.7, 0, 0.2, 1] }}
         />
 
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-start pl-6 sm:pl-10 md:pl-16">
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-start justify-center gap-4 pl-6 sm:pl-10 md:pl-16">
+          <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-foreground/90 sm:text-[11px]">
+            Shirt Drops
+          </p>
           <Link
             to="/shop"
             search={{ type: "Shirt" }}
             className="pointer-events-auto font-mono text-[10px] uppercase tracking-[0.35em] text-foreground relative inline-block after:absolute after:-bottom-2 after:left-0 after:h-px after:w-full after:origin-bottom-right after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-[cubic-bezier(0.7,0,0.2,1)] after:content-[''] hover:after:origin-bottom-left hover:after:scale-x-100 sm:text-[11px]"
           >
-            Shop This
+            Shop Now
           </Link>
         </div>
       </div>
