@@ -8,8 +8,8 @@ import {
   animate,
 } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import hero from "@/assets/hero-front-v2.png.asset.json";
-import heroBack from "@/assets/hero-back-v2.png.asset.json";
+import heroImage from "@/assets/hero-front-v2.png";
+import heroBackImage from "@/assets/hero-back-v2.png";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -81,14 +81,14 @@ export function Hero() {
         onTouchCancel={handleLeave}
       >
         <img
-          src={hero.url}
+          src={heroImage}
           alt="BXLACK SS2026 campaign"
           className="absolute left-0 top-0 h-full w-full object-cover object-top"
           width={1672}
           height={941}
         />
         <motion.img
-          src={heroBack.url}
+          src={heroBackImage}
           alt=""
           aria-hidden
           className="pointer-events-none absolute left-0 top-0 h-full w-full object-cover object-top"
