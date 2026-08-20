@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/useAuth";
 import { AppShell } from "@/components/AppShell";
+import { AccountDashboard } from "@/components/account/AccountDashboard";
 import editorial from "@/assets/venus-tee-model.png";
 
 /** Word-by-word staggered reveal, matching the intro loader's letter-reveal motion. */
@@ -158,6 +159,26 @@ function AccountPage() {
     navigate({ to: "/", replace: true });
   };
 
+  if (loading) {
+    return (
+      <AppShell hideNewsletter hideFooter>
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">
+            Loading…
+          </p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (user) {
+    return (
+      <AppShell hideNewsletter>
+        <AccountDashboard userId={user.id} email={user.email ?? ""} onSignOut={signOut} />
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell hideNewsletter hideFooter>
       <section className="relative min-h-screen overflow-hidden">
@@ -188,45 +209,7 @@ function AccountPage() {
             transition={{ duration: 0.7, ease: [0.7, 0, 0.2, 1] }}
             className="glass w-full max-w-[420px] border border-white/10 px-7 py-10 sm:px-9"
           >
-            {loading ? (
-              <p className="py-10 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">
-                Loading…
-              </p>
-            ) : user ? (
-              <div className="text-center">
-                <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">
-                  Members Access — 002
-                </p>
-                <RevealHeading
-                  words={[{ text: "Your" }, { text: "account" }]}
-                  className="mt-4 flex justify-center font-display text-[34px] uppercase leading-[1.05] tracking-[-0.01em] text-white sm:text-[40px]"
-                />
-                <p className="mt-3 break-all font-editorial text-[14px] text-white/55">
-                  {user.email}
-                </p>
-                <div className="mt-8 space-y-3">
-                  <Link
-                    to="/wishlist"
-                    className="block w-full border border-white/20 py-[12px] font-mono text-[10px] uppercase tracking-[0.28em] text-white/70 transition-colors hover:border-white hover:text-white"
-                  >
-                    Wishlist
-                  </Link>
-                  <Link
-                    to="/cart"
-                    className="block w-full border border-white/20 py-[12px] font-mono text-[10px] uppercase tracking-[0.28em] text-white/70 transition-colors hover:border-white hover:text-white"
-                  >
-                    Your bag
-                  </Link>
-                  <button
-                    onClick={signOut}
-                    className="w-full border border-white bg-white py-[13px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
+            <>
                 <div className="text-center">
                   <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">
                     Members Access — 001
@@ -375,7 +358,6 @@ function AccountPage() {
                   </p>
                 ) : null}
               </>
-            )}
           </motion.div>
         </div>
       </section>
