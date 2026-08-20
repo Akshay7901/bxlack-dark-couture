@@ -10,6 +10,7 @@ import { useWishlist } from "@/lib/wishlist";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { useCart } from "@/lib/cart";
 import { SizeChartModal } from "@/components/SizeChartModal";
+import { ImageZoomModal } from "@/components/ImageZoomModal";
 
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
@@ -33,9 +34,11 @@ export const Route = createFileRoute("/product/$id")({
 
 function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
   const [[index, dir], setState] = useState<[number, number]>([0, 1]);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const lock = useRef(0);
   const touchStartY = useRef<number | null>(null);
+  const justSwiped = useRef(false);
 
   const go = (d: number) => {
     const now = Date.now();
@@ -60,11 +63,18 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
     touchStartY.current = e.touches[0]?.clientY ?? null;
   };
   const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartY.current === null || images.length < 2) return;
+    if (touchStartY.current === null || images.length < 2) {
+      justSwiped.current = false;
+      return;
+    }
     const endY = e.changedTouches[0]?.clientY ?? touchStartY.current;
     const delta = touchStartY.current - endY;
     touchStartY.current = null;
-    if (Math.abs(delta) < 32) return;
+    if (Math.abs(delta) < 32) {
+      justSwiped.current = false;
+      return;
+    }
+    justSwiped.current = true;
     go(delta > 0 ? 1 : -1);
   };
 
@@ -87,7 +97,14 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
               transition={{ duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
               src={images[index]}
               alt={alt}
-              className="absolute inset-0 h-full w-full object-contain"
+              onClick={() => {
+                if (justSwiped.current) {
+                  justSwiped.current = false;
+                  return;
+                }
+                setZoomOpen(true);
+              }}
+              className="absolute inset-0 h-full w-full cursor-zoom-in object-contain"
               loading="lazy"
             />
           </AnimatePresence>
@@ -115,6 +132,16 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
         <p className="mt-4 hidden text-center font-mono text-[10px] uppercase tracking-[0.24em] text-white/35 md:block">
           Scroll to view more images
         </p>
+      ) : null}
+
+      {zoomOpen ? (
+        <ImageZoomModal
+          images={images}
+          index={index}
+          alt={alt}
+          onClose={() => setZoomOpen(false)}
+          onIndexChange={(i) => setState([i, i > index ? 1 : -1])}
+        />
       ) : null}
     </div>
   );
