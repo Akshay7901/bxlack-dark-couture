@@ -584,14 +584,6 @@ function LaunchSection() {
         ) : null}
 
         <label className="block">
-          <span className={labelClass}>Headline</span>
-          <input
-            className={inputClass}
-            value={active.headline}
-            onChange={(e) => set("headline", e.target.value)}
-          />
-        </label>
-        <label className="block">
           <span className={labelClass}>Subheading</span>
           <input
             className={inputClass}
