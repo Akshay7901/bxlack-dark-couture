@@ -8,9 +8,8 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { Loader2, Lock, X } from "lucide-react";
-import { toast } from "sonner";
-import { fetchSiteSettings, joinWaitlist, verifyLaunchPassword } from "@/lib/launch";
+import { Lock } from "lucide-react";
+import { fetchSiteSettings, verifyLaunchPassword } from "@/lib/launch";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import editorial from "@/assets/gate-model-back.png";
 
@@ -125,12 +124,6 @@ function GatePage({
   onUnlocked: () => void;
 }) {
   const remaining = useCountdown(launchAt);
-  const [showJoinForm, setShowJoinForm] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [instagram, setInstagram] = useState("");
-  const [joining, setJoining] = useState(false);
-  const [joined, setJoined] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
@@ -141,19 +134,6 @@ function GatePage({
   const hours = remaining !== null ? Math.floor((remaining % 86400000) / 3600000) : null;
   const minutes = remaining !== null ? Math.floor((remaining % 3600000) / 60000) : null;
   const seconds = remaining !== null ? Math.floor((remaining % 60000) / 1000) : null;
-
-  const submitEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setJoining(true);
-    try {
-      await joinWaitlist({ name: name.trim(), email: email.trim(), instagram: instagram.trim() });
-      setJoined(true);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setJoining(false);
-    }
-  };
 
   const submitPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -242,91 +222,6 @@ function GatePage({
             <FlipUnit value={seconds} label="Sec" />
           </motion.div>
         ) : null}
-
-        <div className="mt-10 w-full max-w-sm">
-          <AnimatePresence mode="wait" initial={false}>
-            {joined ? (
-              <motion.p
-                key="joined"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.3 }}
-                className="font-mono text-[11px] uppercase tracking-[0.24em] text-white/70"
-              >
-                You're on the list. See you at the drop.
-              </motion.p>
-            ) : showJoinForm ? (
-              <motion.form
-                key="join-form"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.3 }}
-                onSubmit={submitEmail}
-                className="glass relative space-y-2.5 p-4"
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowJoinForm(false);
-                    setName("");
-                    setEmail("");
-                    setInstagram("");
-                  }}
-                  aria-label="Close"
-                  className="absolute -top-3 -right-3 flex h-7 w-7 items-center justify-center border border-white/20 bg-noir text-white/50 transition-colors hover:border-white hover:text-white"
-                >
-                  <X size={13} />
-                </button>
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  placeholder="Your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-base text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/50 sm:text-[12px]"
-                />
-                <input
-                  type="email"
-                  required
-                  placeholder="Your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-base text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/50 sm:text-[12px]"
-                />
-                <input
-                  type="text"
-                  placeholder="Instagram (optional)"
-                  value={instagram}
-                  onChange={(e) => setInstagram(e.target.value)}
-                  className="w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-base text-white outline-none transition-colors placeholder:text-white/35 focus:border-white/50 sm:text-[12px]"
-                />
-                <button
-                  type="submit"
-                  disabled={joining}
-                  className="flex w-full items-center justify-center gap-2 border border-white bg-white px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
-                >
-                  {joining ? <Loader2 size={13} className="animate-spin" /> : null}
-                  Join the list
-                </button>
-              </motion.form>
-            ) : (
-              <motion.button
-                key="join-toggle"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => setShowJoinForm(true)}
-                className="w-full border border-white bg-white px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white"
-              >
-                Get Early Access
-              </motion.button>
-            )}
-          </AnimatePresence>
-        </div>
 
         <div className="mt-10">
           <AnimatePresence mode="wait" initial={false}>
