@@ -59,7 +59,7 @@ const labelClass = "font-mono text-[10px] uppercase tracking-[0.4em] text-white/
 
 function AboutPage() {
   return (
-    <AppShell>
+    <AppShell hideNewsletter>
       {/* Hero */}
       <section className="relative flex min-h-[90vh] items-end overflow-hidden pt-28 md:pt-40">
         <img
