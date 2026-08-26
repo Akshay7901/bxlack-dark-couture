@@ -10,15 +10,8 @@ const SHOP = [
   { label: "Jeans", type: "Jeans" as const },
 ];
 
-const MAISON = [
-  { label: "About", to: "/about" },
-  { label: "Journal", to: "/journal" },
-  { label: "Lookbook", to: "/lookbook" },
-  { label: "New Drop", to: "/new-drop" },
-];
-
 const SERVICES = [
-  { label: "Size Guide", to: "/size-guide" },
+  { label: "About Us", to: "/about" },
   { label: "Shipping", to: "/shipping" },
   { label: "Returns", to: "/returns" },
   { label: "FAQ", to: "/faq" },
@@ -40,7 +33,7 @@ export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
       <div className="mx-auto max-w-[1600px]">
         {hideNewsletter ? null : <Newsletter />}
 
-        <div className={`grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-3 lg:grid-cols-5 ${hideNewsletter ? "" : "mt-16 md:mt-24"}`}>
+        <div className={`grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-2 lg:grid-cols-4 ${hideNewsletter ? "" : "mt-16 md:mt-24"}`}>
           <div className="col-span-2 sm:col-span-1">
             <img src={logoAsset.url} alt="BXLACK" className="h-10 w-auto object-contain" />
             <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-light-grey/60">
@@ -55,19 +48,6 @@ export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
                 <li key={s.label}>
                   <Link to="/shop" search={{ type: s.type }} className={linkClass}>
                     {s.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mid-grey/70">Maison</p>
-            <ul className="mt-5 space-y-3">
-              {MAISON.map((m) => (
-                <li key={m.label}>
-                  <Link to={m.to} className={linkClass}>
-                    {m.label}
                   </Link>
                 </li>
               ))}
