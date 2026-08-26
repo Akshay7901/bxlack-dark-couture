@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
-import story from "@/assets/story.jpg";
-import hero from "@/assets/hero.jpg";
+import story from "@/assets/heritage-shirt-fuji.png";
+import hero from "@/assets/hero-front-v2.png";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -27,7 +27,7 @@ function AboutPage() {
   return (
     <AppShell>
       <section className="relative flex min-h-[90vh] items-end overflow-hidden pt-28 md:pt-40">
-        <img src={hero} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" loading="lazy" />
+        <img src={hero} alt="" className="absolute inset-0 h-full w-full object-cover object-top opacity-40" loading="lazy" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black" />
         <div className="relative z-10 mx-auto max-w-[1600px] px-6 pb-20 md:px-10">
           <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/60">Est. 2019 · Antwerp</p>
