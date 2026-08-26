@@ -77,8 +77,8 @@ const emptyForm: ProductInput = {
 };
 
 const inputClass =
-  "mt-2 w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-[12px] text-white outline-none transition-colors focus:border-white/60";
-const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-white/40";
+  "mt-2 w-full border border-black/15 bg-transparent px-3 py-2.5 font-mono text-[12px] text-neutral-900 outline-none transition-colors focus:border-black/60";
+const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400";
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -92,7 +92,7 @@ function AdminPage() {
   if (loading || (user && isAdmin === null)) {
     return (
       <Shell>
-        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
           Loading studio…
         </p>
       </Shell>
@@ -104,7 +104,7 @@ function AdminPage() {
     return (
       <Shell>
         <h1 className="font-display text-3xl uppercase tracking-[-0.02em]">Not authorised</h1>
-        <p className="mt-3 max-w-md font-mono text-[11px] leading-relaxed text-white/50">
+        <p className="mt-3 max-w-md font-mono text-[11px] leading-relaxed text-neutral-500">
           This account ({user.email}) does not have studio access. Only an existing admin can create
           admin accounts.
         </p>
@@ -113,7 +113,7 @@ function AdminPage() {
             await supabase.auth.signOut();
             navigate({ to: "/auth", replace: true });
           }}
-          className="mt-6 border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/70 hover:border-white hover:text-white"
+          className="mt-6 border border-black/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-700 hover:border-black hover:text-black"
         >
           Sign out
         </button>
@@ -126,7 +126,7 @@ function AdminPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grain min-h-screen bg-noir px-5 py-24 text-white sm:px-8 md:px-12">
+    <div className="min-h-screen bg-white px-5 py-24 text-neutral-900 sm:px-8 md:px-12">
       <div className="mx-auto max-w-[1100px]">{children}</div>
     </div>
   );
@@ -137,7 +137,7 @@ function SectionHeading({ title, description }: { title: string; description?: s
     <div>
       <h2 className="font-display text-xl uppercase tracking-[-0.01em]">{title}</h2>
       {description ? (
-        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
+        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-400">
           {description}
         </p>
       ) : null}
@@ -172,10 +172,10 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
     <Shell>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">
+          <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-neutral-400">
             BXLACK · Studio
           </p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">
+          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-400">
             {email}
           </p>
         </div>
@@ -183,7 +183,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           <Link
             to="/shop"
             search={{ type: "All" }}
-            className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/60 hover:text-white"
+            className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-600 hover:text-black"
           >
             View shop
           </Link>
@@ -194,7 +194,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
               await supabase.auth.signOut();
               navigate({ to: "/auth", replace: true });
             }}
-            className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40 hover:text-white"
+            className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400 hover:text-black"
           >
             Sign out
           </button>
@@ -205,7 +205,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
         <nav className="flex gap-5 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="shrink-0 md:shrink">
-              <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-white/25 md:mb-1.5 md:block md:px-3">
+              <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-neutral-300 md:mb-1.5 md:block md:px-3">
                 {group.label}
               </p>
               <div className="flex gap-2 md:flex-col md:gap-0.5">
@@ -218,11 +218,11 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
                       onClick={() => setActive(item.key)}
                       className={`flex shrink-0 items-center gap-2.5 px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.22em] transition-colors ${
                         isActive
-                          ? "bg-white/10 text-white"
-                          : "text-white/40 hover:bg-white/5 hover:text-white/70"
+                          ? "bg-black/5 text-black"
+                          : "text-neutral-400 hover:bg-black/5 hover:text-neutral-700"
                       }`}
                     >
-                      <Icon size={13} className={isActive ? "text-white" : "text-white/35"} />
+                      <Icon size={13} className={isActive ? "text-black" : "text-neutral-400"} />
                       {item.label}
                     </button>
                   );
@@ -252,7 +252,7 @@ function ProductsSection() {
 
   const [editing, setEditing] = useState<CatalogProductWithUrls | null>(null);
   const [creating, setCreating] = useState(false);
-  const { confirm, dialog } = useConfirm();
+  const { confirm, dialog } = useConfirm("light");
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin-products"] });
@@ -279,7 +279,7 @@ function ProductsSection() {
             setEditing(null);
             setCreating(true);
           }}
-          className="flex items-center gap-2 border border-white bg-white px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white"
+          className="flex items-center gap-2 border border-black bg-black px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white transition-colors hover:bg-transparent hover:text-black"
         >
           <Plus size={13} />
           Add product
@@ -303,11 +303,11 @@ function ProductsSection() {
       ) : (
         <div className="mt-6 space-y-2">
           {isLoading ? (
-            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
               Loading…
             </p>
           ) : products.length === 0 ? (
-            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
               No products yet
             </p>
           ) : (
@@ -328,10 +328,10 @@ function ProductsSection() {
                 subtitle={p.category}
                 meta={
                   <div className="flex items-center gap-4">
-                    <span className="font-mono text-[11px] text-white/70">₹{p.price}</span>
+                    <span className="font-mono text-[11px] text-neutral-600">₹{p.price}</span>
                     <span
                       className={`font-mono text-[9px] uppercase tracking-[0.2em] ${
-                        p.published ? "text-white/50" : "text-white/25"
+                        p.published ? "text-neutral-500" : "text-neutral-300"
                       }`}
                     >
                       {p.published ? "Live" : "Hidden"}
@@ -406,7 +406,7 @@ function CategoriesSection() {
       />
 
       {isLoading ? (
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
           Loading…
         </p>
       ) : (
@@ -417,11 +417,11 @@ function CategoriesSection() {
             return (
               <div
                 key={category}
-                className="flex items-center gap-4 border border-white/10 bg-white/[0.02] px-4 py-3.5 transition-colors hover:border-white/20 hover:bg-white/[0.04]"
+                className="flex items-center gap-4 border border-black/10 bg-black/[0.02] px-4 py-3.5 transition-colors hover:border-black/20 hover:bg-black/[0.04]"
               >
                 <label
-                  className={`h-12 w-12 shrink-0 overflow-hidden border border-white/10 bg-white/5 ${
-                    busyHere ? "cursor-wait opacity-50" : "cursor-pointer hover:border-white/30"
+                  className={`h-12 w-12 shrink-0 overflow-hidden border border-black/10 bg-black/5 ${
+                    busyHere ? "cursor-wait opacity-50" : "cursor-pointer hover:border-black/30"
                   }`}
                 >
                   <input
@@ -438,14 +438,14 @@ function CategoriesSection() {
                   {img?.imageUrl ? (
                     <img src={img.imageUrl} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <span className="flex h-full items-center justify-center font-mono text-[15px] text-white/25">
+                    <span className="flex h-full items-center justify-center font-mono text-[15px] text-neutral-300">
                       +
                     </span>
                   )}
                 </label>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-sans text-[13px] text-white/90">{category}</p>
-                  <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+                  <p className="truncate font-sans text-[13px] text-neutral-900">{category}</p>
+                  <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-400">
                     Click thumbnail to change
                   </p>
                 </div>
@@ -455,7 +455,7 @@ function CategoriesSection() {
                     onClick={() => void remove(category)}
                     disabled={busyHere}
                     aria-label={`Remove ${category} image`}
-                    className="flex h-8 w-8 items-center justify-center border border-white/15 text-white/50 transition-colors hover:border-red-400/50 hover:text-red-300 disabled:opacity-50"
+                    className="flex h-8 w-8 items-center justify-center border border-black/15 text-neutral-500 transition-colors hover:border-red-500/50 hover:text-red-600 disabled:opacity-50"
                   >
                     <Trash2 size={13} />
                   </button>
@@ -479,7 +479,7 @@ function toDatetimeLocal(iso: string | null): string {
 
 function LaunchSection() {
   const qc = useQueryClient();
-  const { confirm, dialog } = useConfirm();
+  const { confirm, dialog } = useConfirm("light");
   const { data: settings, isLoading } = useQuery({
     queryKey: ["site-settings"],
     queryFn: fetchSiteSettings,
@@ -551,7 +551,7 @@ function LaunchSection() {
 
   if (isLoading) {
     return (
-      <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading…</p>
+      <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">Loading…</p>
     );
   }
 
@@ -565,19 +565,19 @@ function LaunchSection() {
 
       <form
         onSubmit={saveSettings}
-        className="mt-6 max-w-xl space-y-5 border border-white/12 p-5 sm:p-7"
+        className="mt-6 max-w-xl space-y-5 border border-black/12 p-5 sm:p-7"
       >
         <label className="flex items-center gap-3">
           <input
             type="checkbox"
             checked={active.coming_soon_enabled}
             onChange={(e) => set("coming_soon_enabled", e.target.checked)}
-            className="h-4 w-4 accent-white"
+            className="h-4 w-4 accent-black"
           />
           <span className={labelClass}>Lock the site behind the coming-soon page</span>
         </label>
         {active.coming_soon_enabled ? (
-          <p className="border-l border-white/20 pl-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-white/45">
+          <p className="border-l border-black/20 pl-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-neutral-500">
             Live visitors will see the gate. Admins and anyone with the access code still get
             through.
           </p>
@@ -595,7 +595,7 @@ function LaunchSection() {
           <span className={labelClass}>Launch date &amp; time (optional — shows a countdown)</span>
           <input
             type="datetime-local"
-            className={`${inputClass} [color-scheme:dark]`}
+            className={`${inputClass} [color-scheme:light]`}
             value={toDatetimeLocal(active.launch_at)}
             onChange={(e) =>
               set("launch_at", e.target.value ? new Date(e.target.value).toISOString() : null)
@@ -607,7 +607,7 @@ function LaunchSection() {
           <button
             type="submit"
             disabled={savingSettings}
-            className="border border-white bg-white px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
+            className="border border-black bg-black px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white transition-colors hover:bg-transparent hover:text-black disabled:opacity-50"
           >
             {savingSettings ? "Saving…" : "Save"}
           </button>
@@ -615,7 +615,7 @@ function LaunchSection() {
             <button
               type="button"
               onClick={() => setForm(null)}
-              className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40 hover:text-white"
+              className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400 hover:text-black"
             >
               Discard changes
             </button>
@@ -623,9 +623,9 @@ function LaunchSection() {
         </div>
       </form>
 
-      <form onSubmit={savePassword} className="mt-8 max-w-xl border border-white/12 p-5 sm:p-7">
+      <form onSubmit={savePassword} className="mt-8 max-w-xl border border-black/12 p-5 sm:p-7">
         <span className={labelClass}>Access code</span>
-        <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
+        <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-400">
           Anyone with this code can browse the full site early — share it with press, friends or
           your team
         </p>
@@ -640,20 +640,20 @@ function LaunchSection() {
           <button
             type="submit"
             disabled={savingPassword}
-            className="border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/80 transition-colors hover:border-white hover:text-white disabled:opacity-50"
+            className="border border-black/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-700 transition-colors hover:border-black hover:text-black disabled:opacity-50"
           >
             {savingPassword ? "Saving…" : "Update code"}
           </button>
         </div>
       </form>
 
-      <div className="mt-10 border-t border-white/10 pt-8">
+      <div className="mt-10 border-t border-black/10 pt-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionHeading title={`Waitlist — ${waitlist.length}`} />
           {waitlist.length > 0 ? (
             <button
               onClick={copyEmails}
-              className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/60 hover:text-white"
+              className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-600 hover:text-black"
             >
               Copy all emails
             </button>
@@ -662,11 +662,11 @@ function LaunchSection() {
 
         <div className="mt-6 space-y-2">
           {waitlistLoading ? (
-            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
               Loading…
             </p>
           ) : waitlist.length === 0 ? (
-            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
               No signups yet
             </p>
           ) : (
@@ -674,7 +674,7 @@ function LaunchSection() {
               <ListRow
                 key={w.id}
                 thumbnail={
-                  <div className="flex h-full w-full items-center justify-center text-white/25">
+                  <div className="flex h-full w-full items-center justify-center text-neutral-400">
                     <Mail size={16} />
                   </div>
                 }
@@ -683,9 +683,9 @@ function LaunchSection() {
                 meta={
                   <div className="text-right">
                     {w.instagram ? (
-                      <p className="font-mono text-[10px] text-white/50">@{w.instagram.replace(/^@/, "")}</p>
+                      <p className="font-mono text-[10px] text-neutral-500">@{w.instagram.replace(/^@/, "")}</p>
                     ) : null}
-                    <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
+                    <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-400">
                       {new Date(w.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -812,7 +812,7 @@ function ProductForm({
   };
 
   return (
-    <form onSubmit={save} className="mt-6 border border-white/12 p-5 sm:p-7">
+    <form onSubmit={save} className="mt-6 border border-black/12 p-5 sm:p-7">
       <div className="flex items-center justify-between">
         <h3 className="font-display text-lg uppercase tracking-[-0.01em]">
           {product ? "Edit product" : "New product"}
@@ -820,7 +820,7 @@ function ProductForm({
         <button
           type="button"
           onClick={onClose}
-          className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40 hover:text-white"
+          className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400 hover:text-black"
         >
           Close
         </button>
@@ -850,7 +850,7 @@ function ProductForm({
             <label className="block">
               <span className={labelClass}>Category</span>
               <select
-                className={`${inputClass} [&>option]:bg-noir`}
+                className={`${inputClass} [&>option]:bg-white`}
                 value={form.category}
                 onChange={(e) => set("category", e.target.value)}
               >
@@ -918,15 +918,15 @@ function ProductForm({
             </label>
           </div>
 
-          <div className="mt-6 border-t border-white/10 pt-5">
+          <div className="mt-6 border-t border-black/10 pt-5">
             <span className={labelClass}>Images</span>
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-400">
               Card = shop grid, cart &amp; wishlist · Front/Back/Gallery = product page only · 1600
               × 2000px
             </p>
             <div className="mt-3 flex flex-wrap gap-4">
               <div>
-                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-white/35">
+                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
                   Card
                 </span>
                 <ThumbField
@@ -940,7 +940,7 @@ function ProductForm({
                 />
               </div>
               <div>
-                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-white/35">
+                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
                   Front
                 </span>
                 <ThumbField
@@ -954,7 +954,7 @@ function ProductForm({
                 />
               </div>
               <div>
-                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-white/35">
+                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
                   Back
                 </span>
                 <ThumbField
@@ -969,10 +969,10 @@ function ProductForm({
               </div>
               {galleryPreviews.map((src, i) => (
                 <div key={`${src}-${i}`}>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-white/35">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
                     Gallery
                   </span>
-                  <div className="relative mt-1.5 h-24 w-20 overflow-hidden border border-white/12 bg-white/5">
+                  <div className="relative mt-1.5 h-24 w-20 overflow-hidden border border-black/12 bg-black/5">
                     <img src={src} alt="" className="h-full w-full object-cover" />
                     <button
                       type="button"
@@ -985,10 +985,10 @@ function ProductForm({
                 </div>
               ))}
               <div>
-                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-white/35">
+                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
                   Gallery
                 </span>
-                <label className="mt-1.5 flex h-24 w-20 cursor-pointer items-center justify-center border border-white/12 bg-white/5 font-mono text-[16px] text-white/35 hover:text-white/70">
+                <label className="mt-1.5 flex h-24 w-20 cursor-pointer items-center justify-center border border-black/12 bg-black/5 font-mono text-[16px] text-neutral-400 hover:text-neutral-700">
                   <input
                     type="file"
                     accept="image/*"
@@ -1011,7 +1011,7 @@ function ProductForm({
               type="checkbox"
               checked={form.published}
               onChange={(e) => set("published", e.target.checked)}
-              className="h-4 w-4 accent-white"
+              className="h-4 w-4 accent-black"
             />
             <span className={labelClass}>Visible on the storefront</span>
           </label>
@@ -1020,14 +1020,14 @@ function ProductForm({
             <button
               type="submit"
               disabled={busy}
-              className="border border-white bg-white px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
+              className="border border-black bg-black px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white transition-colors hover:bg-transparent hover:text-black disabled:opacity-50"
             >
               {busy ? "Saving…" : product ? "Save changes" : "Create product"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40 hover:text-white"
+              className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400 hover:text-black"
             >
               Cancel
             </button>
@@ -1040,12 +1040,13 @@ function ProductForm({
   );
 }
 
-/** Live read-only preview of how these field values will render as a shop-grid card. */
+/** Live read-only preview of how these field values will render as a shop-grid card
+ * (kept in the storefront's own dark theme, since that's what it's simulating). */
 function ProductPreview({ form, image }: { form: ProductInput; image: string | null }) {
   return (
     <aside className="lg:sticky lg:top-8 lg:self-start">
       <span className={labelClass}>Preview</span>
-      <div className="mt-2 border border-white/12 p-4">
+      <div className="mt-2 border border-black/12 bg-noir p-4">
         <div className="aspect-[4/5] w-full overflow-hidden bg-[#0A0A0A]">
           {image ? (
             <img src={image} alt="" className="h-full w-full object-cover" />
@@ -1074,7 +1075,7 @@ function ProductPreview({ form, image }: { form: ProductInput; image: string | n
           </div>
         </div>
       </div>
-      <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
+      <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-400">
         How this card looks on the shop grid
       </p>
     </aside>
@@ -1098,8 +1099,8 @@ function ThumbField({
   return (
     <div className={className}>
       <label
-        className={`block h-24 w-20 overflow-hidden border border-white/12 bg-white/5 ${
-          disabled ? "cursor-wait opacity-50" : "cursor-pointer hover:border-white/30"
+        className={`block h-24 w-20 overflow-hidden border border-black/12 bg-black/5 ${
+          disabled ? "cursor-wait opacity-50" : "cursor-pointer hover:border-black/30"
         }`}
       >
         <input
@@ -1116,7 +1117,7 @@ function ThumbField({
         {preview ? (
           <img src={preview} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span className="flex h-full items-center justify-center font-mono text-[16px] text-white/25">
+          <span className="flex h-full items-center justify-center font-mono text-[16px] text-neutral-300">
             +
           </span>
         )}
@@ -1126,7 +1127,7 @@ function ThumbField({
           type="button"
           onClick={onClear}
           disabled={disabled}
-          className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/35 hover:text-white"
+          className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-400 hover:text-black"
         >
           Remove
         </button>

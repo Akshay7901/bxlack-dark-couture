@@ -11,7 +11,7 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [open, setOpen] = useState(false);
-  const { confirm, dialog } = useConfirm();
+  const { confirm, dialog } = useConfirm("light");
 
   const { data: admins = [], isLoading } = useQuery({
     queryKey: ["admins"],
@@ -40,22 +40,24 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
   });
 
   const inputClass =
-    "mt-2 w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-[12px] text-white outline-none transition-colors focus:border-white/60";
-  const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-white/40";
+    "mt-2 w-full border border-black/15 bg-transparent px-3 py-2.5 font-mono text-[12px] text-neutral-900 outline-none transition-colors focus:border-black/60";
+  const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400";
 
   return (
     <section>
       {dialog}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="font-display text-xl uppercase tracking-[-0.01em]">Team</h2>
-          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
+          <h2 className="font-display text-xl uppercase tracking-[-0.01em] text-neutral-900">
+            Team
+          </h2>
+          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-400">
             Only admins can create another admin. Public sign-up is closed.
           </p>
         </div>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-2 border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/80 transition-colors hover:border-white hover:text-white"
+          className="flex items-center gap-2 border border-black/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-700 transition-colors hover:border-black hover:text-black"
         >
           {open ? null : <Plus size={13} />}
           {open ? "Cancel" : "Add admin"}
@@ -69,7 +71,7 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
             if (password.length < 8) return toast.error("Password must be at least 8 characters");
             create.mutate();
           }}
-          className="mt-6 grid gap-5 border border-white/12 p-5 sm:p-6 md:max-w-2xl md:grid-cols-2"
+          className="mt-6 grid gap-5 border border-black/12 p-5 sm:p-6 md:max-w-2xl md:grid-cols-2"
         >
           <label className="block">
             <span className={labelClass}>Email</span>
@@ -96,7 +98,7 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
             <button
               type="submit"
               disabled={create.isPending}
-              className="border border-white bg-white px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
+              className="border border-black bg-black px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white transition-colors hover:bg-transparent hover:text-black disabled:opacity-50"
             >
               {create.isPending ? "Creating…" : "Create admin"}
             </button>
@@ -106,11 +108,11 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
 
       <div className="mt-8 space-y-2">
         {isLoading ? (
-          <p className="py-10 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+          <p className="py-10 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
             Loading…
           </p>
         ) : admins.length === 0 ? (
-          <p className="py-10 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+          <p className="py-10 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
             No admins found
           </p>
         ) : (
@@ -118,14 +120,14 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
             <ListRow
               key={a.userId}
               thumbnail={
-                <div className="flex h-full w-full items-center justify-center text-white/25">
+                <div className="flex h-full w-full items-center justify-center text-neutral-400">
                   <User size={16} />
                 </div>
               }
               title={a.email}
               meta={
                 a.userId === currentUserId ? (
-                  <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-400">
                     You
                   </span>
                 ) : undefined
