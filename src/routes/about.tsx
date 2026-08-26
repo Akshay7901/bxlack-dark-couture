@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
-import story from "@/assets/heritage-shirt-fuji.png";
 import hero from "@/assets/gate-model-back.png";
 
 export const Route = createFileRoute("/about")({
@@ -229,11 +228,6 @@ function AboutPage() {
             </motion.div>
           ))}
         </div>
-      </section>
-
-      {/* Closing image */}
-      <section className="relative overflow-hidden">
-        <img src={story} alt="" className="h-[60vh] w-full object-cover opacity-70" loading="lazy" />
       </section>
 
       {/* Closing statement */}
