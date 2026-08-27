@@ -10,6 +10,7 @@ export function InfoPage({
   intro,
   blocks,
   children,
+  hideNewsletter,
 }: {
   eyebrow: string;
   title: string;
@@ -17,9 +18,10 @@ export function InfoPage({
   intro?: string;
   blocks?: InfoBlock[];
   children?: React.ReactNode;
+  hideNewsletter?: boolean;
 }) {
   return (
-    <AppShell>
+    <AppShell hideNewsletter={hideNewsletter}>
       <section className="mx-auto max-w-[1600px] px-5 pt-28 sm:px-6 md:px-10 md:pt-40">
         <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">{eyebrow}</p>
         <motion.h1
