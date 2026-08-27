@@ -17,7 +17,6 @@ export const Route = createFileRoute("/shipping")({
   component: () => (
     <InfoPage
       hideNewsletter
-      eyebrow="Client Services — 001"
       title="Shipping &"
       italic="delivery."
       intro="Every piece is packed and dispatched by hand. Below is exactly what to expect from confirmation to your door, however you choose to pay."

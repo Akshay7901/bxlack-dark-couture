@@ -12,7 +12,7 @@ export function InfoPage({
   children,
   hideNewsletter,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   italic?: string;
   intro?: string;
@@ -23,7 +23,9 @@ export function InfoPage({
   return (
     <AppShell hideNewsletter={hideNewsletter}>
       <section className="mx-auto max-w-[1600px] px-5 pt-28 sm:px-6 md:px-10 md:pt-40">
-        <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">{eyebrow}</p>
+        {eyebrow ? (
+          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">{eyebrow}</p>
+        ) : null}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
