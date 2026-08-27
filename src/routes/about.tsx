@@ -93,7 +93,7 @@ function AboutPage() {
       </section>
 
       {/* 01 — Philosophy */}
-      <section className="mx-auto max-w-[1400px] px-6 py-28 md:px-10 md:py-36">
+      <section className="relative z-10 mx-auto max-w-[1400px] px-6 py-28 md:px-10 md:py-36">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -132,7 +132,7 @@ function AboutPage() {
       </section>
 
       {/* 02 — Story */}
-      <section className="border-t border-white/10 bg-white/[0.015]">
+      <section className="relative z-10 border-t border-white/10 bg-white/[0.015]">
         <div className="mx-auto max-w-[1400px] px-6 py-28 md:px-10 md:py-36">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -181,7 +181,7 @@ function AboutPage() {
       </section>
 
       {/* 03 — The Three Codes */}
-      <section className="mx-auto max-w-[1400px] px-6 py-28 md:px-10 md:py-36">
+      <section className="relative z-10 mx-auto max-w-[1400px] px-6 py-28 md:px-10 md:py-36">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -234,7 +234,7 @@ function AboutPage() {
       </section>
 
       {/* Closing statement */}
-      <section className="mx-auto max-w-[1000px] px-6 py-28 text-center md:px-10 md:py-36">
+      <section className="relative z-10 mx-auto max-w-[1000px] px-6 py-28 text-center md:px-10 md:py-36">
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
