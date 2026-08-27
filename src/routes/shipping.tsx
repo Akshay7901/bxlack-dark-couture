@@ -19,34 +19,36 @@ export const Route = createFileRoute("/shipping")({
       eyebrow="Client Services — 001"
       title="Shipping &"
       italic="delivery."
-      intro="Every piece leaves the atelier numbered, wrapped in unbleached tissue and sealed by hand. Dispatch takes 1–2 working days."
+      intro="Every piece is packed and dispatched by hand. Below is exactly what to expect from confirmation to your door, however you choose to pay."
       blocks={[
         {
-          heading: "Domestic delivery",
+          heading: "Paying online",
           body: [
-            "Standard: 3–5 working days — €8, complimentary above €250.",
-            "Express: 1–2 working days — €18, dispatched the same day when ordered before 13:00 CET.",
+            "Prepaid orders leave our hands within 48 hours of confirmation. A tracking link follows by email and WhatsApp the moment it does.",
+            "A handful of pieces are made to pre-order — where that's the case, the expected dispatch window is stated on that product's own page, under its details tab.",
+            "Standard delivery is complimentary on every prepaid order, and typically lands within 7–8 business days.",
+            "In a hurry? Add express delivery at checkout for a flat ₹99. This charge is non-refundable, even if the order is later returned.",
           ],
         },
         {
-          heading: "International delivery",
+          heading: "Cash on delivery",
           body: [
-            "Europe: 4–7 working days — €18. Rest of world: 6–12 working days — €35.",
-            "Tracking is issued by email as soon as the parcel is scanned by the carrier.",
+            "COD orders are dispatched within 3–4 business days, with tracking sent the same way — email and WhatsApp.",
+            "A flat ₹150 COD handling fee is added at checkout. Like the express fee above, it's non-refundable regardless of what happens to the order afterward.",
           ],
         },
         {
-          heading: "Duties & taxes",
+          heading: "Returns & shipping costs",
           body: [
-            "Orders within the EU are shipped duty paid, with VAT included in the displayed price.",
-            "Orders outside the EU may attract import duties collected by the carrier on delivery. These charges are set by the destination country and are the responsibility of the recipient.",
+            "Returning a prepaid order? A flat ₹100 is held back from your refund to cover the cost of return shipping.",
+            "The same ₹100 applies to COD returns, on top of the original COD handling fee, which stays non-refundable either way.",
           ],
         },
         {
-          heading: "Order tracking",
+          heading: "Shipping outside India",
           body: [
-            "You will receive a shipping confirmation with a tracking link. Allow up to 24 hours for the first carrier scan to appear.",
-            "For anything unclear, write to clients@bxlack.com with your order number.",
+            "International orders are charged shipping at actual cost, calculated at checkout for your destination.",
+            "Any customs duties or import taxes levied on arrival are set by your local authorities, not by us, and remain the recipient's responsibility.",
           ],
         },
       ]}
