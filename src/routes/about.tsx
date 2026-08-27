@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
+import { SilkBackdrop } from "@/components/SilkBackdrop";
 import hero from "@/assets/gate-model-back.png";
 
 export const Route = createFileRoute("/about")({
@@ -59,6 +60,8 @@ const labelClass = "font-mono text-[10px] uppercase tracking-[0.4em] text-white/
 function AboutPage() {
   return (
     <AppShell hideNewsletter>
+      <SilkBackdrop />
+
       {/* Hero */}
       <section className="relative flex min-h-[90vh] items-end overflow-hidden pt-28 md:pt-40">
         <img
