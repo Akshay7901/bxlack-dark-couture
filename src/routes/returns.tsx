@@ -16,6 +16,7 @@ export const Route = createFileRoute("/returns")({
   }),
   component: () => (
     <InfoPage
+      hideNewsletter
       eyebrow="Client Services — 002"
       title="Returns &"
       italic="refunds."
