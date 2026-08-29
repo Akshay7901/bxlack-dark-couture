@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   motion,
@@ -17,6 +17,7 @@ const UNLOCK_KEY = "bxlack:launch-unlocked";
 
 export function LaunchGate({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { data: settings } = useQuery({ queryKey: ["site-settings"], queryFn: fetchSiteSettings });
   const { user } = useAuth();
   const isAdmin = useIsAdmin(user?.id);
@@ -73,6 +74,9 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
         (document.activeElement as HTMLElement | null)?.blur();
         localStorage.setItem(UNLOCK_KEY, "1");
         setUnlocked(true);
+        // New/anonymous visitors land on account creation right after unlocking;
+        // an already-signed-in customer just continues to where they were.
+        if (!user) navigate({ to: "/account" });
       }}
     />
   );
