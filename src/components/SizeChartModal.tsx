@@ -173,9 +173,9 @@ export function SizeChartModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`grain relative w-full border border-white/15 bg-noir text-white ${diagramImage ? "max-w-6xl" : "max-w-3xl"}`}
+        className={`grain relative flex max-h-[90vh] w-full flex-col border border-white/15 bg-noir text-white ${diagramImage ? "max-w-6xl" : "max-w-3xl"}`}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+        <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-5">
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.3em] text-white/40">BXLACK</p>
             <h2 className="mt-1 font-display text-lg uppercase tracking-[-0.01em]">Measurements</h2>
@@ -189,7 +189,7 @@ export function SizeChartModal({
           </button>
         </div>
 
-        <div className="grid gap-8 p-6 sm:p-8 md:grid-cols-[1fr_260px]">
+        <div className="grid gap-8 overflow-y-auto p-6 sm:p-8 md:grid-cols-[1fr_260px]">
           <div className="flex items-center justify-center bg-white/[0.02] p-6">
             {diagramImage ? (
               <button
