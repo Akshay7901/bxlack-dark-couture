@@ -18,7 +18,10 @@ const UNLOCK_KEY = "bxlack:launch-unlocked";
 export function LaunchGate({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { data: settings } = useQuery({ queryKey: ["site-settings"], queryFn: fetchSiteSettings });
+  const { data: settings, isPending, isError } = useQuery({
+    queryKey: ["site-settings"],
+    queryFn: fetchSiteSettings,
+  });
   const { user } = useAuth();
   const isAdmin = useIsAdmin(user?.id);
   const [unlocked, setUnlocked] = useState(false);
@@ -30,7 +33,13 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   const bypass = location.pathname.startsWith("/admin") || location.pathname.startsWith("/auth");
-  const showGate = mounted && settings?.coming_soon_enabled && !bypass && !isAdmin && !unlocked;
+  // Until the settings fetch definitively succeeds or fails, we don't yet know
+  // whether the gate should be up — never fall through to the real site on a
+  // slow or failed request. A failed fetch is treated as "gate enabled" so a
+  // flaky network fails closed (access code required) rather than open.
+  const resolved = mounted && (!isPending || isError);
+  const comingSoonEnabled = isError ? true : Boolean(settings?.coming_soon_enabled);
+  const showGate = resolved && comingSoonEnabled && !bypass && !isAdmin && !unlocked;
 
   useEffect(() => {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -62,14 +71,24 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
     };
   }, [showGate]);
 
+  if (bypass) {
+    return <>{children}</>;
+  }
+
+  if (!resolved) {
+    // We don't yet know if the gate should be up — hold on a neutral screen
+    // instead of momentarily leaking the real site while settings load.
+    return <div className="min-h-screen bg-noir" />;
+  }
+
   if (!showGate) {
     return <>{children}</>;
   }
 
   return (
     <GatePage
-      subheading={settings.subheading}
-      launchAt={settings.launch_at}
+      subheading={settings?.subheading ?? ""}
+      launchAt={settings?.launch_at ?? null}
       onUnlocked={() => {
         (document.activeElement as HTMLElement | null)?.blur();
         localStorage.setItem(UNLOCK_KEY, "1");

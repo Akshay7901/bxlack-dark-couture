@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { SIZE_ROWS, formatMeasurement, garmentKindFor, type Unit } from "@/lib/sizing";
+import { sizeRowsFor, formatMeasurement, garmentKindFor, type Unit } from "@/lib/sizing";
 
 function DimH({ x1, x2, y, label }: { x1: number; x2: number; y: number; label: string }) {
   return (
@@ -127,12 +127,14 @@ export function SizeChartModal({
   open,
   onClose,
   category,
+  productId,
   selectedSize,
   onSelectSize,
 }: {
   open: boolean;
   onClose: () => void;
   category: string;
+  productId?: string;
   selectedSize: string;
   onSelectSize: (size: string) => void;
 }) {
@@ -140,9 +142,10 @@ export function SizeChartModal({
   if (!open) return null;
 
   const kind = garmentKindFor(category);
-  const row = SIZE_ROWS.find((r) => r.size === selectedSize) ?? SIZE_ROWS[1];
+  const rows = sizeRowsFor(productId);
+  const row = rows.find((r) => r.size === selectedSize) ?? rows[Math.min(1, rows.length - 1)];
 
-  const fields =
+  const fields = (
     kind === "denim"
       ? [
           { label: "Waist", value: row.waist },
@@ -153,7 +156,9 @@ export function SizeChartModal({
           { label: "Shoulder", value: row.shoulder },
           { label: "Chest", value: row.chest },
           { label: "Length", value: row.length },
-        ];
+          { label: "Sleeve", value: row.sleeve },
+        ]
+  ).filter((f): f is { label: string; value: number } => f.value !== undefined);
 
   return (
     <div
@@ -190,7 +195,7 @@ export function SizeChartModal({
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/35">Size</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {SIZE_ROWS.map((r) => (
+              {rows.map((r) => (
                 <button
                   key={r.size}
                   onClick={() => onSelectSize(r.size)}

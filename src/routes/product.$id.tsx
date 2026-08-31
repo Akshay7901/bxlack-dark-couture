@@ -10,6 +10,7 @@ import { useWishlist } from "@/lib/wishlist";
 import { SignInPrompt } from "@/components/SignInPrompt";
 import { useCart } from "@/lib/cart";
 import { SizeChartModal } from "@/components/SizeChartModal";
+import { sizesFor } from "@/lib/sizing";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
 
 export const Route = createFileRoute("/product/$id")({
@@ -204,7 +205,9 @@ function ProductPage() {
     {
       id: "details",
       title: "Product Details",
-      body: "Cut and sewn in Antwerp from 260gsm heavyweight organic cotton. Screen-printed graphic finished by hand in Tokyo. Boxy fit, dropped shoulder, ribbed collar. Numbered piece of fifty.",
+      body:
+        product.description ||
+        "Cut and sewn in Antwerp. Boxy fit, dropped shoulder, ribbed collar.",
     },
     {
       id: "ship",
@@ -285,7 +288,7 @@ function ProductPage() {
                 </button>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {["S", "M", "L", "XL", "XXL"].map((s) => (
+                {sizesFor(product.id).map((s) => (
                   <button
                     key={s}
                     onClick={() => setSize(s)}
@@ -328,6 +331,7 @@ function ProductPage() {
         open={openSizeChart}
         onClose={() => setOpenSizeChart(false)}
         category={product.category}
+        productId={product.id}
         selectedSize={size}
         onSelectSize={setSize}
       />

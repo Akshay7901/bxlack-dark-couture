@@ -210,5 +210,6 @@ export function toCardProduct(p: CatalogProductWithUrls) {
     tag: p.tag ?? undefined,
     compareAt: p.compare_at ?? undefined,
     badge: p.badge ?? undefined,
+    description: p.description ?? undefined,
   };
 }
