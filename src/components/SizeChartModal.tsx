@@ -173,7 +173,7 @@ export function SizeChartModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="grain relative w-full max-w-3xl border border-white/15 bg-noir text-white"
+        className={`grain relative w-full border border-white/15 bg-noir text-white ${diagramImage ? "max-w-6xl" : "max-w-3xl"}`}
       >
         <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
           <div>
