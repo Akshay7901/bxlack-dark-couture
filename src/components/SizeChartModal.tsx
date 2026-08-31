@@ -192,12 +192,12 @@ export function SizeChartModal({
         <div className="grid gap-8 overflow-y-auto p-6 sm:p-8 md:grid-cols-[1fr_260px]">
           <div className="flex items-center justify-center bg-white/[0.02] p-6">
             {diagramImage ? (
-              <button
-                type="button"
-                onClick={() => setZoomOpen(true)}
-                className="group relative w-full max-w-full"
-              >
-                <img src={diagramImage} alt="Construction diagram" className="w-full object-contain" />
+              <button type="button" onClick={() => setZoomOpen(true)} className="group relative">
+                <img
+                  src={diagramImage}
+                  alt="Construction diagram"
+                  className="max-h-[50vh] w-auto max-w-full object-contain"
+                />
                 <span className="absolute bottom-0 right-0 flex items-center gap-1.5 bg-noir/80 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/50 transition-colors group-hover:text-white">
                   <ZoomIn size={11} />
                   Zoom
