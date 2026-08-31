@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { X } from "lucide-react";
-import { sizeRowsFor, formatMeasurement, garmentKindFor, type Unit } from "@/lib/sizing";
+import { X, ZoomIn } from "lucide-react";
+import { sizeRowsFor, diagramFor, formatMeasurement, garmentKindFor, type Unit } from "@/lib/sizing";
+import { ImageZoomModal } from "@/components/ImageZoomModal";
 
 function DimH({ x1, x2, y, label }: { x1: number; x2: number; y: number; label: string }) {
   return (
@@ -139,10 +140,12 @@ export function SizeChartModal({
   onSelectSize: (size: string) => void;
 }) {
   const [unit, setUnit] = useState<Unit>("cm");
+  const [zoomOpen, setZoomOpen] = useState(false);
   if (!open) return null;
 
   const kind = garmentKindFor(category);
   const rows = sizeRowsFor(productId);
+  const diagramImage = diagramFor(productId);
   const row = rows.find((r) => r.size === selectedSize) ?? rows[Math.min(1, rows.length - 1)];
 
   const fields = (
@@ -161,6 +164,7 @@ export function SizeChartModal({
   ).filter((f): f is { label: string; value: number } => f.value !== undefined);
 
   return (
+    <>
     <div
       role="dialog"
       aria-modal="true"
@@ -187,9 +191,23 @@ export function SizeChartModal({
 
         <div className="grid gap-8 p-6 sm:p-8 md:grid-cols-[1fr_260px]">
           <div className="flex items-center justify-center bg-white/[0.02] p-6">
-            <div className="aspect-[13/17] w-full max-w-[260px]">
-              {kind === "denim" ? <DenimDiagram /> : <TopDiagram shirt={category === "Shirt"} />}
-            </div>
+            {diagramImage ? (
+              <button
+                type="button"
+                onClick={() => setZoomOpen(true)}
+                className="group relative w-full max-w-full"
+              >
+                <img src={diagramImage} alt="Construction diagram" className="w-full object-contain" />
+                <span className="absolute bottom-0 right-0 flex items-center gap-1.5 bg-noir/80 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-white/50 transition-colors group-hover:text-white">
+                  <ZoomIn size={11} />
+                  Zoom
+                </span>
+              </button>
+            ) : (
+              <div className="aspect-[13/17] w-full max-w-[260px]">
+                {kind === "denim" ? <DenimDiagram /> : <TopDiagram shirt={category === "Shirt"} />}
+              </div>
+            )}
           </div>
 
           <div>
@@ -244,5 +262,16 @@ export function SizeChartModal({
         </div>
       </div>
     </div>
+
+    {zoomOpen && diagramImage ? (
+      <ImageZoomModal
+        images={[diagramImage]}
+        index={0}
+        alt="Construction diagram"
+        onClose={() => setZoomOpen(false)}
+        onIndexChange={() => {}}
+      />
+    ) : null}
+    </>
   );
 }

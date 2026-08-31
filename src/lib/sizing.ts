@@ -1,3 +1,5 @@
+import shipwreckTeeConstruction from "@/assets/shipwreck-tee-construction.png";
+
 export type SizeRow = {
   size: string;
   /** cm */
@@ -47,6 +49,18 @@ export function sizeRowsFor(productId?: string): SizeRow[] {
 
 export function sizesFor(productId?: string): string[] {
   return sizeRowsFor(productId).map((r) => r.size);
+}
+
+/**
+ * Techpack construction-detail flats, keyed by product slug — traced straight
+ * from each style's spec sheet rather than the generic schematic diagram.
+ */
+export const PRODUCT_DIAGRAMS: Record<string, string> = {
+  "shipwreck-tee": shipwreckTeeConstruction,
+};
+
+export function diagramFor(productId?: string): string | undefined {
+  return productId ? PRODUCT_DIAGRAMS[productId] : undefined;
 }
 
 export type Unit = "cm" | "in";
