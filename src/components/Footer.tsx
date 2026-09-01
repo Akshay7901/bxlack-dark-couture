@@ -37,7 +37,7 @@ export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
           <div className="col-span-2 sm:col-span-1">
             <img src={logoAsset.url} alt="BXLACK" className="h-10 w-auto object-contain" />
             <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-light-grey/60">
-              Born to stand apart. Designed in Antwerp, made in limited runs.
+              Born to stand apart.
             </p>
           </div>
 
