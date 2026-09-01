@@ -19,7 +19,7 @@ export const Route = createFileRoute("/shipping")({
       hideNewsletter
       title="Shipping &"
       italic="delivery."
-      intro="Every piece is packed and dispatched by hand. Below is exactly what to expect from confirmation to your door, however you choose to pay."
+      intro="Every piece is packed and dispatched by hand. Below is exactly what to expect from confirmation to your door."
       blocks={[
         {
           heading: "Paying online",
@@ -31,17 +31,9 @@ export const Route = createFileRoute("/shipping")({
           ],
         },
         {
-          heading: "Cash on delivery",
-          body: [
-            "COD orders are dispatched within 3–4 business days, with tracking sent the same way: email and WhatsApp.",
-            "A flat ₹150 COD handling fee is added at checkout. Like the express fee above, it's non-refundable regardless of what happens to the order afterward.",
-          ],
-        },
-        {
           heading: "Returns & shipping costs",
           body: [
             "Returning a prepaid order? A flat ₹100 is held back from your refund to cover the cost of return shipping.",
-            "The same ₹100 applies to COD returns, on top of the original COD handling fee, which stays non-refundable either way.",
           ],
         },
         {

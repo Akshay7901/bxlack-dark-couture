@@ -41,7 +41,7 @@ export const Route = createFileRoute("/returns")({
         {
           heading: "What's deducted, what isn't",
           body: [
-            "A flat ₹100 logistics charge is held back from every refund. COD and express shipping charges are non-refundable and aren't reimbursed either.",
+            "A flat ₹100 logistics charge is held back from every refund. Express shipping charges are non-refundable and aren't reimbursed either.",
             "Packaging (wooden boxes, brown boxes, gift wraps) is part of delivery, not the product, and isn't returnable or refundable under any circumstance.",
             "Gift cards and store credit don't expire, but they can't be refunded to a bank account or transferred once issued.",
           ],
