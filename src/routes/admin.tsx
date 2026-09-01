@@ -747,25 +747,17 @@ function ProductForm({
   const [backPreview, setBackPreview] = useState<string | null>(product?.backImageUrl ?? null);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>(product?.galleryUrls ?? []);
   const [busy, setBusy] = useState(false);
-  const [draggedGalleryIndex, setDraggedGalleryIndex] = useState<number | null>(null);
+  const [draggedSlotIndex, setDraggedSlotIndex] = useState<number | null>(null);
 
   const set = <K extends keyof ProductInput>(key: K, value: ProductInput[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const handleUpload = async (file: File, side: "card" | "front" | "back") => {
+  const handleCardUpload = async (file: File) => {
     setBusy(true);
     try {
       const path = await uploadProductImage(file);
-      if (side === "card") {
-        set("card_image_path", path);
-        setCardPreview(URL.createObjectURL(file));
-      } else if (side === "front") {
-        set("image_path", path);
-        setFrontPreview(URL.createObjectURL(file));
-      } else {
-        set("back_image_path", path);
-        setBackPreview(URL.createObjectURL(file));
-      }
+      set("card_image_path", path);
+      setCardPreview(URL.createObjectURL(file));
       toast.success("Image uploaded");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -774,13 +766,53 @@ function ProductForm({
     }
   };
 
-  const handleGalleryUpload = async (files: File[]) => {
+  /**
+   * Front, Back and Gallery are really just one ordered sequence -- position 0
+   * becomes image_path (Front), position 1 becomes back_image_path (Back), and
+   * everything after that is gallery_paths. Reorder/remove/append all just
+   * operate on this flat list and re-derive the three fields from wherever
+   * things land, so dragging an image into slot 0 makes it the new Front, etc.
+   */
+  const combinedSlots: { path: string; preview: string }[] = [
+    ...(form.image_path && frontPreview ? [{ path: form.image_path, preview: frontPreview }] : []),
+    ...(form.back_image_path && backPreview ? [{ path: form.back_image_path, preview: backPreview }] : []),
+    ...form.gallery_paths.map((path, i) => ({ path, preview: galleryPreviews[i] ?? "" })),
+  ];
+
+  const applySlots = (next: { path: string; preview: string }[]) => {
+    const [newFront, newBack, ...newGallery] = next;
+    setForm((f) => ({
+      ...f,
+      image_path: newFront?.path ?? null,
+      back_image_path: newBack?.path ?? null,
+      gallery_paths: newGallery.map((s) => s.path),
+    }));
+    setFrontPreview(newFront?.preview ?? null);
+    setBackPreview(newBack?.preview ?? null);
+    setGalleryPreviews(newGallery.map((s) => s.preview));
+  };
+
+  const moveSlot = (from: number, to: number) => {
+    if (from === to) return;
+    const next = [...combinedSlots];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    applySlots(next);
+  };
+
+  const removeSlotAt = (i: number) => {
+    const next = [...combinedSlots];
+    next.splice(i, 1);
+    applySlots(next);
+  };
+
+  const appendImages = async (files: File[]) => {
     if (files.length === 0) return;
     setBusy(true);
     try {
       const uploaded = await Promise.all(files.map((f) => uploadProductImage(f)));
-      setForm((f) => ({ ...f, gallery_paths: [...f.gallery_paths, ...uploaded] }));
-      setGalleryPreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+      const previews = files.map((f) => URL.createObjectURL(f));
+      applySlots([...combinedSlots, ...uploaded.map((path, i) => ({ path, preview: previews[i] }))]);
       toast.success(`${uploaded.length} image${uploaded.length > 1 ? "s" : ""} uploaded`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -789,26 +821,7 @@ function ProductForm({
     }
   };
 
-  const moveGalleryItem = (from: number, to: number) => {
-    if (from === to) return;
-    setForm((f) => {
-      const next = [...f.gallery_paths];
-      const [moved] = next.splice(from, 1);
-      next.splice(to, 0, moved);
-      return { ...f, gallery_paths: next };
-    });
-    setGalleryPreviews((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(from, 1);
-      next.splice(to, 0, moved);
-      return next;
-    });
-  };
-
-  const removeGalleryAt = (i: number) => {
-    setForm((f) => ({ ...f, gallery_paths: f.gallery_paths.filter((_, idx) => idx !== i) }));
-    setGalleryPreviews((prev) => prev.filter((_, idx) => idx !== i));
-  };
+  const slotLabel = (i: number) => (i === 0 ? "Front" : i === 1 ? "Back" : `Gallery ${i - 1}`);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -938,8 +951,9 @@ function ProductForm({
           <div className="mt-6 border-t border-black/10 pt-5">
             <span className={labelClass}>Images</span>
             <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-400">
-              Card = shop grid, cart &amp; wishlist · Front/Back/Gallery = product page only · 1600
-              × 2000px · Drag gallery thumbnails to reorder
+              Card = shop grid, cart &amp; wishlist · everything else = product page, in the order
+              shown · drag thumbnails to reorder (1st becomes Front, 2nd becomes Back) · 1600 ×
+              2000px
             </p>
             <div className="mt-3 flex flex-wrap gap-4">
               <div>
@@ -949,66 +963,38 @@ function ProductForm({
                 <ThumbField
                   className="mt-1.5"
                   preview={cardPreview}
-                  onFile={(file) => handleUpload(file, "card")}
+                  onFile={(file) => handleCardUpload(file)}
                   onClear={() => {
                     set("card_image_path", null);
                     setCardPreview(null);
                   }}
                 />
               </div>
-              <div>
-                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
-                  Front
-                </span>
-                <ThumbField
-                  className="mt-1.5"
-                  preview={frontPreview}
-                  onFile={(file) => handleUpload(file, "front")}
-                  onClear={() => {
-                    set("image_path", null);
-                    setFrontPreview(null);
-                  }}
-                />
-              </div>
-              <div>
-                <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
-                  Back
-                </span>
-                <ThumbField
-                  className="mt-1.5"
-                  preview={backPreview}
-                  onFile={(file) => handleUpload(file, "back")}
-                  onClear={() => {
-                    set("back_image_path", null);
-                    setBackPreview(null);
-                  }}
-                />
-              </div>
-              {galleryPreviews.map((src, i) => (
+              {combinedSlots.map((slot, i) => (
                 <div
-                  key={src}
+                  key={slot.path}
                   draggable
-                  onDragStart={() => setDraggedGalleryIndex(i)}
+                  onDragStart={() => setDraggedSlotIndex(i)}
                   onDragOver={(e) => {
                     e.preventDefault();
-                    if (draggedGalleryIndex === null || draggedGalleryIndex === i) return;
-                    moveGalleryItem(draggedGalleryIndex, i);
-                    setDraggedGalleryIndex(i);
+                    if (draggedSlotIndex === null || draggedSlotIndex === i) return;
+                    moveSlot(draggedSlotIndex, i);
+                    setDraggedSlotIndex(i);
                   }}
-                  onDragEnd={() => setDraggedGalleryIndex(null)}
-                  className={`cursor-grab active:cursor-grabbing ${draggedGalleryIndex === i ? "opacity-40" : ""}`}
+                  onDragEnd={() => setDraggedSlotIndex(null)}
+                  className={`cursor-grab active:cursor-grabbing ${draggedSlotIndex === i ? "opacity-40" : ""}`}
                 >
                   <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
-                    Gallery {i + 1}
+                    {slotLabel(i)}
                   </span>
                   <div className="relative mt-1.5 h-24 w-20 overflow-hidden border border-black/12 bg-black/5">
-                    <img src={src} alt="" draggable={false} className="h-full w-full object-cover" />
+                    <img src={slot.preview} alt="" draggable={false} className="h-full w-full object-cover" />
                     <span className="absolute left-0 top-0 flex h-5 w-5 items-center justify-center bg-black/70 font-mono text-[10px] text-white/80">
                       {i + 1}
                     </span>
                     <button
                       type="button"
-                      onClick={() => removeGalleryAt(i)}
+                      onClick={() => removeSlotAt(i)}
                       className="absolute right-0 top-0 bg-black/70 px-1.5 py-0.5 font-mono text-[9px] text-white/80 hover:text-white"
                     >
                       ✕
@@ -1018,7 +1004,7 @@ function ProductForm({
               ))}
               <div>
                 <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
-                  Gallery
+                  {slotLabel(combinedSlots.length)}
                 </span>
                 <label className="mt-1.5 flex h-24 w-20 cursor-pointer items-center justify-center border border-black/12 bg-black/5 font-mono text-[16px] text-neutral-400 hover:text-neutral-700">
                   <input
@@ -1029,7 +1015,7 @@ function ProductForm({
                     onChange={(e) => {
                       const files = Array.from(e.target.files ?? []);
                       e.target.value = "";
-                      void handleGalleryUpload(files);
+                      void appendImages(files);
                     }}
                   />
                   +
