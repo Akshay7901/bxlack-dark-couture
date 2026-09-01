@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 
-const TICKER = ["PRIVATE DROPS", "LOOKBOOKS", "ARCHIVE ACCESS", "NO NOISE", "ONLY SIGNAL"];
+const TICKER = ["NEW DROPS", "EXCLUSIVE OFFERS", "RESTOCK ALERTS", "SEASONAL UPDATES", "EARLY ACCESS"];
 
 export function Newsletter() {
   const [email, setEmail] = useState("");
