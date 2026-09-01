@@ -101,7 +101,7 @@ export function Newsletter() {
           <motion.svg
             viewBox="0 0 200 200"
             className="absolute inset-0 h-full w-full"
-            animate={{ rotate: 360 }}
+            animate={{ rotate: -360 }}
             transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
           >
             <defs>
