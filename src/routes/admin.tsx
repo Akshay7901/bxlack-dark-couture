@@ -747,6 +747,7 @@ function ProductForm({
   const [backPreview, setBackPreview] = useState<string | null>(product?.backImageUrl ?? null);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>(product?.galleryUrls ?? []);
   const [busy, setBusy] = useState(false);
+  const [draggedGalleryIndex, setDraggedGalleryIndex] = useState<number | null>(null);
 
   const set = <K extends keyof ProductInput>(key: K, value: ProductInput[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -786,6 +787,22 @@ function ProductForm({
     } finally {
       setBusy(false);
     }
+  };
+
+  const moveGalleryItem = (from: number, to: number) => {
+    if (from === to) return;
+    setForm((f) => {
+      const next = [...f.gallery_paths];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return { ...f, gallery_paths: next };
+    });
+    setGalleryPreviews((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
   };
 
   const removeGalleryAt = (i: number) => {
@@ -922,7 +939,7 @@ function ProductForm({
             <span className={labelClass}>Images</span>
             <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-400">
               Card = shop grid, cart &amp; wishlist · Front/Back/Gallery = product page only · 1600
-              × 2000px
+              × 2000px · Drag gallery thumbnails to reorder
             </p>
             <div className="mt-3 flex flex-wrap gap-4">
               <div>
@@ -968,12 +985,27 @@ function ProductForm({
                 />
               </div>
               {galleryPreviews.map((src, i) => (
-                <div key={`${src}-${i}`}>
+                <div
+                  key={src}
+                  draggable
+                  onDragStart={() => setDraggedGalleryIndex(i)}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    if (draggedGalleryIndex === null || draggedGalleryIndex === i) return;
+                    moveGalleryItem(draggedGalleryIndex, i);
+                    setDraggedGalleryIndex(i);
+                  }}
+                  onDragEnd={() => setDraggedGalleryIndex(null)}
+                  className={`cursor-grab active:cursor-grabbing ${draggedGalleryIndex === i ? "opacity-40" : ""}`}
+                >
                   <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
-                    Gallery
+                    Gallery {i + 1}
                   </span>
                   <div className="relative mt-1.5 h-24 w-20 overflow-hidden border border-black/12 bg-black/5">
-                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <img src={src} alt="" draggable={false} className="h-full w-full object-cover" />
+                    <span className="absolute left-0 top-0 flex h-5 w-5 items-center justify-center bg-black/70 font-mono text-[10px] text-white/80">
+                      {i + 1}
+                    </span>
                     <button
                       type="button"
                       onClick={() => removeGalleryAt(i)}
