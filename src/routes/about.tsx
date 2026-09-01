@@ -242,7 +242,7 @@ function AboutPage() {
           transition={{ duration: 1, ease: [0.7, 0, 0.2, 1] }}
           className="font-display text-4xl leading-[0.95] tracking-[-0.02em] md:text-6xl"
         >
-          Every piece has a story.
+          This is where the story becomes yours.
         </motion.p>
         <motion.div
           initial={{ opacity: 0 }}
