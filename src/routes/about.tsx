@@ -242,7 +242,7 @@ function AboutPage() {
           transition={{ duration: 1, ease: [0.7, 0, 0.2, 1] }}
           className="font-display text-4xl leading-[0.95] tracking-[-0.02em] md:text-6xl"
         >
-          This is where the story becomes yours.
+          The absence of noise is the loudest statement.
         </motion.p>
         <motion.div
           initial={{ opacity: 0 }}
