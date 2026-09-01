@@ -72,7 +72,7 @@ function AboutPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black" />
         <div className="relative z-10 mx-auto max-w-[1600px] px-6 pb-20 md:px-10">
-          <p className={labelClass}>Est. 2019 · Antwerp</p>
+          <p className={labelClass}>Est. 2026</p>
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
