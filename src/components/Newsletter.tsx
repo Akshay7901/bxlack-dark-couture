@@ -52,7 +52,7 @@ export function Newsletter() {
           </h3>
 
           <p className="mt-5 max-w-md text-sm leading-relaxed text-light-grey/70">
-            First access to drops, private lookbooks, and campaigns. One transmission per season.
+            Subscribe with your email to get updates on new offers and new drops.
           </p>
 
           <form
