@@ -108,7 +108,7 @@ export function Newsletter() {
               <path id="nl-circle" d="M100,100 m-72,0 a72,72 0 1,1 144,0 a72,72 0 1,1 -144,0" />
             </defs>
             <text className="fill-light-grey/70 font-mono" fontSize="13" letterSpacing="6.5">
-              <textPath href="#nl-circle">BORN TO STAND APART ·</textPath>
+              <textPath href="#nl-circle">BORN TO STAND APART · BXLACK ·</textPath>
             </text>
           </motion.svg>
           <span className="font-display text-3xl text-white">B</span>
