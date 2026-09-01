@@ -209,7 +209,7 @@ function GatePage({
       <div className="absolute inset-0 bg-[radial-gradient(60%_55%_at_50%_45%,rgba(0,0,0,0.4),transparent_70%)]" />
 
       <div className="absolute inset-x-0 top-0 z-10 hidden items-baseline justify-between px-8 pt-8 font-mono text-[10px] uppercase tracking-[0.32em] text-white/40 sm:flex sm:px-12">
-        <span>BXLACK — SS2026</span>
+        <span>BXLACK · SS2026</span>
         <span>Access Restricted</span>
       </div>
 
@@ -297,7 +297,7 @@ function GatePage({
       </div>
 
       <div className="absolute inset-x-0 bottom-0 z-10 hidden justify-center px-8 pb-8 font-mono text-[9px] uppercase tracking-[0.4em] text-white/30 sm:flex">
-        <span>Born to stand apart — Designed in Antwerp</span>
+        <span>Born to stand apart · Designed in Antwerp</span>
       </div>
     </div>
   );

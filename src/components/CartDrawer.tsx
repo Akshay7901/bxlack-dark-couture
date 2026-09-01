@@ -39,7 +39,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
           >
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-5 sm:px-8">
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/60">
-                Your Bag — {String(count).padStart(2, "0")}
+                Your Bag · {String(count).padStart(2, "0")}
               </p>
               <button onClick={onClose} aria-label="Close"><X size={18} /></button>
             </div>
@@ -48,7 +48,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
               <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
                 <p className="font-editorial text-3xl italic text-white/80">The bag is empty.</p>
                 <p className="mt-3 max-w-xs text-sm text-white/50">
-                  Curated pieces you add will appear here — waiting for their moment.
+                  Curated pieces you add will appear here, waiting for their moment.
                 </p>
                 <Link
                   to="/shop"

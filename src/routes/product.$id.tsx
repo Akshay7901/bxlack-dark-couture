@@ -307,7 +307,7 @@ function ProductPage() {
                 }}
                 className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
               >
-                Add to Cart — ₹{product.price}
+                Add to Cart · ₹{product.price}
               </button>
 
               <button

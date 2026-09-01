@@ -28,10 +28,10 @@ export const Route = createFileRoute("/size-guide")({
 function SizeGuidePage() {
   return (
     <InfoPage
-      eyebrow="Client Services — 003"
+      eyebrow="Client Services"
       title="Size"
       italic="guide."
-      intro="All measurements are taken flat, in centimetres, with a tolerance of ±1cm. Our silhouettes are cut oversized — size down for a closer line."
+      intro="All measurements are taken flat, in centimetres, with a tolerance of ±1cm. Our silhouettes are cut oversized, so size down for a closer line."
       blocks={[
         {
           heading: "How to measure",

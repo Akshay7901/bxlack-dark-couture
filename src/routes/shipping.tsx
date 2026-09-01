@@ -25,7 +25,7 @@ export const Route = createFileRoute("/shipping")({
           heading: "Paying online",
           body: [
             "Prepaid orders leave our hands within 48 hours of confirmation. A tracking link follows by email and WhatsApp the moment it does.",
-            "A handful of pieces are made to pre-order — where that's the case, the expected dispatch window is stated on that product's own page, under its details tab.",
+            "A handful of pieces are made to pre-order. Where that's the case, the expected dispatch window is stated on that product's own page, under its details tab.",
             "Standard delivery is complimentary on every prepaid order, and typically lands within 7–8 business days.",
             "In a hurry? Add express delivery at checkout for a flat ₹99. This charge is non-refundable, even if the order is later returned.",
           ],
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/shipping")({
         {
           heading: "Cash on delivery",
           body: [
-            "COD orders are dispatched within 3–4 business days, with tracking sent the same way — email and WhatsApp.",
+            "COD orders are dispatched within 3–4 business days, with tracking sent the same way: email and WhatsApp.",
             "A flat ₹150 COD handling fee is added at checkout. Like the express fee above, it's non-refundable regardless of what happens to the order afterward.",
           ],
         },

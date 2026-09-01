@@ -48,7 +48,7 @@ function FaqPage() {
   const [open, setOpen] = useState<number | null>(0);
   return (
     <InfoPage
-      eyebrow="Client Services — 004"
+      eyebrow="Client Services"
       title="Frequently"
       italic="asked."
       intro="Everything on drops, sizing, delivery and care. If your question is not here, write to clients@bxlack.com."

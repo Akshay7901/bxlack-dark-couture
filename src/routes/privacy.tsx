@@ -16,7 +16,7 @@ export const Route = createFileRoute("/privacy")({
   }),
   component: () => (
     <InfoPage
-      eyebrow="Legal — 001"
+      eyebrow="Legal"
       title="Privacy"
       italic="policy."
       intro="This notice describes the personal data BXLACK collects, why we collect it and the choices available to you. It is a template and should be reviewed by your legal advisor before launch."
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/privacy")({
         {
           heading: "How we use it",
           body: [
-            "To process and deliver orders, handle returns, provide client care, prevent fraud and — where you have consented — send campaign and drop announcements.",
+            "To process and deliver orders, handle returns, provide client care, prevent fraud and, where you have consented, send campaign and drop announcements.",
           ],
         },
         {

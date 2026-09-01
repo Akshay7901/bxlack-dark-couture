@@ -26,7 +26,7 @@ function NewDropPage() {
             The <em className="font-editorial italic text-white/70">new drop.</em>
           </h1>
           <p className="mt-6 max-w-lg font-editorial text-xl italic text-white/60">
-            Chapter 001 of SS26. Each piece numbered and released once — then archived.
+            Chapter 001 of SS26. Each piece numbered and released once, then archived.
           </p>
         </div>
 
@@ -57,9 +57,9 @@ function NewDropPage() {
           <div className="flex flex-col justify-end md:col-span-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/50">Piece · 01 / 05</p>
             <p className="mt-4 font-editorial text-3xl italic text-white/80">
-              "The wardrobe as armour — cut for one, worn against everything."
+              "The wardrobe as armour, cut for one, worn against everything."
             </p>
-            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">— Studio note, 02.26</p>
+            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">Studio note, 02.26</p>
           </div>
         </div>
 

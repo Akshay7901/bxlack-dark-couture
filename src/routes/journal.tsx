@@ -35,7 +35,7 @@ function JournalPage() {
             Field <em className="font-editorial italic text-white/70">notes.</em>
           </h1>
           <p className="mt-6 max-w-xl font-editorial text-xl italic text-white/60">
-            Longform from the atelier — essays, studio dispatches, and things we cannot make into a garment.
+            Longform from the atelier: essays, studio dispatches, and things we cannot make into a garment.
           </p>
         </div>
 

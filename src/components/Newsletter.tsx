@@ -36,7 +36,7 @@ export function Newsletter() {
           transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
           className="whitespace-nowrap font-display text-[22vw] leading-none tracking-[-0.05em] text-white/[0.035]"
         >
-          BXLACK — BXLACK — BXLACK — BXLACK —&nbsp;
+          BXLACK · BXLACK · BXLACK · BXLACK ·&nbsp;
         </motion.p>
       </div>
 

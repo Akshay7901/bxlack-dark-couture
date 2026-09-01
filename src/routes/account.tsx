@@ -151,7 +151,7 @@ function AccountPage() {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setMessage(error ? error.message : null);
-    if (!error) setNotice("Password reset link sent — check your inbox.");
+    if (!error) setNotice("Password reset link sent. Check your inbox.");
   };
 
   const signOut = async () => {
@@ -195,11 +195,11 @@ function AccountPage() {
         <div className="absolute inset-0 bg-[radial-gradient(60%_55%_at_50%_58%,rgba(0,0,0,0.7),transparent_70%)]" />
 
         <div className="absolute inset-x-0 top-0 z-10 hidden items-baseline justify-between px-8 pt-28 font-mono text-[10px] uppercase tracking-[0.32em] text-white/40 sm:flex sm:px-12">
-          <span>SS26 — Numbered Pieces</span>
+          <span>SS26 · Numbered Pieces</span>
           <span>001 / 002</span>
         </div>
         <div className="absolute inset-x-0 bottom-0 z-10 hidden justify-center px-8 pb-8 font-mono text-[9px] uppercase tracking-[0.4em] text-white/30 sm:flex">
-          <span>Born to stand apart — Designed in Antwerp</span>
+          <span>Born to stand apart · Designed in Antwerp</span>
         </div>
 
         <div className="relative z-10 flex min-h-screen items-center justify-center px-5 py-28 sm:px-8">
@@ -212,7 +212,7 @@ function AccountPage() {
             <>
                 <div className="text-center">
                   <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">
-                    Members Access — 001
+                    Members Access
                   </p>
                   <RevealHeading
                     key={mode}
@@ -249,7 +249,7 @@ function AccountPage() {
                 <p className="mt-5 text-center font-editorial text-[14px] leading-[1.7] text-white/50">
                   {mode === "signin"
                     ? "Access your wishlist, bag and drop invitations."
-                    : "Join the list — save pieces and get first access to SS26."}
+                    : "Join the list to save pieces and get first access to SS26."}
                 </p>
 
                 <button

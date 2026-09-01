@@ -33,7 +33,7 @@ function ContactPage() {
 
   return (
     <InfoPage
-      eyebrow="Client Services — 005"
+      eyebrow="Client Services"
       title="Write to"
       italic="us."
       intro="We answer every message within one working day. For order enquiries, include your order number."

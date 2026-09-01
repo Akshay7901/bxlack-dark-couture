@@ -67,7 +67,7 @@ function AuthPage() {
         </h1>
         <p className="mt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.22em] text-white/35">
           {needsBootstrap
-            ? "No admin exists yet — set up the owner account. This form closes once created."
+            ? "No admin exists yet. Set up the owner account. This form closes once created."
             : "Studio access is invite-only. Admins are created from inside the studio."}
         </p>
 

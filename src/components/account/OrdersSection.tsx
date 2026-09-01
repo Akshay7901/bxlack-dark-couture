@@ -21,7 +21,7 @@ export function OrdersSection() {
         <div className="mt-6 flex flex-col items-center gap-4 border border-white/10 py-16 text-center">
           <Package size={22} className="text-white/25" />
           <p className="max-w-xs font-mono text-[11px] uppercase leading-relaxed tracking-[0.24em] text-white/40">
-            No orders yet — once you place an order it'll show up here
+            No orders yet. Once you place an order it'll show up here
           </p>
           <Link
             to="/shop"
@@ -47,7 +47,7 @@ export function OrdersSection() {
                 {o.items.map((item) => (
                   <p key={item.id} className="font-editorial text-[14px] text-white/60">
                     {item.quantity}× {item.product_name}
-                    {item.size ? ` (${item.size})` : ""} — ₹{item.price}
+                    {item.size ? ` (${item.size})` : ""} · ₹{item.price}
                   </p>
                 ))}
               </div>

@@ -21,7 +21,7 @@ const codes = [
     n: "01",
     name: "Street",
     line: "The urban register.",
-    body: "Built for everyday use in city environments. Proportions are generous, construction is honest, hardware is matte. Nothing is decorative — every detail is there because it needs to be.",
+    body: "Built for everyday use in city environments. Proportions are generous, construction is honest, hardware is matte. Nothing is decorative: every detail is there because it needs to be.",
     attrs: [
       ["Proportion", "Generous, deliberate"],
       ["Hardware", "Matte black"],
@@ -45,7 +45,7 @@ const codes = [
     n: "03",
     name: "Alpine",
     line: "The severe register.",
-    body: "The language of extreme environments — stripped back, built for conditions, no margin for error. It looks like it was made where there are no second chances.",
+    body: "The language of extreme environments: stripped back, built for conditions, no margin for error. It looks like it was made where there are no second chances.",
     attrs: [
       ["Form", "Stripped to function"],
       ["Seams", "Welded or taped"],
@@ -102,7 +102,7 @@ function AboutPage() {
           className="grid grid-cols-1 gap-10 md:grid-cols-12"
         >
           <div className="md:col-span-4">
-            <p className={labelClass}>01 — Philosophy</p>
+            <p className={labelClass}>01 · Philosophy</p>
             <h2 className="mt-4 font-display text-4xl leading-[0.95] md:text-6xl">
               One colour.
               <br />
@@ -115,7 +115,7 @@ function AboutPage() {
             </p>
             <p>
               When every product shares the same colour, the catalogue becomes infinite. A
-              jacket, a bag, a boot, an accessory — they all belong together. You never have to
+              jacket, a bag, a boot, an accessory: they all belong together. You never have to
               ask whether something fits the brand. If it is built properly and it is black, it
               is BXLACK.
             </p>
@@ -142,7 +142,7 @@ function AboutPage() {
             className="grid grid-cols-1 gap-10 md:grid-cols-12"
           >
             <div className="md:col-span-4">
-              <p className={labelClass}>02 — Story</p>
+              <p className={labelClass}>02 · Story</p>
               <h2 className="mt-4 font-display text-4xl leading-[0.95] md:text-6xl">
                 Every piece
                 <br />
@@ -154,7 +154,7 @@ function AboutPage() {
                 Design without story is product. Design with story is brand.
               </p>
               <p>
-                Every garment we release carries a reason for existing — not a trend, not a
+                Every garment we release carries a reason for existing: not a trend, not a
                 season, not a mood board. A story: where it was built, what problem it solves,
                 who it was made for, what it means to own it.
               </p>
@@ -188,7 +188,7 @@ function AboutPage() {
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 1, ease: [0.7, 0, 0.2, 1] }}
         >
-          <p className={labelClass}>03 — The Codes</p>
+          <p className={labelClass}>03 · The Codes</p>
           <h2 className="mt-4 max-w-2xl font-display text-4xl leading-[0.95] md:text-6xl">
             Three moods.
             <br />

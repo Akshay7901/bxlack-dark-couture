@@ -16,7 +16,7 @@ export const Route = createFileRoute("/terms")({
   }),
   component: () => (
     <InfoPage
-      eyebrow="Legal — 002"
+      eyebrow="Legal"
       title="Terms &"
       italic="conditions."
       intro="These terms apply to every order placed with BXLACK. They are a template and should be reviewed by your legal advisor before launch."

@@ -19,7 +19,7 @@ function NotFoundComponent() {
   return (
     <div className="grain flex min-h-screen flex-col items-center justify-center bg-noir px-6 text-center text-white">
       <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-mid-grey/70">
-        Error — 404
+        Error · 404
       </p>
       <h1 className="mt-6 font-display text-[26vw] font-medium leading-[0.8] tracking-[-0.05em] md:text-[14vw]">
         Lost in <em className="font-editorial italic text-white/60">black.</em>
