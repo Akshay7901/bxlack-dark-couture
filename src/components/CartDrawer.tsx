@@ -71,7 +71,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                           onClick={onClose}
                           className="h-28 w-20 shrink-0 overflow-hidden bg-[#0A0A0A]"
                         >
-                          <img src={item.product.image} alt={item.product.name} className="h-full w-full object-contain" />
+                          <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
                         </Link>
                         <div className="flex min-w-0 flex-1 flex-col justify-between">
                           <div>

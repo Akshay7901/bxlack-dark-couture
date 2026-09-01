@@ -93,7 +93,7 @@ function WishlistPage() {
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-cover"
                       loading="lazy"
                     />
                   </div>

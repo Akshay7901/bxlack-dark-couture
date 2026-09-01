@@ -80,7 +80,7 @@ function CartPage() {
                     params={{ id: item.id }}
                     className="h-40 w-28 shrink-0 overflow-hidden bg-[#0A0A0A] sm:h-52 sm:w-36"
                   >
-                    <img src={item.product.image} alt={item.product.name} className="h-full w-full object-contain" />
+                    <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
                   </Link>
                   <div className="flex min-w-0 flex-1 flex-col justify-between">
                     <div>
