@@ -44,7 +44,7 @@ export function Newsletter() {
         <div>
           <div className="flex items-center gap-4">
             <span className="h-px w-10 bg-light-grey/40" />
-            <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-mid-grey">Newsletter — 001</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-mid-grey">Newsletter</p>
           </div>
 
           <h3 className="mt-6 font-display text-[15vw] leading-[0.88] tracking-[-0.03em] text-white sm:text-6xl md:text-7xl">
