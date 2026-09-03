@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import wreckImage from "@/assets/wreck-tee-back.png";
+import stoneTeeImage from "@/assets/stone-tee-back.jpg";
 
 export function GraphicFeature() {
   return (
     <section className="relative overflow-hidden bg-noir text-foreground">
       <div className="relative w-full">
         <motion.img
-          src={wreckImage}
-          alt="BXLACK graphic tee shot from behind in a concrete corridor"
+          src={stoneTeeImage}
+          alt="BXLACK Stone Logo Tee shot from behind, model standing in a concrete corridor"
           className="block h-auto w-full object-contain"
           initial={{ scale: 1.04 }}
           whileInView={{ scale: 1 }}
