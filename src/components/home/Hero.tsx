@@ -42,20 +42,11 @@ export function Hero() {
 
   const RADIUS = "clamp(120px, 16vw, 240px)";
 
-  // The front and back photos put the head/hair in different spots (different
-  // pose entirely), so a reveal centered up near the face ends up compositing
-  // two mismatched heads. Keep the reveal's vertical center within the torso
-  // band, where the two photos' silhouettes actually line up.
-  const MIN_Y_FRACTION = 0.6;
-  const MAX_Y_FRACTION = 0.82;
-  const clampY = (rawY: number, height: number) =>
-    Math.min(Math.max(rawY, height * MIN_Y_FRACTION), height * MAX_Y_FRACTION);
-
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = imgWrap.current?.getBoundingClientRect();
     if (!rect) return;
     cursorX.set(e.clientX - rect.left);
-    cursorY.set(clampY(e.clientY - rect.top, rect.height));
+    cursorY.set(e.clientY - rect.top);
     setIsHovering(true);
   };
 
@@ -68,17 +59,12 @@ export function Hero() {
     const touch = e.touches[0];
     if (!rect || !touch) return;
     cursorX.set(touch.clientX - rect.left);
-    cursorY.set(clampY(touch.clientY - rect.top, rect.height));
+    cursorY.set(touch.clientY - rect.top);
     setIsHovering(true);
   };
 
-  // Front and back photos are two different poses, not two takes of the same one --
-  // any wide semi-transparent blend band between them shows as a visible double-exposure
-  // ghost. Keep the mask fully opaque almost to the edge, with only a slim feather
-  // (last ~10% of the radius) to soften the edge itself, so the reveal reads as a
-  // crisp "window" rather than a smeared crossfade between two mismatched silhouettes.
   const maskImage = useMotionTemplate`
-    radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, #000 0%, #000 97%, transparent 100%)
+    radial-gradient(circle ${RADIUS} at ${smoothX}px ${smoothY}px, #000 0%, #000 42%, rgba(0,0,0,0.72) 55%, rgba(0,0,0,0.28) 70%, transparent 100%)
   `;
 
   return (
