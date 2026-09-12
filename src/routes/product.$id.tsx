@@ -86,7 +86,7 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
           ref={ref}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
-          className="relative aspect-[4/5] w-full touch-pan-x overflow-hidden bg-transparent"
+          className="relative mx-auto aspect-[4/5] w-full touch-pan-x overflow-hidden bg-transparent md:h-[74vh] md:w-auto md:max-w-full"
         >
           <AnimatePresence initial={false} mode="popLayout" custom={dir}>
             <motion.img
@@ -268,7 +268,7 @@ function ProductPage() {
 
           {/* Middle — product image */}
           <div className="order-1 md:order-1 md:col-span-7 lg:order-2 lg:col-span-6">
-            <div className="mx-auto w-full max-w-[520px] md:max-w-[440px] lg:max-w-[680px]">
+            <div className="mx-auto w-full max-w-[520px] md:max-w-none">
               <ScrollGallery images={gallery as string[]} alt={product.name} />
             </div>
           </div>
