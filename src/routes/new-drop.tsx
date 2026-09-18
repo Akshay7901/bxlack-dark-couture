@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { products } from "@/lib/products";
+import { fetchProducts, toCardProduct } from "@/lib/catalog";
 
 export const Route = createFileRoute("/new-drop")({
   head: () => ({
@@ -16,6 +17,41 @@ export const Route = createFileRoute("/new-drop")({
 });
 
 function NewDropPage() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetchProducts(),
+  });
+  const products = (data ?? []).map(toCardProduct).slice(0, 5);
+
+  if (isLoading) {
+    return (
+      <AppShell>
+        <div className="flex min-h-[70vh] items-center justify-center">
+          <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">
+            Loading drop…
+          </p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <AppShell>
+        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-5 px-6 text-center">
+          <h1 className="font-display text-3xl uppercase tracking-[-0.02em]">Nothing dropped yet</h1>
+          <Link
+            to="/shop"
+            search={{ type: "All" }}
+            className="border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/70 hover:border-white hover:text-white"
+          >
+            Back to shop
+          </Link>
+        </div>
+      </AppShell>
+    );
+  }
+
   const [hero, ...rest] = products;
   return (
     <AppShell>
