@@ -86,7 +86,7 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
           ref={ref}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
-          className="relative mx-auto aspect-[2/3] w-full touch-pan-x overflow-hidden bg-transparent md:h-[min(88vh,calc(100vh-130px))] md:w-auto md:max-w-full"
+          className="relative mx-auto aspect-[2/3] w-full touch-pan-x overflow-hidden bg-transparent md:h-[min(96vh,calc(100vh-80px))] md:w-auto md:max-w-full"
         >
           <AnimatePresence initial={false} mode="popLayout" custom={dir}>
             <motion.img
