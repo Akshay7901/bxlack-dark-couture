@@ -7,9 +7,12 @@ import {
   useMotionTemplate,
   animate,
 } from "framer-motion";
+import { Link } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import heroImage from "@/assets/hero-front-v2.webp";
 import heroBackImage from "@/assets/hero-back-v2.webp";
+
+const MotionLink = motion.create(Link);
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -119,8 +122,8 @@ export function Hero() {
         >
           SS2026 OUT NOW
         </motion.p>
-        <motion.a
-          href="/new-drop"
+        <MotionLink
+          to="/new-drop"
           data-cursor="Shop"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -129,7 +132,7 @@ export function Hero() {
         >
           Shop Now
           <span>→</span>
-        </motion.a>
+        </MotionLink>
       </motion.div>
     </section>
   );

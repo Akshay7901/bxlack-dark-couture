@@ -11,6 +11,10 @@ const SHOP = [
 ];
 
 const SERVICES = [
+  { label: "New Drop", to: "/new-drop" },
+  { label: "Lookbook", to: "/lookbook" },
+  { label: "Journal", to: "/journal" },
+  { label: "Size Guide", to: "/size-guide" },
   { label: "About Us", to: "/about" },
   { label: "Shipping", to: "/shipping" },
   { label: "Returns", to: "/returns" },
