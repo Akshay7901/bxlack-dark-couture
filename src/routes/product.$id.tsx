@@ -86,7 +86,7 @@ function ScrollGallery({ images, alt }: { images: string[]; alt: string }) {
           ref={ref}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
-          className="relative mx-auto aspect-[2/3] w-full touch-pan-x overflow-hidden bg-transparent md:h-[min(96vh,calc(100vh-80px))] md:w-auto md:max-w-full"
+          className="relative mx-auto aspect-[2/3] w-full touch-pan-x overflow-hidden bg-transparent md:h-[calc(100vh-120px)] md:w-auto md:max-w-full"
         >
           <AnimatePresence initial={false} mode="popLayout" custom={dir}>
             <motion.img
@@ -217,9 +217,9 @@ function ProductPage() {
   ];
 
   return (
-    <AppShell hideNewsletter>
+    <AppShell hideNewsletter hideFooter>
       <SilkBackdrop />
-      <section className="relative pt-24 sm:pt-28 md:pt-20 lg:pt-16">
+      <section className="relative pt-24 sm:pt-28 md:h-screen md:overflow-hidden md:pt-20 lg:pt-16">
         <div className="mx-auto grid max-w-[1500px] grid-cols-1 items-center gap-10 px-5 sm:px-6 md:grid-cols-12 md:gap-x-10 md:gap-y-12 md:px-8 lg:gap-8 lg:px-12">
           {/* Left — name, price, accordions */}
           <aside className="order-2 md:order-2 md:col-span-5 md:self-center lg:order-1 lg:col-span-3 lg:self-center">
@@ -324,7 +324,7 @@ function ProductPage() {
           </aside>
         </div>
 
-        <div className="h-20 md:h-32" />
+        <div className="h-20 md:hidden" />
       </section>
       <SignInPrompt open={signInOpen} onClose={() => setSignInOpen(false)} />
       <SizeChartModal
