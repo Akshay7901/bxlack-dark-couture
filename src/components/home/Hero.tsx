@@ -8,8 +8,8 @@ import {
   animate,
 } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import heroImage from "@/assets/hero-front-v2.png";
-import heroBackImage from "@/assets/hero-back-v2.png";
+import heroImage from "@/assets/hero-front-v2.webp";
+import heroBackImage from "@/assets/hero-back-v2.webp";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);

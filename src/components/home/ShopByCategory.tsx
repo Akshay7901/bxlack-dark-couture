@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { products } from "@/lib/products";
 import { fetchCategoryImages } from "@/lib/catalog";
-import wreckTee from "@/assets/wreck-tee-back.png";
+import wreckTee from "@/assets/wreck-tee-back.webp";
 
 const categories = [
   { label: "Shirt", type: "Shirt" },

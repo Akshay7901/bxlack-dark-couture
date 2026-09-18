@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
-import hero from "@/assets/gate-model-back.png";
+import hero from "@/assets/gate-model-back.webp";
 
 export const Route = createFileRoute("/about")({
   head: () => ({

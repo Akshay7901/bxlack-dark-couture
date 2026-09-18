@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import heritageImage from "@/assets/heritage-shirt-fuji.png";
+import heritageImage from "@/assets/heritage-shirt-fuji.webp";
 
 export function HeritageFeature() {
   return (

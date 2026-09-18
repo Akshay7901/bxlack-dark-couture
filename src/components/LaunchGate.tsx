@@ -11,7 +11,7 @@ import {
 import { Lock } from "lucide-react";
 import { fetchSiteSettings, verifyLaunchPassword } from "@/lib/launch";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
-import editorial from "@/assets/gate-model-back.png";
+import editorial from "@/assets/gate-model-back.webp";
 
 const UNLOCK_KEY = "bxlack:launch-unlocked";
 

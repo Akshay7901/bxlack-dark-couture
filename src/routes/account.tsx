@@ -7,7 +7,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/useAuth";
 import { AppShell } from "@/components/AppShell";
 import { AccountDashboard } from "@/components/account/AccountDashboard";
-import editorial from "@/assets/venus-tee-model.png";
+import editorial from "@/assets/venus-tee-model.webp";
 
 /** Word-by-word staggered reveal, matching the intro loader's letter-reveal motion. */
 function RevealHeading({
