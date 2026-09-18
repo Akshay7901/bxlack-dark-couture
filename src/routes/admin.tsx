@@ -21,8 +21,11 @@ import {
   createProduct,
   deleteProduct,
   fetchCategoryImages,
+  fetchInventory,
+  fetchProductStock,
   fetchProducts,
   removeCategoryImage,
+  saveProductStock,
   setCategoryImage,
   slugify,
   updateProduct,
@@ -30,7 +33,9 @@ import {
   type CatalogProductWithUrls,
   type CategoryImage,
   type ProductInput,
+  type StockBySize,
 } from "@/lib/catalog";
+import { sizesFor } from "@/lib/sizing";
 import {
   fetchSiteSettings,
   fetchWaitlist,
@@ -249,6 +254,18 @@ function ProductsSection() {
     queryKey: ["admin-products"],
     queryFn: () => fetchProducts(true),
   });
+  const { data: inventory = [] } = useQuery({
+    queryKey: ["admin-inventory"],
+    queryFn: () => fetchInventory(),
+  });
+  const stockTotals = useMemo(() => {
+    const totals: Record<string, number> = {};
+    for (const row of inventory) {
+      totals[row.product_id] = (totals[row.product_id] ?? 0) + row.quantity;
+    }
+    return totals;
+  }, [inventory]);
+  const stockKnown = useMemo(() => new Set(inventory.map((r) => r.product_id)), [inventory]);
 
   const [editing, setEditing] = useState<CatalogProductWithUrls | null>(null);
   const [creating, setCreating] = useState(false);
@@ -256,8 +273,10 @@ function ProductsSection() {
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin-products"] });
+    qc.invalidateQueries({ queryKey: ["admin-inventory"] });
     qc.invalidateQueries({ queryKey: ["products"] });
     qc.invalidateQueries({ queryKey: ["product"] });
+    qc.invalidateQueries({ queryKey: ["inventory"] });
   };
 
   const removeMutation = useMutation({
@@ -329,6 +348,17 @@ function ProductsSection() {
                 meta={
                   <div className="flex items-center gap-4">
                     <span className="font-mono text-[11px] text-neutral-600">₹{p.price}</span>
+                    {stockKnown.has(p.id) ? (
+                      <span
+                        className={`font-mono text-[9px] uppercase tracking-[0.2em] ${
+                          (stockTotals[p.id] ?? 0) > 0 ? "text-neutral-500" : "text-red-600"
+                        }`}
+                      >
+                        {(stockTotals[p.id] ?? 0) > 0
+                          ? `${stockTotals[p.id]} in stock`
+                          : "Out of stock"}
+                      </span>
+                    ) : null}
                     <span
                       className={`font-mono text-[9px] uppercase tracking-[0.2em] ${
                         p.published ? "text-neutral-500" : "text-neutral-300"
@@ -749,6 +779,21 @@ function ProductForm({
   const [busy, setBusy] = useState(false);
   const [draggedSlotIndex, setDraggedSlotIndex] = useState<number | null>(null);
 
+  const sizeSlug = form.slug.trim() || slugify(form.name) || product?.slug;
+  const sizeList = sizesFor(sizeSlug);
+
+  const [stock, setStock] = useState<StockBySize>({});
+  const { data: existingStock } = useQuery({
+    queryKey: ["admin-inventory", product?.id],
+    queryFn: () => fetchProductStock(product!.id),
+    enabled: !!product,
+  });
+  useEffect(() => {
+    if (existingStock) setStock(existingStock);
+  }, [existingStock]);
+  const setStockQty = (size: string, qty: number) =>
+    setStock((cur) => ({ ...cur, [size]: Math.max(0, qty) }));
+
   const set = <K extends keyof ProductInput>(key: K, value: ProductInput[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
@@ -830,8 +875,9 @@ function ProductForm({
     const payload: ProductInput = { ...form, slug: form.slug.trim() || slugify(form.name) };
     setBusy(true);
     try {
+      const id = product ? product.id : await createProduct(payload);
       if (product) await updateProduct(product.id, payload);
-      else await createProduct(payload);
+      await saveProductStock(id, Object.fromEntries(sizeList.map((s) => [s, stock[s] ?? 0])));
       toast.success(product ? "Product updated" : "Product added");
       onSaved();
     } catch (err) {
@@ -1021,6 +1067,29 @@ function ProductForm({
                   +
                 </label>
               </div>
+            </div>
+          </div>
+
+          <div className="mt-6 border-t border-black/10 pt-5">
+            <span className={labelClass}>Stock by size</span>
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-400">
+              Units left in each size · shown to shoppers as sold out once a size hits 0
+            </p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              {sizeList.map((s) => (
+                <label key={s} className="block">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-400">
+                    {s}
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    className={`${inputClass} w-20`}
+                    value={stock[s] ?? 0}
+                    onChange={(e) => setStockQty(s, Number(e.target.value))}
+                  />
+                </label>
+              ))}
             </div>
           </div>
 

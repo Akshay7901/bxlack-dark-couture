@@ -96,9 +96,10 @@ export type ProductInput = {
   published: boolean;
 };
 
-export async function createProduct(input: ProductInput) {
-  const { error } = await supabase.from("products").insert(input);
+export async function createProduct(input: ProductInput): Promise<string> {
+  const { data, error } = await supabase.from("products").insert(input).select("id").single();
   if (error) throw error;
+  return data.id;
 }
 
 export async function updateProduct(id: string, input: Partial<ProductInput>) {
@@ -157,6 +158,40 @@ export async function uploadProductImage(file: File): Promise<string> {
   });
   if (error) throw error;
   return path;
+}
+
+export type StockBySize = Record<string, number>;
+
+/**
+ * All inventory rows, or just one product's — keyed by product_id so a caller
+ * fetching for many products at once (the admin list) can group client-side.
+ */
+export async function fetchInventory(
+  productId?: string,
+): Promise<{ product_id: string; size: string; quantity: number }[]> {
+  let query = supabase.from("product_inventory").select("product_id, size, quantity");
+  if (productId) query = query.eq("product_id", productId);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function fetchProductStock(productId: string): Promise<StockBySize> {
+  const rows = await fetchInventory(productId);
+  return Object.fromEntries(rows.map((r) => [r.size, r.quantity]));
+}
+
+export async function saveProductStock(productId: string, stock: StockBySize): Promise<void> {
+  const payload = Object.entries(stock).map(([size, quantity]) => ({
+    product_id: productId,
+    size,
+    quantity,
+  }));
+  if (payload.length === 0) return;
+  const { error } = await supabase
+    .from("product_inventory")
+    .upsert(payload, { onConflict: "product_id,size" });
+  if (error) throw error;
 }
 
 export type CategoryImage = {

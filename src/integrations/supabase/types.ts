@@ -86,6 +86,38 @@ export type Database = {
         };
         Relationships: [];
       };
+      product_inventory: {
+        Row: {
+          id: string;
+          product_id: string;
+          size: string;
+          quantity: number;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          size: string;
+          quantity?: number;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          size?: string;
+          quantity?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_inventory_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       user_roles: {
         Row: {
           created_at: string;

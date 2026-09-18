@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { fetchProducts, toCardProduct } from "@/lib/catalog";
+import { fetchProductStock, fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { Plus, Minus, Heart } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist";
@@ -165,6 +165,13 @@ function ProductPage() {
 
   const all = (data ?? []).map(toCardProduct);
   const product = all.find((p) => p.id === id);
+  const rawProduct = (data ?? []).find((p) => p.slug === id);
+
+  const { data: stock = {} } = useQuery({
+    queryKey: ["inventory", rawProduct?.id],
+    queryFn: () => fetchProductStock(rawProduct!.id),
+    enabled: !!rawProduct,
+  });
 
   if (isLoading) {
     return (
@@ -288,26 +295,44 @@ function ProductPage() {
                 </button>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {sizesFor(product.id).map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSize(s)}
-                    className={`flex h-10 min-w-[44px] items-center justify-center border px-3 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors ${size === s ? "border-white bg-white text-black" : "border-white/25 text-white/55 hover:border-white/70 hover:text-white"}`}
-                  >
-                    {s}
-                  </button>
-                ))}
+                {sizesFor(product.id).map((s) => {
+                  const soldOut = stock[s] !== undefined && stock[s] <= 0;
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => !soldOut && setSize(s)}
+                      disabled={soldOut}
+                      className={`flex h-10 min-w-[44px] items-center justify-center border px-3 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors ${
+                        soldOut
+                          ? "cursor-not-allowed border-white/10 text-white/25 line-through"
+                          : size === s
+                            ? "border-white bg-white text-black"
+                            : "border-white/25 text-white/55 hover:border-white/70 hover:text-white"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
               </div>
+              {stock[size] !== undefined && stock[size] > 0 && stock[size] <= 5 ? (
+                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.24em] text-amber-200/70">
+                  Only {stock[size]} left
+                </p>
+              ) : null}
 
               <button
                 data-cursor="Add"
+                disabled={stock[size] !== undefined && stock[size] <= 0}
                 onClick={() => {
                   add(id, size);
                   window.dispatchEvent(new CustomEvent("bxlack:open-cart"));
                 }}
-                className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
+                className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Add to Cart · ₹{product.price}
+                {stock[size] !== undefined && stock[size] <= 0
+                  ? "Sold Out"
+                  : `Add to Cart · ₹${product.price}`}
               </button>
 
               <button
