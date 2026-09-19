@@ -11,7 +11,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <AppShell>
+    <AppShell hideNewsletter={false}>
       <Hero />
       <ShopByCategory />
       <GraphicFeature />

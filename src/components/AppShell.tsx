@@ -6,10 +6,11 @@ import { CartDrawer } from "./CartDrawer";
 
 export function AppShell({
   children,
-  hideNewsletter,
+  hideNewsletter = true,
   hideFooter,
 }: {
   children: ReactNode;
+  /** The newsletter block is homepage-only — every other page hides it by default. */
   hideNewsletter?: boolean;
   hideFooter?: boolean;
 }) {
