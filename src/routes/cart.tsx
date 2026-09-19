@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { X, Minus, Plus } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/cart")({
 });
 
 function CartPage() {
+  const navigate = useNavigate();
   const { lines, count, setQty, remove, clear } = useCart();
   const { data, isLoading } = useQuery({ queryKey: ["products"], queryFn: () => fetchProducts() });
   const all = (data ?? []).map(toCardProduct);
@@ -144,14 +145,11 @@ function CartPage() {
                 <span className="font-mono text-[16px] text-white">₹{subtotal.toLocaleString("en-IN")}</span>
               </div>
               <button
-                disabled
-                className="mt-6 w-full cursor-not-allowed border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black opacity-90"
+                onClick={() => navigate({ to: "/checkout" })}
+                className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white"
               >
                 Checkout
               </button>
-              <p className="mt-3 text-center font-mono text-[9px] uppercase tracking-[0.22em] text-white/35">
-                Checkout opens with the SS26 drop
-              </p>
               <Link
                 to="/shop"
                 search={{ type: "All" }}

@@ -215,6 +215,14 @@ export type Database = {
           status: string;
           total: number;
           created_at: string;
+          full_name: string | null;
+          phone: string | null;
+          address_line1: string | null;
+          address_line2: string | null;
+          city: string | null;
+          state: string | null;
+          postal_code: string | null;
+          country: string | null;
         };
         Insert: {
           id?: string;
@@ -222,6 +230,14 @@ export type Database = {
           status?: string;
           total?: number;
           created_at?: string;
+          full_name?: string | null;
+          phone?: string | null;
+          address_line1?: string | null;
+          address_line2?: string | null;
+          city?: string | null;
+          state?: string | null;
+          postal_code?: string | null;
+          country?: string | null;
         };
         Update: {
           id?: string;
@@ -229,6 +245,14 @@ export type Database = {
           status?: string;
           total?: number;
           created_at?: string;
+          full_name?: string | null;
+          phone?: string | null;
+          address_line1?: string | null;
+          address_line2?: string | null;
+          city?: string | null;
+          state?: string | null;
+          postal_code?: string | null;
+          country?: string | null;
         };
         Relationships: [];
       };
