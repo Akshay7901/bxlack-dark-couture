@@ -90,6 +90,7 @@ const labelClass = "font-mono text-[11px] uppercase tracking-[0.28em] text-neutr
 
 function AdminPage() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const { user, loading } = useAuth();
   const isAdmin = useIsAdmin(user?.id);
 
@@ -118,6 +119,8 @@ function AdminPage() {
         </p>
         <button
           onClick={async () => {
+            await qc.cancelQueries();
+            qc.clear();
             await supabase.auth.signOut();
             navigate({ to: "/auth", replace: true });
           }}
