@@ -22,7 +22,7 @@ export function ListRow({
   return (
     <div className="flex items-center gap-4 border border-black/10 bg-black/[0.02] px-4 py-3.5 transition-colors hover:border-black/20 hover:bg-black/[0.04]">
       {index !== undefined ? (
-        <span className="w-6 shrink-0 font-mono text-[10px] text-neutral-400">
+        <span className="w-6 shrink-0 font-mono text-[11px] text-neutral-500">
           #{String(index).padStart(2, "0")}
         </span>
       ) : null}
@@ -32,9 +32,9 @@ export function ListRow({
         </div>
       ) : null}
       <div className="min-w-0 flex-1">
-        <p className="truncate font-sans text-[13px] text-neutral-900">{title}</p>
+        <p className="truncate font-sans text-[14px] text-neutral-900">{title}</p>
         {subtitle ? (
-          <p className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-400">
+          <p className="mt-0.5 truncate font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500">
             {subtitle}
           </p>
         ) : null}

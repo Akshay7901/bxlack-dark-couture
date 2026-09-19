@@ -100,7 +100,7 @@ function AdminPage() {
   if (loading || (user && isAdmin === null)) {
     return (
       <Shell>
-        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
+        <p className="font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
           Loading studio…
         </p>
       </Shell>
@@ -145,7 +145,7 @@ function SectionHeading({ title, description }: { title: string; description?: s
     <div>
       <h2 className="font-display text-xl uppercase tracking-[-0.01em]">{title}</h2>
       {description ? (
-        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-400">
+        <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-neutral-500">
           {description}
         </p>
       ) : null}
@@ -184,10 +184,10 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
     <Shell>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-neutral-400">
+          <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-neutral-600">
             BXLACK · Studio
           </p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-400">
+          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.24em] text-neutral-500">
             {email}
           </p>
         </div>
@@ -195,7 +195,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           <Link
             to="/shop"
             search={{ type: "All" }}
-            className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-600 hover:text-black"
+            className="font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-700 hover:text-black"
           >
             View shop
           </Link>
@@ -206,7 +206,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
               await supabase.auth.signOut();
               navigate({ to: "/auth", replace: true });
             }}
-            className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400 hover:text-black"
+            className="font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-500 hover:text-black"
           >
             Sign out
           </button>
@@ -217,7 +217,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
         <nav className="flex gap-5 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="shrink-0 md:shrink">
-              <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-neutral-300 md:mb-1.5 md:block md:px-3">
+              <p className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 md:mb-1.5 md:block md:px-3">
                 {group.label}
               </p>
               <div className="flex gap-2 md:flex-col md:gap-0.5">
@@ -228,13 +228,13 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
                     <button
                       key={item.key}
                       onClick={() => setActive(item.key)}
-                      className={`flex shrink-0 items-center gap-2.5 px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.22em] transition-colors ${
+                      className={`flex shrink-0 items-center gap-2.5 px-3 py-2 text-left font-mono text-[12px] uppercase tracking-[0.22em] transition-colors ${
                         isActive
                           ? "bg-black/5 text-black"
-                          : "text-neutral-400 hover:bg-black/5 hover:text-neutral-700"
+                          : "text-neutral-600 hover:bg-black/5 hover:text-black"
                       }`}
                     >
-                      <Icon size={13} className={isActive ? "text-black" : "text-neutral-400"} />
+                      <Icon size={14} className={isActive ? "text-black" : "text-neutral-500"} />
                       {item.label}
                     </button>
                   );
@@ -330,11 +330,11 @@ function ProductsSection() {
       ) : (
         <div className="mt-6 space-y-2">
           {isLoading ? (
-            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
+            <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
               Loading…
             </p>
           ) : products.length === 0 ? (
-            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
+            <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
               No products yet
             </p>
           ) : (
@@ -355,11 +355,11 @@ function ProductsSection() {
                 subtitle={p.category}
                 meta={
                   <div className="flex items-center gap-4">
-                    <span className="font-mono text-[11px] text-neutral-600">₹{p.price}</span>
+                    <span className="font-mono text-[13px] text-neutral-700">₹{p.price}</span>
                     {stockKnown.has(p.id) ? (
                       <span
-                        className={`font-mono text-[9px] uppercase tracking-[0.2em] ${
-                          (stockTotals[p.id] ?? 0) > 0 ? "text-neutral-500" : "text-red-600"
+                        className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
+                          (stockTotals[p.id] ?? 0) > 0 ? "text-neutral-600" : "text-red-600"
                         }`}
                       >
                         {(stockTotals[p.id] ?? 0) > 0
@@ -368,8 +368,8 @@ function ProductsSection() {
                       </span>
                     ) : null}
                     <span
-                      className={`font-mono text-[9px] uppercase tracking-[0.2em] ${
-                        p.published ? "text-neutral-500" : "text-neutral-300"
+                      className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
+                        p.published ? "text-neutral-600" : "text-neutral-400"
                       }`}
                     >
                       {p.published ? "Live" : "Hidden"}
@@ -444,7 +444,7 @@ function CategoriesSection() {
       />
 
       {isLoading ? (
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
+        <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
           Loading…
         </p>
       ) : (
@@ -554,11 +554,11 @@ function OrdersSection() {
       />
       <div className="mt-6 space-y-2">
         {isLoading ? (
-          <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
+          <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
             Loading…
           </p>
         ) : orders.length === 0 ? (
-          <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
+          <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
             No orders yet
           </p>
         ) : (
@@ -773,7 +773,7 @@ function LaunchSection() {
 
   if (isLoading) {
     return (
-      <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">Loading…</p>
+      <p className="font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">Loading…</p>
     );
   }
 
@@ -884,11 +884,11 @@ function LaunchSection() {
 
         <div className="mt-6 space-y-2">
           {waitlistLoading ? (
-            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
+            <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
               Loading…
             </p>
           ) : waitlist.length === 0 ? (
-            <p className="py-10 font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-400">
+            <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
               No signups yet
             </p>
           ) : (
