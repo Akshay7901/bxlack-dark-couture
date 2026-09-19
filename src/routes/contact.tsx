@@ -6,9 +6,9 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Contact — BXLACK" },
-      { name: "description", content: "Reach BXLACK client services for orders, sizing, press and wholesale enquiries." },
+      { name: "description", content: "Get in touch with BXLACK — timing, email and phone contact details." },
       { property: "og:title", content: "Contact — BXLACK" },
-      { property: "og:description", content: "Client services, press and wholesale contacts for BXLACK." },
+      { property: "og:description", content: "Timing, email and phone contact details for BXLACK." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/contact" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -18,11 +18,11 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
 
+// Placeholder contact details — replace with the real timing/email/number.
 const CHANNELS = [
-  { label: "Client services", value: "clients@bxlack.com" },
-  { label: "Press", value: "press@bxlack.com" },
-  { label: "Wholesale", value: "wholesale@bxlack.com" },
-  { label: "Atelier", value: "Antwerp · Tokyo · Paris" },
+  { label: "Timing", value: "Mon – Sat, 10:00 AM – 7:00 PM" },
+  { label: "Email", value: "hello@bxlack.com" },
+  { label: "Contact number", value: "+91 00000 00000" },
 ];
 
 const inputClass =
