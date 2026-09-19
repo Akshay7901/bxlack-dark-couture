@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -192,13 +192,6 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           </p>
         </div>
         <div className="flex items-center gap-5">
-          <Link
-            to="/shop"
-            search={{ type: "All" }}
-            className="font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-700 hover:text-black"
-          >
-            View shop
-          </Link>
           <button
             onClick={async () => {
               await qc.cancelQueries();
