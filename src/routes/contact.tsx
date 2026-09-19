@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { InfoPage } from "@/components/InfoPage";
+import { submitContactMessage } from "@/lib/contact";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -30,6 +32,7 @@ const inputClass =
 
 function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   return (
     <InfoPage
@@ -57,9 +60,24 @@ function ContactPage() {
             </p>
           ) : (
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                setSent(true);
+                const form = e.currentTarget;
+                const data = new FormData(form);
+                setBusy(true);
+                try {
+                  await submitContactMessage({
+                    name: String(data.get("name") ?? "").trim(),
+                    email: String(data.get("email") ?? "").trim(),
+                    order_number: String(data.get("order") ?? "").trim() || null,
+                    message: String(data.get("message") ?? "").trim(),
+                  });
+                  setSent(true);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Could not send message");
+                } finally {
+                  setBusy(false);
+                }
               }}
               className="space-y-8"
             >
@@ -71,9 +89,10 @@ function ContactPage() {
               <textarea required name="message" rows={5} placeholder="Message" className={`${inputClass} resize-none`} aria-label="Message" />
               <button
                 type="submit"
-                className="border border-light-grey/25 px-10 py-4 font-mono text-[10px] uppercase tracking-[0.3em] text-white transition-colors hover:bg-white hover:text-noir"
+                disabled={busy}
+                className="border border-light-grey/25 px-10 py-4 font-mono text-[10px] uppercase tracking-[0.3em] text-white transition-colors hover:bg-white hover:text-noir disabled:opacity-50"
               >
-                Send message
+                {busy ? "Sending…" : "Send message"}
               </button>
             </form>
           )}

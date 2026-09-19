@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   Image as ImageIcon,
   Mail,
+  MessageSquare,
   Package,
   Plus,
   Rocket,
@@ -47,6 +48,12 @@ import {
 } from "@/lib/launch";
 import { ORDER_STATUSES, updateOrderStatus } from "@/lib/orders";
 import { listOrdersForAdmin, type AdminOrder } from "@/lib/orders.functions";
+import {
+  deleteContactMessage,
+  fetchContactMessages,
+  markContactMessageRead,
+  type ContactMessage,
+} from "@/lib/contact";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -169,6 +176,10 @@ const NAV_GROUPS = [
     items: [{ key: "orders", label: "Orders", icon: Package }],
   },
   {
+    label: "Support",
+    items: [{ key: "messages", label: "Messages", icon: MessageSquare }],
+  },
+  {
     label: "Settings",
     items: [
       { key: "launch", label: "Launch", icon: Rocket },
@@ -244,6 +255,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           {active === "products" ? <ProductsSection /> : null}
           {active === "categories" ? <CategoriesSection /> : null}
           {active === "orders" ? <OrdersSection /> : null}
+          {active === "messages" ? <MessagesSection /> : null}
           {active === "launch" ? <LaunchSection /> : null}
           {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
         </div>
@@ -682,6 +694,122 @@ function OrderDetail({
         <span className="font-mono text-[14px] text-neutral-900">
           ₹{order.total.toLocaleString("en-IN")}
         </span>
+      </div>
+    </div>
+  );
+}
+
+function MessagesSection() {
+  const qc = useQueryClient();
+  const { data: messages = [], isLoading } = useQuery({
+    queryKey: ["admin-messages"],
+    queryFn: () => fetchContactMessages(),
+  });
+  const { confirm, dialog } = useConfirm("light");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["admin-messages"] });
+
+  const readMutation = useMutation({
+    mutationFn: (id: string) => markContactMessageRead(id),
+    onSuccess: invalidate,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteContactMessage(id),
+    onSuccess: () => {
+      toast.success("Message deleted");
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const unreadCount = messages.filter((m) => m.status !== "read").length;
+
+  return (
+    <div>
+      {dialog}
+      <SectionHeading
+        title={`Messages — ${messages.length}`}
+        description={unreadCount > 0 ? `${unreadCount} unread` : undefined}
+      />
+
+      <div className="mt-6 space-y-2">
+        {isLoading ? (
+          <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
+            Loading…
+          </p>
+        ) : messages.length === 0 ? (
+          <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
+            No messages yet
+          </p>
+        ) : (
+          messages.map((m) => {
+            const expanded = expandedId === m.id;
+            return (
+              <div key={m.id} className="border border-black/10 bg-black/[0.02]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExpandedId(expanded ? null : m.id);
+                    if (m.status !== "read") readMutation.mutate(m.id);
+                  }}
+                  className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3.5 text-left transition-colors hover:bg-black/[0.04]"
+                >
+                  {m.status !== "read" ? (
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-black" aria-label="Unread" />
+                  ) : (
+                    <span className="h-2 w-2 shrink-0" />
+                  )}
+                  <div className="min-w-[140px] flex-1">
+                    <p className="truncate font-sans text-[14px] text-neutral-900">{m.name}</p>
+                    <p className="mt-0.5 truncate font-mono text-[11px] text-neutral-500">
+                      {m.email}
+                    </p>
+                  </div>
+                  <span className="shrink-0 font-mono text-[11px] text-neutral-500">
+                    {new Date(m.created_at).toLocaleDateString()}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      confirm({
+                        title: "Delete message",
+                        message: `Delete the message from ${m.name}? This cannot be undone.`,
+                        confirmLabel: "Delete",
+                        destructive: true,
+                        onConfirm: () => deleteMutation.mutate(m.id),
+                      });
+                    }}
+                    aria-label={`Delete message from ${m.name}`}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center border border-black/15 text-neutral-500 transition-colors hover:border-red-500/50 hover:text-red-600"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </button>
+                {expanded ? (
+                  <div className="border-t border-black/10 px-4 py-4">
+                    {m.order_number ? (
+                      <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500">
+                        Order #{m.order_number}
+                      </p>
+                    ) : null}
+                    <p className="mt-2 whitespace-pre-wrap font-sans text-[14px] leading-relaxed text-neutral-800">
+                      {m.message}
+                    </p>
+                    <a
+                      href={`mailto:${m.email}`}
+                      className="mt-4 inline-block font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-600 underline underline-offset-4 hover:text-black"
+                    >
+                      Reply by email
+                    </a>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

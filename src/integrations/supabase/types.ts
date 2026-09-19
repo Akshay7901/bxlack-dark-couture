@@ -8,6 +8,36 @@ export type Database = {
   };
   public: {
     Tables: {
+      contact_messages: {
+        Row: {
+          id: string;
+          name: string;
+          email: string;
+          order_number: string | null;
+          message: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          email: string;
+          order_number?: string | null;
+          message: string;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          email?: string;
+          order_number?: string | null;
+          message?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       category_images: {
         Row: {
           category: string;
