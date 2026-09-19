@@ -20,7 +20,7 @@ export function ListRow({
   deleteLabel?: string;
 }) {
   return (
-    <div className="flex items-center gap-4 border border-black/10 bg-black/[0.02] px-4 py-3.5 transition-colors hover:border-black/20 hover:bg-black/[0.04]">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border border-black/10 bg-black/[0.02] px-4 py-3.5 transition-colors hover:border-black/20 hover:bg-black/[0.04]">
       {index !== undefined ? (
         <span className="w-6 shrink-0 font-mono text-[11px] text-neutral-500">
           #{String(index).padStart(2, "0")}
@@ -31,7 +31,7 @@ export function ListRow({
           {thumbnail}
         </div>
       ) : null}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-[140px] flex-1">
         <p className="truncate font-sans text-[14px] text-neutral-900">{title}</p>
         {subtitle ? (
           <p className="mt-0.5 truncate font-mono text-[11px] uppercase tracking-[0.18em] text-neutral-500">
