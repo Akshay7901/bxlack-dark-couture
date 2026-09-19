@@ -85,8 +85,8 @@ const emptyForm: ProductInput = {
 };
 
 const inputClass =
-  "mt-2 w-full border border-black/15 bg-transparent px-3 py-2.5 font-mono text-[12px] text-neutral-900 outline-none transition-colors focus:border-black/60";
-const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400";
+  "mt-2 w-full border border-black/15 bg-transparent px-3 py-2.5 font-mono text-[14px] text-neutral-900 outline-none transition-colors focus:border-black/60";
+const labelClass = "font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-400";
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -621,7 +621,7 @@ function OrderDetail({
           value={order.status}
           disabled={busy}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="border border-black/15 bg-transparent px-3 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-900 outline-none focus:border-black/60 [&>option]:bg-white"
+          className="border border-black/15 bg-transparent px-3 py-2 font-mono text-[14px] uppercase tracking-[0.2em] text-neutral-900 outline-none focus:border-black/60 [&>option]:bg-white"
         >
           {ORDER_STATUSES.map((s) => (
             <option key={s} value={s}>

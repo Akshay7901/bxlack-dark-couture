@@ -40,8 +40,8 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
   });
 
   const inputClass =
-    "mt-2 w-full border border-black/15 bg-transparent px-3 py-2.5 font-mono text-[12px] text-neutral-900 outline-none transition-colors focus:border-black/60";
-  const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400";
+    "mt-2 w-full border border-black/15 bg-transparent px-3 py-2.5 font-mono text-[14px] text-neutral-900 outline-none transition-colors focus:border-black/60";
+  const labelClass = "font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-400";
 
   return (
     <section>
