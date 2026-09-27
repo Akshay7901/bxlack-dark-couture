@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { AlertCircle, Check, Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { upsertProfile } from "@/lib/account";
 import { AppShell } from "@/components/AppShell";
 import { AccountDashboard } from "@/components/account/AccountDashboard";
 import editorial from "@/assets/venus-tee-model.webp";
@@ -66,6 +67,7 @@ function AccountPage() {
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -96,6 +98,15 @@ function AccountPage() {
             password,
           });
           if (signInError) throw signInError;
+        }
+        const trimmedPhone = phone.trim();
+        if (trimmedPhone && data.user) {
+          try {
+            await upsertProfile(data.user.id, { phone: trimmedPhone });
+          } catch {
+            // Account creation already succeeded — a failed phone save isn't
+            // worth blocking on; it can still be added later from Profile.
+          }
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -234,6 +245,20 @@ function AccountPage() {
                       className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 font-mono text-base text-white outline-none transition-colors focus:border-white/60 sm:text-[12px]"
                     />
                   </label>
+                  {mode === "signup" ? (
+                    <label className="block">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
+                        Phone (optional)
+                      </span>
+                      <input
+                        type="tel"
+                        maxLength={20}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 font-mono text-base text-white outline-none transition-colors focus:border-white/60 sm:text-[12px]"
+                      />
+                    </label>
+                  ) : null}
                   <label className="block">
                     <div className="flex items-baseline justify-between">
                       <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">

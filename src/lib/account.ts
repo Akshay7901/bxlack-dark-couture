@@ -18,7 +18,7 @@ export async function fetchProfile(userId: string): Promise<Profile | null> {
 
 export async function upsertProfile(
   userId: string,
-  input: { full_name: string; phone: string },
+  input: Partial<{ full_name: string; phone: string }>,
 ): Promise<void> {
   const { error } = await supabase
     .from("profiles")
