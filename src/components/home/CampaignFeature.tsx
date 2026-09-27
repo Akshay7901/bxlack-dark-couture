@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import campaignImage from "@/assets/campaign-coastal.webp";
+import campaignImage from "@/assets/campaign-studio.webp";
 
 export function CampaignFeature() {
   return (
@@ -8,7 +8,7 @@ export function CampaignFeature() {
       <div className="relative w-full">
         <motion.img
           src={campaignImage}
-          alt="BXLACK model in an oversized graphic tee and wide-leg denim on a coastal cliff at golden hour"
+          alt="BXLACK model in an oversized graphic tee and wide-leg denim, studio shot against a concrete backdrop"
           className="block h-auto w-full object-contain"
           initial={{ scale: 1.04 }}
           whileInView={{ scale: 1 }}
