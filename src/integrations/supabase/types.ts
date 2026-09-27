@@ -174,18 +174,21 @@ export type Database = {
           id: string;
           full_name: string | null;
           phone: string | null;
+          instagram: string | null;
           updated_at: string;
         };
         Insert: {
           id: string;
           full_name?: string | null;
           phone?: string | null;
+          instagram?: string | null;
           updated_at?: string;
         };
         Update: {
           id?: string;
           full_name?: string | null;
           phone?: string | null;
+          instagram?: string | null;
           updated_at?: string;
         };
         Relationships: [];

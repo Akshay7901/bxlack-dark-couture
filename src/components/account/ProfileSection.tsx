@@ -17,14 +17,21 @@ export function ProfileSection({ userId, email }: { userId: string; email: strin
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [instagram, setInstagram] = useState("");
 
   useEffect(() => {
     setFullName(profile?.full_name ?? "");
     setPhone(profile?.phone ?? "");
+    setInstagram(profile?.instagram ?? "");
   }, [profile]);
 
   const save = useMutation({
-    mutationFn: () => upsertProfile(userId, { full_name: fullName.trim(), phone: phone.trim() }),
+    mutationFn: () =>
+      upsertProfile(userId, {
+        full_name: fullName.trim(),
+        phone: phone.trim(),
+        instagram: instagram.trim(),
+      }),
     onSuccess: () => {
       toast.success("Profile updated");
       qc.invalidateQueries({ queryKey: ["profile", userId] });
@@ -71,6 +78,15 @@ export function ProfileSection({ userId, email }: { userId: string; email: strin
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Your phone number"
+            className={inputClass}
+          />
+        </label>
+        <label className="block">
+          <span className={labelClass}>Instagram</span>
+          <input
+            value={instagram}
+            onChange={(e) => setInstagram(e.target.value)}
+            placeholder="@yourhandle"
             className={inputClass}
           />
         </label>

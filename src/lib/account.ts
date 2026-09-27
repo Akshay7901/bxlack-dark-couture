@@ -4,12 +4,13 @@ export type Profile = {
   id: string;
   full_name: string | null;
   phone: string | null;
+  instagram: string | null;
 };
 
 export async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, phone")
+    .select("id, full_name, phone, instagram")
     .eq("id", userId)
     .maybeSingle();
   if (error) throw error;
@@ -18,7 +19,7 @@ export async function fetchProfile(userId: string): Promise<Profile | null> {
 
 export async function upsertProfile(
   userId: string,
-  input: Partial<{ full_name: string; phone: string }>,
+  input: Partial<{ full_name: string; phone: string; instagram: string }>,
 ): Promise<void> {
   const { error } = await supabase
     .from("profiles")

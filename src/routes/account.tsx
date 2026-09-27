@@ -66,8 +66,10 @@ function AccountPage() {
   const qc = useQueryClient();
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<Mode>("signin");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [instagram, setInstagram] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -99,13 +101,20 @@ function AccountPage() {
           });
           if (signInError) throw signInError;
         }
+        const trimmedFullName = fullName.trim();
         const trimmedPhone = phone.trim();
-        if (trimmedPhone && data.user) {
+        const trimmedInstagram = instagram.trim();
+        if ((trimmedFullName || trimmedPhone || trimmedInstagram) && data.user) {
           try {
-            await upsertProfile(data.user.id, { phone: trimmedPhone });
+            await upsertProfile(data.user.id, {
+              ...(trimmedFullName ? { full_name: trimmedFullName } : {}),
+              ...(trimmedPhone ? { phone: trimmedPhone } : {}),
+              ...(trimmedInstagram ? { instagram: trimmedInstagram } : {}),
+            });
           } catch {
-            // Account creation already succeeded — a failed phone save isn't
-            // worth blocking on; it can still be added later from Profile.
+            // Account creation already succeeded — a failed profile save
+            // isn't worth blocking on; it can still be added later from
+            // Profile.
           }
         }
       } else {
@@ -232,6 +241,20 @@ function AccountPage() {
                 </p>
 
                 <form onSubmit={submit} className="mt-7 space-y-4">
+                  {mode === "signup" ? (
+                    <label className="block">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
+                        Name (optional)
+                      </span>
+                      <input
+                        type="text"
+                        maxLength={100}
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 font-mono text-base text-white outline-none transition-colors focus:border-white/60 sm:text-[12px]"
+                      />
+                    </label>
+                  ) : null}
                   <label className="block">
                     <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
                       Email
@@ -248,7 +271,22 @@ function AccountPage() {
                   {mode === "signup" ? (
                     <label className="block">
                       <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
-                        Phone (optional)
+                        Instagram (optional)
+                      </span>
+                      <input
+                        type="text"
+                        maxLength={30}
+                        placeholder="@yourhandle"
+                        value={instagram}
+                        onChange={(e) => setInstagram(e.target.value)}
+                        className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 font-mono text-base text-white outline-none transition-colors focus:border-white/60 sm:text-[12px]"
+                      />
+                    </label>
+                  ) : null}
+                  {mode === "signup" ? (
+                    <label className="block">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
+                        Number (optional)
                       </span>
                       <input
                         type="tel"
