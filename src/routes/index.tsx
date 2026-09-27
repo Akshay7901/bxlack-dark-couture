@@ -4,6 +4,7 @@ import { Hero } from "@/components/home/Hero";
 import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { GraphicFeature } from "@/components/home/GraphicFeature";
 import { HeritageFeature } from "@/components/home/HeritageFeature";
+import { CampaignFeature } from "@/components/home/CampaignFeature";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -16,6 +17,7 @@ function Index() {
       <ShopByCategory />
       <GraphicFeature />
       <HeritageFeature />
+      <CampaignFeature />
     </AppShell>
   );
 }
