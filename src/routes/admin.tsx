@@ -50,6 +50,7 @@ import {
 } from "@/lib/launch";
 import { ORDER_STATUSES, updateOrderStatus } from "@/lib/orders";
 import { listOrdersForAdmin, type AdminOrder } from "@/lib/orders.functions";
+import { clearTestData, seedTestData } from "@/lib/test-data.functions";
 import {
   deleteContactMessage,
   fetchContactMessages,
@@ -529,6 +530,55 @@ const statusClass: Record<string, string> = {
   cancelled: "text-red-600",
 };
 
+/** Temporary helpers for filling Orders/Messages with tagged dummy rows. */
+function TestDataControls() {
+  const qc = useQueryClient();
+  const refresh = () =>
+    ["admin-orders", "admin-messages", "admin-customers"].forEach((key) =>
+      qc.invalidateQueries({ queryKey: [key] }),
+    );
+
+  const seed = useMutation({
+    mutationFn: () => seedTestData(),
+    onSuccess: () => {
+      toast.success("Added 3 test orders and 3 test messages");
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const clear = useMutation({
+    mutationFn: () => clearTestData(),
+    onSuccess: () => {
+      toast.success("Test data removed");
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const buttonClass =
+    "border border-black/25 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-700 transition-colors hover:border-black hover:text-black disabled:opacity-50";
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <button
+        onClick={() => seed.mutate()}
+        disabled={seed.isPending || clear.isPending}
+        className={buttonClass}
+      >
+        {seed.isPending ? "Adding…" : "Add test data"}
+      </button>
+      <button
+        onClick={() => clear.mutate()}
+        disabled={seed.isPending || clear.isPending}
+        className={buttonClass}
+      >
+        {clear.isPending ? "Removing…" : "Remove test data"}
+      </button>
+    </div>
+  );
+}
+
 function OrdersSection() {
   const qc = useQueryClient();
   const { data: orders = [], isLoading } = useQuery({
@@ -562,10 +612,13 @@ function OrdersSection() {
 
   return (
     <div>
-      <SectionHeading
-        title={`Orders — ${orders.length}`}
-        description="Every order placed by a customer, newest first"
-      />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <SectionHeading
+          title={`Orders — ${orders.length}`}
+          description="Every order placed by a customer, newest first"
+        />
+        <TestDataControls />
+      </div>
       <div className="mt-6 space-y-2">
         {isLoading ? (
           <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
@@ -735,10 +788,13 @@ function MessagesSection() {
   return (
     <div>
       {dialog}
-      <SectionHeading
-        title={`Messages — ${messages.length}`}
-        description={unreadCount > 0 ? `${unreadCount} unread` : undefined}
-      />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <SectionHeading
+          title={`Messages — ${messages.length}`}
+          description={unreadCount > 0 ? `${unreadCount} unread` : undefined}
+        />
+        <TestDataControls />
+      </div>
 
       <div className="mt-6 space-y-2">
         {isLoading ? (
