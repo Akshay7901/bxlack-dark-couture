@@ -83,6 +83,68 @@ export const listAdmins = createServerFn({ method: "GET" })
     }));
   });
 
+export type AdminCustomer = {
+  userId: string;
+  email: string;
+  fullName: string | null;
+  phone: string | null;
+  instagram: string | null;
+  createdAt: string;
+  lastSignInAt: string | null;
+  orderCount: number;
+  isAdmin: boolean;
+};
+
+/** Every account registered on the site, newest first, with profile details
+ * and order counts — auth.users is only reachable via the service-role client. */
+export const listCustomers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AdminCustomer[]> => {
+    await assertCallerIsAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const users = [];
+    for (let page = 1; ; page++) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
+      if (error) throw new Error("Could not load users");
+      users.push(...data.users);
+      if (data.users.length < 1000) break;
+    }
+
+    const [profilesRes, ordersRes, rolesRes] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id, full_name, phone, instagram"),
+      supabaseAdmin.from("orders").select("user_id"),
+      supabaseAdmin.from("user_roles").select("user_id").eq("role", "admin"),
+    ]);
+    if (profilesRes.error || ordersRes.error || rolesRes.error) {
+      throw new Error("Could not load customer details");
+    }
+
+    const profiles = new Map((profilesRes.data ?? []).map((p) => [p.id, p]));
+    const orderCounts = new Map<string, number>();
+    for (const o of ordersRes.data ?? []) {
+      orderCounts.set(o.user_id, (orderCounts.get(o.user_id) ?? 0) + 1);
+    }
+    const admins = new Set((rolesRes.data ?? []).map((r) => r.user_id));
+
+    return users
+      .map((u) => {
+        const profile = profiles.get(u.id);
+        return {
+          userId: u.id,
+          email: u.email ?? "unknown",
+          fullName: profile?.full_name ?? null,
+          phone: profile?.phone ?? null,
+          instagram: profile?.instagram ?? null,
+          createdAt: u.created_at,
+          lastSignInAt: u.last_sign_in_at ?? null,
+          orderCount: orderCounts.get(u.id) ?? 0,
+          isAdmin: admins.has(u.id),
+        };
+      })
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  });
+
 export const createAdminUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => credentialsSchema.parse(input))

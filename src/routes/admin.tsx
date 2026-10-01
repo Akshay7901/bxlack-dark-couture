@@ -11,10 +11,12 @@ import {
   Rocket,
   Shirt,
   Trash2,
+  UserRound,
   Users,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
+import { AdminCustomers } from "@/components/admin/AdminCustomers";
 import { AdminTeam } from "@/components/admin/AdminTeam";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { ListRow } from "@/components/admin/ListRow";
@@ -173,7 +175,10 @@ const NAV_GROUPS = [
   },
   {
     label: "Sales",
-    items: [{ key: "orders", label: "Orders", icon: Package }],
+    items: [
+      { key: "orders", label: "Orders", icon: Package },
+      { key: "customers", label: "Customers", icon: UserRound },
+    ],
   },
   {
     label: "Support",
@@ -255,6 +260,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           {active === "products" ? <ProductsSection /> : null}
           {active === "categories" ? <CategoriesSection /> : null}
           {active === "orders" ? <OrdersSection /> : null}
+          {active === "customers" ? <AdminCustomers /> : null}
           {active === "messages" ? <MessagesSection /> : null}
           {active === "launch" ? <LaunchSection /> : null}
           {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
