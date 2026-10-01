@@ -4,7 +4,7 @@ import { Newsletter } from "@/components/Newsletter";
 import logoAsset from "@/assets/bxlack-logo.png.asset.json";
 
 const SHOP = [
-  { label: "All Pieces", type: "All" as const },
+  { label: "All Drops", type: "All" as const },
   { label: "T-Shirt", type: "Tshirt" as const },
   { label: "Shirt", type: "Shirt" as const },
   { label: "Jeans", type: "Jeans" as const },
