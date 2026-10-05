@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://bxlack-dark-couture.lovable.app/sitemap.xml
+Sitemap: https://bxlack-dark-couture.vercel.app/sitemap.xml
