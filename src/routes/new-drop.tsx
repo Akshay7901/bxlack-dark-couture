@@ -3,16 +3,16 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/new-drop")({
-  head: () => ({
-    meta: [
-      { title: "New Drop — BXLACK SS26" },
-      { name: "description", content: "SS26 · Chapter 001. A numbered, small-batch drop from BXLACK." },
-      { property: "og:title", content: "New Drop — BXLACK SS26" },
-      { property: "og:description", content: "Fifty pieces cut. None will be re-made." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "New Drop — BXLACK SS26",
+      description:
+        "SS26 · Chapter 001. Discover the latest numbered, small-batch drop from BXLACK. Once a piece is gone, it will not be remade.",
+      path: "/new-drop",
+    }),
   component: NewDropPage,
 });
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { InfoPage } from "@/components/InfoPage";
+import { seo } from "@/lib/seo";
 
 const FAQS = [
   { q: "When does the next drop release?", a: "Drops are announced by email first. Join the list in the footer and you will receive the exact release time 24 hours ahead of the public." },
@@ -16,16 +17,12 @@ const FAQS = [
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
-    meta: [
-      { title: "FAQ — BXLACK" },
-      { name: "description", content: "Answers on drops, sizing, delivery, returns, payment and garment care at BXLACK." },
-      { property: "og:title", content: "FAQ — BXLACK" },
-      { property: "og:description", content: "Drops, sizing, delivery, returns, payment and care — answered." },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/faq" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://bxlack-dark-couture.lovable.app/faq" }],
+    ...seo({
+      title: "FAQ — BXLACK",
+      description:
+        "Answers to common questions about BXLACK drops, sizing, delivery, returns, payment and garment care.",
+      path: "/faq",
+    }),
     scripts: [
       {
         type: "application/ld+json",

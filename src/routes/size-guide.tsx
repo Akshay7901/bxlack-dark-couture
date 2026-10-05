@@ -1,27 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
 import { SIZE_ROWS } from "@/lib/sizing";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/size-guide")({
-  head: () => ({
-    meta: [
-      { title: "Size Guide — BXLACK" },
-      {
-        name: "description",
-        content:
-          "BXLACK measurements in centimetres for t-shirts, shirts and denim, plus fit and measuring guidance.",
-      },
-      { property: "og:title", content: "Size Guide — BXLACK" },
-      {
-        property: "og:description",
-        content: "Measurements, fit notes and how to measure for BXLACK pieces.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/size-guide" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://bxlack-dark-couture.lovable.app/size-guide" }],
-  }),
+  head: () =>
+    seo({
+      title: "Size Guide — BXLACK",
+      description:
+        "Find your BXLACK size with garment measurements, fit notes and a simple guide to measuring yourself for T-shirts, shirts and jeans.",
+      path: "/size-guide",
+    }),
   component: SizeGuidePage,
 });
 

@@ -3,7 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { fetchProductStock, fetchProducts, toCardProduct } from "@/lib/catalog";
+import {
+  fetchProductBySlug,
+  fetchProductStock,
+  fetchProducts,
+  toCardProduct,
+} from "@/lib/catalog";
+import { seo } from "@/lib/seo";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { Plus, Minus, Heart } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist";
@@ -14,22 +20,32 @@ import { sizesFor } from "@/lib/sizing";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
 
 export const Route = createFileRoute("/product/$id")({
-  head: () => ({
-    meta: [
-      { title: "Product — BXLACK SS26" },
-      {
-        name: "description",
-        content: "A numbered, small-batch BXLACK piece. Cut in Antwerp, finished in Tokyo.",
-      },
-      { property: "og:title", content: "Product — BXLACK SS26" },
-      {
-        property: "og:description",
-        content: "A numbered, small-batch BXLACK piece from the SS26 collection.",
-      },
-      { property: "og:type", content: "product" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  // Loaded only for the page's meta tags; a failed lookup falls back to generic tags.
+  loader: ({ params }) => fetchProductBySlug(params.id).catch(() => null),
+  head: ({ loaderData, params }) => {
+    const product = loaderData;
+    if (!product) {
+      return seo({
+        title: "Shop the Collection — BXLACK",
+        description:
+          "A numbered, small-batch BXLACK piece from the SS26 collection of luxury streetwear.",
+        path: `/product/${params.id}`,
+        type: "product",
+      });
+    }
+    const summary = product.description?.replace(/\s+/g, " ").trim();
+    return seo({
+      title: `${product.name} — BXLACK`,
+      description: summary
+        ? summary.length > 160
+          ? `${summary.slice(0, 157).trimEnd()}…`
+          : summary
+        : `Shop the ${product.name} by BXLACK for ₹${product.price.toLocaleString("en-IN")}. A numbered, small-batch piece of luxury streetwear.`,
+      path: `/product/${product.slug}`,
+      image: product.imageUrl ?? product.cardImageUrl,
+      type: "product",
+    });
+  },
   component: ProductPage,
 });
 

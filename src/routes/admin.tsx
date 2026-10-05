@@ -57,22 +57,16 @@ import {
   markContactMessageRead,
   type ContactMessage,
 } from "@/lib/contact";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({
-    meta: [
-      { title: "Studio — BXLACK Admin" },
-      {
-        name: "description",
-        content: "Manage the BXLACK product catalogue: add pieces, edit prices and upload imagery.",
-      },
-      { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Studio — BXLACK Admin" },
-      { property: "og:description", content: "Manage the BXLACK product catalogue." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Studio — BXLACK Admin",
+      description:
+        "Manage the BXLACK catalogue, orders, customers and messages.",
+      noindex: true,
+    }),
   ssr: false,
   component: AdminPage,
 });

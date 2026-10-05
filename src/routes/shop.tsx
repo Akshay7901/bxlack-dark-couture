@@ -5,19 +5,23 @@ import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { ProductCard } from "@/components/ProductCard";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (search: Record<string, unknown>) => ({
     type: typeof search.type === "string" ? search.type : "All",
   }),
-  head: () => ({
-    meta: [
-      { title: "Shop — BXLACK" },
-      { name: "description", content: "The BXLACK SS26 collection. Numbered, small-batch luxury streetwear." },
-      { property: "og:title", content: "Shop — BXLACK" },
-      { property: "og:description", content: "The SS26 collection. Numbered, small-batch." },
-    ],
-  }),
+  head: ({ match }) => {
+    const type = match.search.type;
+    const label = type !== "All" ? pageTitles[type] : undefined;
+    return seo({
+      title: label ? `Shop ${label} — BXLACK` : "Shop All Drops — BXLACK",
+      description: label
+        ? `Shop BXLACK ${label.toLowerCase()}: numbered, small-batch luxury streetwear from the SS26 collection, designed to stand apart.`
+        : "Shop every BXLACK drop: numbered, small-batch luxury T-shirts, shirts and jeans from the SS26 collection.",
+      path: label ? `/shop?type=${type}` : "/shop",
+    });
+  },
   component: ShopPage,
 });
 

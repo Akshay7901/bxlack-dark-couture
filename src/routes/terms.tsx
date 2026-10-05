@@ -1,19 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms & Conditions — BXLACK" },
-      { name: "description", content: "The terms governing purchases from BXLACK, including pricing, orders and liability." },
-      { property: "og:title", content: "Terms & Conditions — BXLACK" },
-      { property: "og:description", content: "Terms governing purchases from BXLACK." },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/terms" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://bxlack-dark-couture.lovable.app/terms" }],
-  }),
+  head: () =>
+    seo({
+      title: "Terms & Conditions — BXLACK",
+      description:
+        "The terms that govern purchases from BXLACK, including pricing, orders, payment, shipping and liability.",
+      path: "/terms",
+    }),
   component: () => (
     <InfoPage
       eyebrow="Legal"

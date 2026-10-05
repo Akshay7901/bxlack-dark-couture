@@ -1,19 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy Policy — BXLACK" },
-      { name: "description", content: "How BXLACK collects, uses and protects personal data, and the rights available to you." },
-      { property: "og:title", content: "Privacy Policy — BXLACK" },
-      { property: "og:description", content: "How BXLACK handles personal data and cookies." },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/privacy" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://bxlack-dark-couture.lovable.app/privacy" }],
-  }),
+  head: () =>
+    seo({
+      title: "Privacy Policy — BXLACK",
+      description:
+        "How BXLACK collects, uses and protects your personal data, how cookies are used, and the rights available to you.",
+      path: "/privacy",
+    }),
   component: () => (
     <InfoPage
       eyebrow="Legal"

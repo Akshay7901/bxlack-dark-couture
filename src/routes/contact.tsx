@@ -3,20 +3,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { InfoPage } from "@/components/InfoPage";
 import { submitContactMessage } from "@/lib/contact";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact — BXLACK" },
-      { name: "description", content: "Get in touch with BXLACK — timing, email and phone contact details." },
-      { property: "og:title", content: "Contact — BXLACK" },
-      { property: "og:description", content: "Timing, email and phone contact details for BXLACK." },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/contact" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://bxlack-dark-couture.lovable.app/contact" }],
-  }),
+  head: () =>
+    seo({
+      title: "Contact Us — BXLACK",
+      description:
+        "Get in touch with BXLACK for help with orders, sizing, shipping or returns. Find our support hours, email and phone details.",
+      path: "/contact",
+    }),
   component: ContactPage,
 });
 

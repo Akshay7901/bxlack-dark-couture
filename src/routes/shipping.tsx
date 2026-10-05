@@ -1,19 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/shipping")({
-  head: () => ({
-    meta: [
-      { title: "Shipping & Delivery — BXLACK" },
-      { name: "description", content: "BXLACK shipping methods, delivery timelines, charges and international duties information." },
-      { property: "og:title", content: "Shipping & Delivery — BXLACK" },
-      { property: "og:description", content: "Delivery timelines, charges and duties for every BXLACK order." },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/shipping" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://bxlack-dark-couture.lovable.app/shipping" }],
-  }),
+  head: () =>
+    seo({
+      title: "Shipping & Delivery — BXLACK",
+      description:
+        "BXLACK shipping methods, delivery timelines, charges and information on international duties and taxes.",
+      path: "/shipping",
+    }),
   component: () => (
     <InfoPage
       hideNewsletter

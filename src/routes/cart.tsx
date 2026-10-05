@@ -5,18 +5,16 @@ import { AppShell } from "@/components/AppShell";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/cart")({
-  head: () => ({
-    meta: [
-      { title: "Your Bag — BXLACK" },
-      { name: "description", content: "Review the BXLACK pieces in your bag before checkout." },
-      { property: "og:title", content: "Your Bag — BXLACK" },
-      { property: "og:description", content: "Review the BXLACK pieces in your bag before checkout." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Your Bag — BXLACK",
+      description:
+        "Review the BXLACK pieces in your bag before checkout.",
+      noindex: true,
+    }),
   component: CartPage,
 });
 

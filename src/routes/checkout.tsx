@@ -10,15 +10,16 @@ import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { fetchAddresses, createAddress, type Address, type AddressInput } from "@/lib/account";
 import { AddressForm } from "@/components/account/AddressForm";
 import { placeOrder } from "@/lib/checkout.functions";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({
-    meta: [
-      { title: "Checkout — BXLACK" },
-      { name: "description", content: "Complete your BXLACK order." },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Checkout — BXLACK",
+      description:
+        "Complete your BXLACK order securely.",
+      noindex: true,
+    }),
   component: CheckoutPage,
 });
 

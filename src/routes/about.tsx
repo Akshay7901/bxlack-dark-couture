@@ -3,16 +3,16 @@ import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import hero from "@/assets/gate-model-back.webp";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: [
-      { title: "About — BXLACK" },
-      { name: "description", content: "One colour, no limits. The philosophy, story and codes behind BXLACK." },
-      { property: "og:title", content: "About — BXLACK" },
-      { property: "og:description", content: "One colour, no limits. The philosophy, story and codes behind BXLACK." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "About — BXLACK",
+      description:
+        "One colour, no limits. Discover the story, philosophy and design codes behind BXLACK, the luxury streetwear label born to stand apart.",
+      path: "/about",
+    }),
   component: AboutPage,
 });
 

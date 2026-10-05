@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader } from "@/components/Loader";
 import { LaunchGate } from "@/components/LaunchGate";
+import { seo } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -89,38 +90,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BXLACK — Born To Stand Apart" },
-      {
-        name: "description",
-        content:
-          "BXLACK. Not fashion. A statement. Editorial luxury streetwear crafted for those who refuse to blend in.",
-      },
       { name: "author", content: "BXLACK" },
-      { property: "og:title", content: "BXLACK — Born To Stand Apart" },
-      {
-        property: "og:description",
-        content:
-          "BXLACK. Not fashion. A statement. Editorial luxury streetwear crafted for those who refuse to blend in.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#000000" },
       { name: "twitter:site", content: "@BXLACK" },
-      { name: "twitter:title", content: "BXLACK — Born To Stand Apart" },
-      {
-        name: "twitter:description",
-        content:
-          "BXLACK. Not fashion. A statement. Editorial luxury streetwear crafted for those who refuse to blend in.",
-      },
-      {
-        property: "og:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/afb6a951-f712-44a6-a4ca-ee8297bef8cf/id-preview-f05dbdd6--c7d592ab-0631-4cbf-a1c0-5593066198cf.lovable.app-1785229126911.png",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/afb6a951-f712-44a6-a4ca-ee8297bef8cf/id-preview-f05dbdd6--c7d592ab-0631-4cbf-a1c0-5593066198cf.lovable.app-1785229126911.png",
-      },
+      // Site-wide defaults; each route's own seo() tags override these.
+      ...seo({
+        title: "BXLACK — Born To Stand Apart",
+        description:
+          "BXLACK is editorial luxury streetwear for those who refuse to blend in. Shop numbered, small-batch T-shirts, shirts and jeans.",
+      }).meta,
     ],
     links: [
       {

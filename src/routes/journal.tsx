@@ -5,16 +5,16 @@ import look1 from "@/assets/look1.jpg";
 import look2 from "@/assets/look2.jpg";
 import story from "@/assets/story.jpg";
 import hero from "@/assets/hero.jpg";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/journal")({
-  head: () => ({
-    meta: [
-      { title: "Journal — BXLACK" },
-      { name: "description", content: "Studio notes, essays and dispatches from BXLACK." },
-      { property: "og:title", content: "Journal — BXLACK" },
-      { property: "og:description", content: "Studio notes, essays and dispatches." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Journal — BXLACK",
+      description:
+        "Studio notes, essays and dispatches from BXLACK on design, craft and the art of dressing in silence.",
+      path: "/journal",
+    }),
   component: JournalPage,
 });
 

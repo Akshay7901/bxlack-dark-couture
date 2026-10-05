@@ -1,19 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/returns")({
-  head: () => ({
-    meta: [
-      { title: "Returns & Refunds — BXLACK" },
-      { name: "description", content: "How to return, exchange or cancel a BXLACK order, refund timelines and condition requirements." },
-      { property: "og:title", content: "Returns & Refunds — BXLACK" },
-      { property: "og:description", content: "How to return, exchange or cancel a BXLACK order." },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://bxlack-dark-couture.lovable.app/returns" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://bxlack-dark-couture.lovable.app/returns" }],
-  }),
+  head: () =>
+    seo({
+      title: "Returns & Refunds — BXLACK",
+      description:
+        "How to return, exchange or cancel a BXLACK order, including refund timelines and the condition items must be in.",
+      path: "/returns",
+    }),
   component: () => (
     <InfoPage
       hideNewsletter

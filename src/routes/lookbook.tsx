@@ -6,16 +6,16 @@ import look2 from "@/assets/look2.jpg";
 import hero from "@/assets/hero.jpg";
 import p3 from "@/assets/p3.jpg";
 import p5 from "@/assets/p5.jpg";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/lookbook")({
-  head: () => ({
-    meta: [
-      { title: "Lookbook — BXLACK SS26" },
-      { name: "description", content: "The SS26 lookbook. Cinematic editorial photography from BXLACK." },
-      { property: "og:title", content: "Lookbook — BXLACK SS26" },
-      { property: "og:description", content: "Cinematic editorial photography from BXLACK." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Lookbook — BXLACK SS26",
+      description:
+        "The BXLACK SS26 lookbook: cinematic editorial photography of the collection, styled in one colour.",
+      path: "/lookbook",
+    }),
   component: LookbookPage,
 });
 

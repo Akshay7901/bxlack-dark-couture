@@ -5,18 +5,16 @@ import { AppShell } from "@/components/AppShell";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { useWishlist } from "@/lib/wishlist";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/wishlist")({
-  head: () => ({
-    meta: [
-      { title: "Wishlist — BXLACK" },
-      { name: "description", content: "Your saved BXLACK pieces — kept in one place until you're ready." },
-      { property: "og:title", content: "Wishlist — BXLACK" },
-      { property: "og:description", content: "Your saved BXLACK pieces from the SS26 collection." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Wishlist — BXLACK",
+      description:
+        "Your saved BXLACK pieces, kept in one place until you're ready.",
+      noindex: true,
+    }),
   component: WishlistPage,
 });
 

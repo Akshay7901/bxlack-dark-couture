@@ -3,19 +3,16 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({
-    meta: [
-      { title: "Reset Password — BXLACK" },
-      { name: "description", content: "Set a new password for your BXLACK account." },
-      { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Reset Password — BXLACK" },
-      { property: "og:description", content: "Set a new password for your BXLACK account." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Reset Password — BXLACK",
+      description:
+        "Set a new password for your BXLACK account.",
+      noindex: true,
+    }),
   ssr: false,
   component: ResetPasswordPage,
 });

@@ -9,6 +9,7 @@ import { upsertProfile } from "@/lib/account";
 import { AppShell } from "@/components/AppShell";
 import { AccountDashboard } from "@/components/account/AccountDashboard";
 import editorial from "@/assets/venus-tee-model.webp";
+import { seo } from "@/lib/seo";
 
 /** Word-by-word staggered reveal, matching the intro loader's letter-reveal motion. */
 function RevealHeading({
@@ -39,22 +40,13 @@ function RevealHeading({
 }
 
 export const Route = createFileRoute("/account")({
-  head: () => ({
-    meta: [
-      { title: "Account — BXLACK" },
-      {
-        name: "description",
-        content: "Sign in or create a BXLACK account to save pieces, track your bag and shop SS26.",
-      },
-      { property: "og:title", content: "Account — BXLACK" },
-      {
-        property: "og:description",
-        content: "Sign in or create a BXLACK account to save pieces and shop SS26.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "My Account — BXLACK",
+      description:
+        "Sign in or create a BXLACK account to manage your profile, saved addresses, orders and wishlist.",
+      noindex: true,
+    }),
   ssr: false,
   component: AccountPage,
 });

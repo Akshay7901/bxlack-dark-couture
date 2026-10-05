@@ -4,19 +4,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { bootstrapFirstAdmin, hasAnyAdmin } from "@/lib/admin-users.functions";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [
-      { title: "Sign In — BXLACK Studio" },
-      { name: "description", content: "Sign in to the BXLACK studio to manage the SS26 catalogue." },
-      { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Sign In — BXLACK Studio" },
-      { property: "og:description", content: "Studio access for the BXLACK catalogue." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Sign In — BXLACK Studio",
+      description:
+        "Sign in to the BXLACK studio.",
+      noindex: true,
+    }),
   ssr: false,
   component: AuthPage,
 });
