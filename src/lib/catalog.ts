@@ -117,11 +117,13 @@ export async function deleteProduct(id: string) {
  * 4000px+ / several MB) before upload — otherwise every first-time visitor eats the
  * full original download on every product/category image.
  */
-async function compressImage(file: File, maxDimension = 1600, quality = 0.88): Promise<File> {
-  if (!file.type.startsWith("image/") || file.type === "image/svg+xml") return file;
+async function compressImage(file: File, maxDimension = 1600, quality = 0.85): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/svg+xml" || file.type === "image/gif") {
+    return file;
+  }
 
   const bitmap = await createImageBitmap(file);
-  if (bitmap.width <= maxDimension && bitmap.height <= maxDimension && file.size < 1_500_000) {
+  if (bitmap.width <= maxDimension && bitmap.height <= maxDimension && file.size < 300_000) {
     bitmap.close();
     return file;
   }
@@ -138,14 +140,19 @@ async function compressImage(file: File, maxDimension = 1600, quality = 0.88): P
   ctx.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
 
-  const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
-  const blob: Blob | null = await new Promise((resolve) =>
-    canvas.toBlob(resolve, outputType, quality),
-  );
+  const encode = (type: string): Promise<Blob | null> =>
+    new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+
+  // WebP is far smaller and keeps transparency. Browsers that can't encode it
+  // (older Safari) silently return a PNG instead, so fall back explicitly.
+  let blob = await encode("image/webp");
+  if (blob?.type !== "image/webp") {
+    blob = await encode(file.type === "image/png" ? "image/png" : "image/jpeg");
+  }
   if (!blob || blob.size >= file.size) return file;
 
-  const ext = outputType === "image/png" ? "png" : "jpg";
-  return new File([blob], file.name.replace(/\.[^.]+$/, `.${ext}`), { type: outputType });
+  const ext = blob.type === "image/webp" ? "webp" : blob.type === "image/png" ? "png" : "jpg";
+  return new File([blob], file.name.replace(/\.[^.]+$/, `.${ext}`), { type: blob.type });
 }
 
 export async function uploadProductImage(file: File): Promise<string> {

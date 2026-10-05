@@ -88,7 +88,8 @@ export function Hero() {
           alt="BXLACK SS2026 campaign"
           className="absolute left-0 top-0 h-full w-full object-cover object-top"
           width={1672}
-          height={941}
+          height={778}
+          fetchPriority="high"
         />
         <motion.img
           src={heroBackImage}

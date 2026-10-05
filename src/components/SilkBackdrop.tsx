@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
-import shopBg from "@/assets/shop-bg.jpg";
+import shopBg from "@/assets/shop-bg.webp";
 
 /**
  * Pointer-driven parallax only runs on fine-pointer (mouse) devices — on touch

@@ -1,4 +1,4 @@
-import shipwreckTeeConstruction from "@/assets/shipwreck-tee-construction.png";
+import shipwreckTeeConstruction from "@/assets/shipwreck-tee-construction.webp";
 
 export type SizeRow = {
   size: string;

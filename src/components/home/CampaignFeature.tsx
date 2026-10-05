@@ -9,6 +9,10 @@ export function CampaignFeature() {
         <motion.img
           src={campaignImage}
           alt="BXLACK model in an oversized graphic tee and wide-leg denim, studio shot against a concrete backdrop"
+          width={1920}
+          height={1080}
+          loading="lazy"
+          decoding="async"
           className="block h-auto w-full object-contain"
           initial={{ scale: 1.04 }}
           whileInView={{ scale: 1 }}

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import stoneTeeImage from "@/assets/stone-tee-back.jpg";
+import stoneTeeImage from "@/assets/stone-tee-back.webp";
 
 export function GraphicFeature() {
   return (
@@ -9,6 +9,10 @@ export function GraphicFeature() {
         <motion.img
           src={stoneTeeImage}
           alt="BXLACK Stone Logo Tee shot from behind, model standing in a concrete corridor"
+          width={1448}
+          height={1086}
+          loading="lazy"
+          decoding="async"
           className="block h-auto w-full object-contain"
           initial={{ scale: 1.04 }}
           whileInView={{ scale: 1 }}

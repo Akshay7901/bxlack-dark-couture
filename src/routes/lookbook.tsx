@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
-import look1 from "@/assets/look1.jpg";
-import look2 from "@/assets/look2.jpg";
-import hero from "@/assets/hero.jpg";
-import p3 from "@/assets/p3.jpg";
-import p5 from "@/assets/p5.jpg";
+import look1 from "@/assets/look1.webp";
+import look2 from "@/assets/look2.webp";
+import hero from "@/assets/hero.webp";
+import p3 from "@/assets/p3.webp";
+import p5 from "@/assets/p5.webp";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/lookbook")({

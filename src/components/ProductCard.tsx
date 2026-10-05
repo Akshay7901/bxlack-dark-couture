@@ -12,6 +12,7 @@ export function ProductCard({ product }: { product: Product }) {
               alt={product.name}
               className="absolute inset-0 h-full w-full object-cover"
               loading="lazy"
+              decoding="async"
             />
           ) : null}
         </div>

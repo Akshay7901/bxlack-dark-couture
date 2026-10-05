@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { Heart, ShoppingBag, User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "@/assets/bxlack-logo.png.asset.json";
+import logo from "@/assets/bxlack-logo.webp";
 import { useWishlist } from "@/lib/wishlist";
 import { useCart } from "@/lib/cart";
 
@@ -92,11 +92,11 @@ export function Header({ onCart }: { onCart: () => void }) {
         {/* Center: Logo */}
         <Link to="/" className="flex shrink-0 justify-center" data-cursor="Home">
           <img
-            src={logo.url}
+            src={logo}
             alt="BXLACK"
             className="h-6 w-auto sm:h-8 md:h-11"
-            width={1920}
-            height={1065}
+            width={480}
+            height={266}
           />
         </Link>
 

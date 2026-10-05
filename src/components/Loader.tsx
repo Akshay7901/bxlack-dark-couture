@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import signatureMark from "@/assets/signature-mark.png";
+import signatureMark from "@/assets/signature-mark.webp";
 
 export function Loader() {
   const [gone, setGone] = useState(false);

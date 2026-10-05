@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Newsletter } from "@/components/Newsletter";
-import logoAsset from "@/assets/bxlack-logo.png.asset.json";
+import logo from "@/assets/bxlack-logo.webp";
 
 const SHOP = [
   { label: "All Drops", type: "All" as const },
@@ -35,7 +35,7 @@ export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
 
         <div className={`grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-2 lg:grid-cols-4 ${hideNewsletter ? "" : "mt-16 md:mt-24"}`}>
           <div className="col-span-2 sm:col-span-1">
-            <img src={logoAsset.url} alt="BXLACK" className="h-10 w-auto object-contain" />
+            <img src={logo} alt="BXLACK" width={480} height={266} loading="lazy" decoding="async" className="h-10 w-auto object-contain" />
             <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-light-grey/60">
               ABSENCE OF NOISE
             </p>

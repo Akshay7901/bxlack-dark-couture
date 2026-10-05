@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
-import look1 from "@/assets/look1.jpg";
-import look2 from "@/assets/look2.jpg";
-import story from "@/assets/story.jpg";
-import hero from "@/assets/hero.jpg";
+import look1 from "@/assets/look1.webp";
+import look2 from "@/assets/look2.webp";
+import story from "@/assets/story.webp";
+import hero from "@/assets/hero.webp";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/journal")({

@@ -9,6 +9,10 @@ export function HeritageFeature() {
         <motion.img
           src={heritageImage}
           alt="BXLACK embroidered camp-collar shirt worn at sunrise before a snow-capped mountain"
+          width={1920}
+          height={1281}
+          loading="lazy"
+          decoding="async"
           className="block h-auto w-full object-contain"
           initial={{ scale: 1.04 }}
           whileInView={{ scale: 1 }}
