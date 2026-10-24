@@ -6,7 +6,12 @@ import {
   updateReturnRequest,
   type AdminReturnRequest,
 } from "@/lib/returns.functions";
-import { RETURN_STATUSES, RETURN_STATUS_LABELS, type ReturnStatus } from "@/lib/returns";
+import {
+  PACKING_TUBE_CHARGE,
+  RETURN_STATUSES,
+  RETURN_STATUS_LABELS,
+  type ReturnStatus,
+} from "@/lib/returns";
 
 const statusClass: Record<string, string> = {
   requested: "text-amber-600",
@@ -141,6 +146,14 @@ function ReturnDetail({ request: r }: { request: AdminReturnRequest }) {
             {r.details}
           </p>
         ) : null}
+      </div>
+
+      <div>
+        <span className={labelClass}>Packing tube</span>
+        <p className="mt-2 font-sans text-[13px] text-neutral-900">
+          Customer agreed to return the original tube — deduct ₹{PACKING_TUBE_CHARGE} if it's
+          missing on pickup.
+        </p>
       </div>
 
       <div className="grid gap-4 border border-black/12 p-4 sm:grid-cols-[180px_1fr]">

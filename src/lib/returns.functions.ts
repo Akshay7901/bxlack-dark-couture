@@ -36,6 +36,11 @@ const createSchema = z.object({
     .max(50),
   reason: z.enum(RETURN_REASONS),
   details: z.string().trim().max(1000).nullable().optional(),
+  // Customer must agree to send back the original packing tube (or accept the
+  // tube charge); requests without this agreement are refused.
+  tubeAcknowledged: z.literal(true, {
+    errorMap: () => ({ message: "Please confirm the packing tube terms to continue." }),
+  }),
 });
 
 /** Customer requests a return or exchange for a delivered order. Every policy

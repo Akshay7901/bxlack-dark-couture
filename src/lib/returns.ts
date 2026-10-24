@@ -3,6 +3,9 @@
 
 export const RETURN_WINDOW_DAYS = 7;
 
+/** Deducted when a return/exchange comes back without the original packing tube. */
+export const PACKING_TUBE_CHARGE = 300;
+
 /** Orders can be cancelled by the customer until they ship. */
 export const CANCELLABLE_STATUSES = ["pending", "processing"] as const;
 

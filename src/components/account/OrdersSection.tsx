@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { fetchOrders, type Order } from "@/lib/account";
 import { cancelMyOrder, createReturnRequest } from "@/lib/returns.functions";
 import {
+  PACKING_TUBE_CHARGE,
   RETURN_REASONS,
   RETURN_STATUS_LABELS,
   RETURN_WINDOW_DAYS,
@@ -168,6 +169,7 @@ function ReturnRequestForm({ order, onClose }: { order: Order; onClose: () => vo
   const [reason, setReason] = useState<string>("");
   const [details, setDetails] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const [tubeConfirmed, setTubeConfirmed] = useState(false);
 
   const submit = useMutation({
     mutationFn: () =>
@@ -181,6 +183,7 @@ function ReturnRequestForm({ order, onClose }: { order: Order; onClose: () => vo
           })),
           reason: reason as (typeof RETURN_REASONS)[number],
           details: details.trim() || null,
+          tubeAcknowledged: true,
         },
       }),
     onSuccess: () => {
@@ -193,7 +196,8 @@ function ReturnRequestForm({ order, onClose }: { order: Order; onClose: () => vo
 
   const selectedIds = Object.keys(selected);
   const missingSize = type === "exchange" && selectedIds.some((id) => !selected[id]);
-  const canSubmit = selectedIds.length > 0 && reason && confirmed && !missingSize;
+  const canSubmit =
+    selectedIds.length > 0 && reason && confirmed && tubeConfirmed && !missingSize;
 
   return (
     <form
@@ -301,6 +305,19 @@ function ReturnRequestForm({ order, onClose }: { order: Order; onClose: () => vo
           <Link to="/returns" className="underline underline-offset-4 hover:text-white">
             Full policy
           </Link>
+        </span>
+      </label>
+
+      <label className="flex cursor-pointer items-start gap-3 font-mono text-[11px] leading-relaxed text-white/55">
+        <input
+          type="checkbox"
+          checked={tubeConfirmed}
+          onChange={(e) => setTubeConfirmed(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-white"
+        />
+        <span>
+          I'll send the piece back in its original BXLACK packing tube. If the tube isn't returned,
+          ₹{PACKING_TUBE_CHARGE} will be deducted.
         </span>
       </label>
 

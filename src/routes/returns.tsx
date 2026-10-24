@@ -23,6 +23,7 @@ export const Route = createFileRoute("/returns")({
           body: [
             "A return must be postmarked within 7 days of delivery. Made-to-order pieces are final sale and can't be returned or exchanged.",
             "The item needs to come back new, unused and in its original condition, with brand tag and plastic seal still attached. Once either is removed, the piece is no longer eligible.",
+            "Send the piece back in its original BXLACK packing tube. If the tube isn't returned, ₹300 is deducted. This applies to both returns and exchanges.",
             "Spotted a quality or quantity issue? Flag it within 24 hours of delivery so we can sort it quickly.",
           ],
         },
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/returns")({
           heading: "What's deducted, what isn't",
           body: [
             "A flat ₹100 logistics charge is held back from every refund. Express shipping charges are non-refundable and aren't reimbursed either.",
-            "Packaging (wooden boxes, brown boxes, gift wraps) is part of delivery, not the product, and isn't returnable or refundable under any circumstance.",
+            "Other packaging (wooden boxes, brown boxes, gift wraps) is part of delivery, not the product, and isn't returnable or refundable under any circumstance. The packing tube is the exception: it must come back with the piece, or ₹300 is deducted.",
             "Gift cards and store credit don't expire, but they can't be refunded to a bank account or transferred once issued.",
           ],
         },
