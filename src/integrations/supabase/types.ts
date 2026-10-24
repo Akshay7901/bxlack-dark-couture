@@ -256,6 +256,7 @@ export type Database = {
           state: string | null;
           postal_code: string | null;
           country: string | null;
+          delivered_at: string | null;
         };
         Insert: {
           id?: string;
@@ -271,6 +272,7 @@ export type Database = {
           state?: string | null;
           postal_code?: string | null;
           country?: string | null;
+          delivered_at?: string | null;
         };
         Update: {
           id?: string;
@@ -286,6 +288,7 @@ export type Database = {
           state?: string | null;
           postal_code?: string | null;
           country?: string | null;
+          delivered_at?: string | null;
         };
         Relationships: [];
       };
@@ -325,6 +328,56 @@ export type Database = {
             foreignKeyName: "order_items_order_id_fkey";
             columns: ["order_id"];
             isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      return_requests: {
+        Row: {
+          id: string;
+          order_id: string;
+          user_id: string;
+          type: string;
+          items: Json;
+          reason: string;
+          details: string | null;
+          status: string;
+          admin_note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          user_id: string;
+          type: string;
+          items: Json;
+          reason: string;
+          details?: string | null;
+          status?: string;
+          admin_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          user_id?: string;
+          type?: string;
+          items?: Json;
+          reason?: string;
+          details?: string | null;
+          status?: string;
+          admin_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "return_requests_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: true;
             referencedRelation: "orders";
             referencedColumns: ["id"];
           },

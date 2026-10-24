@@ -51,6 +51,8 @@ const ORDERS = [
   {
     status: "delivered",
     created_at: hoursAgo(144),
+    // Inside the return window, so the account's return/exchange flow can be tested.
+    delivered_at: hoursAgo(48),
     full_name: `${TAG}Kabir Singh`,
     phone: "+91 99887 76655",
     address_line1: "7 Hauz Khas Village",

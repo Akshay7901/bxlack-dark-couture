@@ -82,6 +82,14 @@ export type Order = {
   status: string;
   total: number;
   created_at: string;
+  delivered_at: string | null;
+  country: string | null;
+  returnRequest: {
+    type: string;
+    status: string;
+    admin_note: string | null;
+    created_at: string;
+  } | null;
   items: {
     id: string;
     product_name: string;
@@ -95,7 +103,9 @@ export type Order = {
 export async function fetchOrders(): Promise<Order[]> {
   const { data, error } = await supabase
     .from("orders")
-    .select("id, status, total, created_at, order_items(id, product_name, image_path, size, quantity, price)")
+    .select(
+      "id, status, total, created_at, delivered_at, country, order_items(id, product_name, image_path, size, quantity, price), return_requests(type, status, admin_note, created_at)",
+    )
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((o) => ({
@@ -103,6 +113,9 @@ export async function fetchOrders(): Promise<Order[]> {
     status: o.status,
     total: o.total,
     created_at: o.created_at,
+    delivered_at: o.delivered_at,
+    country: o.country,
+    returnRequest: o.return_requests ?? null,
     items: o.order_items ?? [],
   }));
 }

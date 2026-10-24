@@ -9,6 +9,7 @@ import {
   Package,
   Plus,
   Rocket,
+  RotateCcw,
   Shirt,
   Trash2,
   UserRound,
@@ -17,6 +18,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { AdminCustomers } from "@/components/admin/AdminCustomers";
+import { AdminReturns } from "@/components/admin/AdminReturns";
 import { AdminTeam } from "@/components/admin/AdminTeam";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { ListRow } from "@/components/admin/ListRow";
@@ -172,6 +174,7 @@ const NAV_GROUPS = [
     label: "Sales",
     items: [
       { key: "orders", label: "Orders", icon: Package },
+      { key: "returns", label: "Returns", icon: RotateCcw },
       { key: "customers", label: "Customers", icon: UserRound },
     ],
   },
@@ -255,6 +258,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           {active === "products" ? <ProductsSection /> : null}
           {active === "categories" ? <CategoriesSection /> : null}
           {active === "orders" ? <OrdersSection /> : null}
+          {active === "returns" ? <AdminReturns /> : null}
           {active === "customers" ? <AdminCustomers /> : null}
           {active === "messages" ? <MessagesSection /> : null}
           {active === "launch" ? <LaunchSection /> : null}
