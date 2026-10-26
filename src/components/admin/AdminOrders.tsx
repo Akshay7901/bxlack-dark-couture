@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Download, Printer, Search } from "lucide-react";
 import { ListRow } from "@/components/admin/ListRow";
 import { Badge, ORDER_STATUS_TONE, statusLabel } from "@/components/admin/Badge";
+import { printPackingSlips, printShippingLabels } from "@/components/admin/printDocs";
 import { TestDataControls } from "@/components/admin/TestDataControls";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import {
@@ -35,6 +36,14 @@ export function AdminOrders({ initialQuery = "" }: { initialQuery?: string }) {
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("all");
   const [query, setQuery] = useState(initialQuery);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const statusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
@@ -121,7 +130,14 @@ export function AdminOrders({ initialQuery = "" }: { initialQuery?: string }) {
         ))}
       </div>
 
-      <div className="mt-6 space-y-2">
+      <BulkPrintBar
+        filtered={filtered}
+        selected={selected}
+        setSelected={setSelected}
+        selectedOrders={orders.filter((o) => selected.has(o.id))}
+      />
+
+      <div className="mt-3 space-y-2">
         {isLoading ? (
           <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">Loading…</p>
         ) : filtered.length === 0 ? (
@@ -130,20 +146,103 @@ export function AdminOrders({ initialQuery = "" }: { initialQuery?: string }) {
           </p>
         ) : (
           filtered.map((o) => (
-            <ListRow
-              key={o.id}
-              title={`#${o.orderNumber} · ${o.fullName || o.email}`}
-              subtitle={new Date(o.createdAt).toLocaleString()}
-              meta={
-                <div className="flex items-center gap-4">
-                  <span className="font-mono text-[11px] text-neutral-600">{inr(o.total)}</span>
-                  <Badge tone={ORDER_STATUS_TONE[o.status]}>{statusLabel(o.status)}</Badge>
-                </div>
-              }
-              onEdit={() => setViewingId(o.id)}
-            />
+            <div key={o.id} className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={selected.has(o.id)}
+                onChange={() => toggle(o.id)}
+                aria-label={`Select order #${o.orderNumber}`}
+                className="h-4 w-4 shrink-0 accent-black"
+              />
+              <div className="min-w-0 flex-1">
+                <ListRow
+                  title={`#${o.orderNumber} · ${o.fullName || o.email}`}
+                  subtitle={new Date(o.createdAt).toLocaleString()}
+                  meta={
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-[11px] text-neutral-600">{inr(o.total)}</span>
+                      <Badge tone={ORDER_STATUS_TONE[o.status]}>{statusLabel(o.status)}</Badge>
+                      <button
+                        type="button"
+                        onClick={() => printShippingLabels([o])}
+                        aria-label={`Print shipping label for order #${o.orderNumber}`}
+                        title="Print shipping label"
+                        className="flex h-8 w-8 items-center justify-center border border-black/15 text-neutral-500 transition-colors hover:border-black/50 hover:text-black"
+                      >
+                        <Printer size={13} />
+                      </button>
+                    </div>
+                  }
+                  onEdit={() => setViewingId(o.id)}
+                />
+              </div>
+            </div>
           ))
         )}
+      </div>
+    </div>
+  );
+}
+
+/** Select orders on the list and print their labels or packing slips together. */
+function BulkPrintBar({
+  filtered,
+  selected,
+  setSelected,
+  selectedOrders,
+}: {
+  filtered: AdminOrder[];
+  selected: Set<string>;
+  setSelected: (s: Set<string>) => void;
+  selectedOrders: AdminOrder[];
+}) {
+  const allShown = filtered.length > 0 && filtered.every((o) => selected.has(o.id));
+  const toShip = filtered.filter((o) => o.status === "pending" || o.status === "processing");
+  const button =
+    "border border-black/25 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-700 hover:border-black hover:text-black disabled:opacity-40";
+
+  return (
+    <div className="mt-6 flex flex-wrap items-center gap-2 border border-black/12 px-4 py-3">
+      <label className="mr-2 flex items-center gap-2 text-[13px]">
+        <input
+          type="checkbox"
+          checked={allShown}
+          onChange={() => setSelected(allShown ? new Set() : new Set(filtered.map((o) => o.id)))}
+          className="h-4 w-4 accent-black"
+          aria-label="Select all shown orders"
+        />
+        {selected.size ? `${selected.size} selected` : "Select all"}
+      </label>
+      <button
+        type="button"
+        className={button}
+        disabled={toShip.length === 0}
+        onClick={() => setSelected(new Set(toShip.map((o) => o.id)))}
+      >
+        Select to-ship ({toShip.length})
+      </button>
+      <div className="ml-auto flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={!selectedOrders.length}
+          onClick={() => printShippingLabels(selectedOrders)}
+          className="flex items-center gap-2 border border-black bg-black px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white disabled:opacity-40"
+        >
+          <Printer size={13} /> Print labels{selectedOrders.length ? ` (${selectedOrders.length})` : ""}
+        </button>
+        <button
+          type="button"
+          className={button}
+          disabled={!selectedOrders.length}
+          onClick={() => printPackingSlips(selectedOrders)}
+        >
+          Packing slips{selectedOrders.length ? ` (${selectedOrders.length})` : ""}
+        </button>
+        {selected.size ? (
+          <button type="button" className={button} onClick={() => setSelected(new Set())}>
+            Clear
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -204,16 +303,28 @@ function OrderDetail({
             {new Date(order.createdAt).toLocaleString()} · {order.paymentMethod === "cod" ? "Cash on delivery" : order.paymentMethod}
           </p>
         </div>
-        <div className="flex items-center gap-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => printShippingLabels([order])}
+            className="flex items-center gap-2 border border-black bg-black px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-white"
+          >
+            <Printer size={13} /> Shipping label
+          </button>
+          <button
+            onClick={() => printPackingSlips([order])}
+            className="flex items-center gap-2 border border-black/25 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-700 hover:border-black hover:text-black"
+          >
+            Packing slip
+          </button>
           <button
             onClick={() => printInvoice(order)}
-            className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-500 hover:text-black"
+            className="flex items-center gap-2 border border-black/25 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-700 hover:border-black hover:text-black"
           >
-            <Printer size={13} /> Invoice
+            Invoice
           </button>
           <button
             onClick={onBack}
-            className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400 hover:text-black"
+            className="px-2 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-500 hover:text-black"
           >
             Back to orders
           </button>
