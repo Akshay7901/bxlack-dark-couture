@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import { useCart } from "@/lib/cart";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { fetchAddresses, createAddress, type Address, type AddressInput } from "@/lib/account";
 import { AddressForm } from "@/components/account/AddressForm";
-import { placeOrder } from "@/lib/checkout.functions";
+import { placeOrder, previewDiscount } from "@/lib/checkout.functions";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/checkout")({
@@ -42,6 +42,9 @@ function CheckoutPage() {
   const [addingNew, setAddingNew] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
   const [placing, setPlacing] = useState(false);
+  const [codeInput, setCodeInput] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [discount, setDiscount] = useState<{ code: string; amount: number } | null>(null);
 
   const all = (data ?? []).map(toCardProduct);
   const items = lines
@@ -53,6 +56,12 @@ function CheckoutPage() {
     (typeof lines)[number] & { product: ReturnType<typeof toCardProduct> }
   >;
   const subtotal = items.reduce((sum, i) => sum + i.product.price * i.qty, 0);
+  const total = Math.max(subtotal - (discount?.amount ?? 0), 0);
+
+  // A code's value depends on the bag, so re-check it after the bag changes.
+  useEffect(() => {
+    setDiscount(null);
+  }, [subtotal]);
 
   const defaultAddress = addresses.find((a) => a.is_default) ?? addresses[0] ?? null;
   const selected = addresses.find((a) => a.id === selectedId) ?? defaultAddress;
@@ -116,11 +125,29 @@ function CheckoutPage() {
     }
   };
 
+  const cartLines = items.map((i) => ({ productId: i.id, size: i.size, qty: i.qty }));
+
+  const applyCode = async () => {
+    const code = codeInput.trim();
+    if (!code) return;
+    setApplying(true);
+    try {
+      const result = await previewDiscount({ data: { code, lines: cartLines } });
+      setDiscount({ code: result.code, amount: result.amount });
+      toast.success(`${result.code} applied`);
+    } catch (err) {
+      setDiscount(null);
+      toast.error(err instanceof Error ? err.message : "Could not apply code");
+    } finally {
+      setApplying(false);
+    }
+  };
+
   const submit = async () => {
     if (!selected) return toast.error("Add a shipping address first");
     setPlacing(true);
     try {
-      await placeOrder({
+      const { orderNumber } = await placeOrder({
         data: {
           address: {
             full_name: selected.full_name,
@@ -132,11 +159,13 @@ function CheckoutPage() {
             postal_code: selected.postal_code,
             country: selected.country,
           },
-          lines: items.map((i) => ({ productId: i.id, size: i.size, qty: i.qty })),
+          lines: cartLines,
+          discountCode: discount?.code ?? null,
         },
       });
       clear();
-      toast.success("Order placed");
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      toast.success(`Order #${orderNumber} placed`);
       navigate({ to: "/account" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not place order");
@@ -217,12 +246,57 @@ function CheckoutPage() {
                     </div>
                   ))}
             </div>
-            <div className="mt-6 flex items-baseline justify-between">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                applyCode();
+              }}
+              className="mt-6 flex gap-2"
+            >
+              <input
+                value={codeInput}
+                onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
+                placeholder="Discount code"
+                aria-label="Discount code"
+                maxLength={40}
+                className="min-w-0 flex-1 border border-white/15 bg-transparent px-3 py-2.5 font-mono text-[12px] uppercase tracking-[0.15em] text-white outline-none placeholder:text-white/30 focus:border-white/60"
+              />
+              <button
+                type="submit"
+                disabled={applying || !codeInput.trim() || items.length === 0}
+                className="border border-white/25 px-4 font-mono text-[10px] uppercase tracking-[0.24em] text-white/70 transition-colors hover:border-white hover:text-white disabled:opacity-40"
+              >
+                {applying ? "…" : "Apply"}
+              </button>
+            </form>
+
+            <div className="mt-6 space-y-2">
+              <div className="flex justify-between font-mono text-[12px] text-white/60">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toLocaleString("en-IN")}</span>
+              </div>
+              {discount ? (
+                <div className="flex justify-between font-mono text-[12px] text-white/60">
+                  <span>
+                    Discount · {discount.code}{" "}
+                    <button
+                      type="button"
+                      onClick={() => setDiscount(null)}
+                      className="ml-1 underline underline-offset-2 hover:text-white"
+                    >
+                      Remove
+                    </button>
+                  </span>
+                  <span>−₹{discount.amount.toLocaleString("en-IN")}</span>
+                </div>
+              ) : null}
+            </div>
+            <div className="mt-4 flex items-baseline justify-between border-t border-white/10 pt-4">
               <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/60">
                 Total
               </span>
               <span className="font-mono text-[16px] text-white">
-                ₹{subtotal.toLocaleString("en-IN")}
+                ₹{total.toLocaleString("en-IN")}
               </span>
             </div>
             <button

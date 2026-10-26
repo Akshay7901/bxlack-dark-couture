@@ -130,6 +130,7 @@ export const cancelMyOrder = createServerFn({ method: "POST" })
 export type AdminReturnRequest = {
   id: string;
   orderId: string;
+  orderNumber: number | null;
   type: string;
   status: string;
   reason: string;
@@ -153,7 +154,7 @@ export const listReturnRequestsForAdmin = createServerFn({ method: "GET" })
     const { data: requests, error } = await supabaseAdmin
       .from("return_requests")
       .select(
-        "id, order_id, user_id, type, status, reason, details, admin_note, items, created_at, orders(full_name, phone, address_line1, address_line2, city, state, postal_code, total)",
+        "id, order_id, user_id, type, status, reason, details, admin_note, items, created_at, orders(order_number, full_name, phone, address_line1, address_line2, city, state, postal_code, total)",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error("Could not load return requests");
@@ -167,6 +168,7 @@ export const listReturnRequestsForAdmin = createServerFn({ method: "GET" })
       return {
         id: r.id,
         orderId: r.order_id,
+        orderNumber: o?.order_number ?? null,
         type: r.type,
         status: r.status,
         reason: r.reason,

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Image as ImageIcon,
+  LayoutDashboard,
   Mail,
   MessageSquare,
   Package,
@@ -11,6 +12,7 @@ import {
   Rocket,
   RotateCcw,
   Shirt,
+  Tag,
   Trash2,
   UserRound,
   Users,
@@ -50,9 +52,10 @@ import {
   updateSiteSettings,
   type SiteSettings,
 } from "@/lib/launch";
-import { ORDER_STATUSES, updateOrderStatus } from "@/lib/orders";
-import { listOrdersForAdmin, type AdminOrder } from "@/lib/orders.functions";
-import { clearTestData, seedTestData } from "@/lib/test-data.functions";
+import { TestDataControls } from "@/components/admin/TestDataControls";
+import { AdminOrders } from "@/components/admin/AdminOrders";
+import { AdminDiscounts } from "@/components/admin/AdminDiscounts";
+import { StudioOverview } from "@/components/admin/StudioOverview";
 import {
   deleteContactMessage,
   fetchContactMessages,
@@ -164,6 +167,10 @@ function SectionHeading({ title, description }: { title: string; description?: s
 
 const NAV_GROUPS = [
   {
+    label: "Home",
+    items: [{ key: "overview", label: "Overview", icon: LayoutDashboard }],
+  },
+  {
     label: "Catalog",
     items: [
       { key: "products", label: "Products", icon: Shirt },
@@ -176,6 +183,7 @@ const NAV_GROUPS = [
       { key: "orders", label: "Orders", icon: Package },
       { key: "returns", label: "Returns", icon: RotateCcw },
       { key: "customers", label: "Customers", icon: UserRound },
+      { key: "discounts", label: "Discounts", icon: Tag },
     ],
   },
   {
@@ -195,7 +203,7 @@ type NavKey = (typeof NAV_GROUPS)[number]["items"][number]["key"];
 function AdminDashboard({ email, userId }: { email: string; userId: string }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [active, setActive] = useState<NavKey>("products");
+  const [active, setActive] = useState<NavKey>("overview");
 
   return (
     <Shell>
@@ -255,11 +263,13 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
         </nav>
 
         <div className="min-w-0">
+          {active === "overview" ? <StudioOverview onNavigate={setActive} /> : null}
           {active === "products" ? <ProductsSection /> : null}
           {active === "categories" ? <CategoriesSection /> : null}
-          {active === "orders" ? <OrdersSection /> : null}
+          {active === "orders" ? <AdminOrders /> : null}
           {active === "returns" ? <AdminReturns /> : null}
           {active === "customers" ? <AdminCustomers /> : null}
+          {active === "discounts" ? <AdminDiscounts /> : null}
           {active === "messages" ? <MessagesSection /> : null}
           {active === "launch" ? <LaunchSection /> : null}
           {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
@@ -516,242 +526,6 @@ function CategoriesSection() {
           })}
         </div>
       )}
-    </div>
-  );
-}
-
-const statusClass: Record<string, string> = {
-  pending: "text-neutral-500",
-  processing: "text-blue-600",
-  shipped: "text-amber-600",
-  delivered: "text-green-600",
-  cancelled: "text-red-600",
-};
-
-/** Temporary helpers for filling Orders/Messages with tagged dummy rows. */
-function TestDataControls() {
-  const qc = useQueryClient();
-  const refresh = () =>
-    ["admin-orders", "admin-messages", "admin-customers"].forEach((key) =>
-      qc.invalidateQueries({ queryKey: [key] }),
-    );
-
-  const seed = useMutation({
-    mutationFn: () => seedTestData(),
-    onSuccess: () => {
-      toast.success("Added 3 test orders and 3 test messages");
-      refresh();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const clear = useMutation({
-    mutationFn: () => clearTestData(),
-    onSuccess: () => {
-      toast.success("Test data removed");
-      refresh();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const buttonClass =
-    "border border-black/25 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-700 transition-colors hover:border-black hover:text-black disabled:opacity-50";
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      <button
-        onClick={() => seed.mutate()}
-        disabled={seed.isPending || clear.isPending}
-        className={buttonClass}
-      >
-        {seed.isPending ? "Adding…" : "Add test data"}
-      </button>
-      <button
-        onClick={() => clear.mutate()}
-        disabled={seed.isPending || clear.isPending}
-        className={buttonClass}
-      >
-        {clear.isPending ? "Removing…" : "Remove test data"}
-      </button>
-    </div>
-  );
-}
-
-function OrdersSection() {
-  const qc = useQueryClient();
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ["admin-orders"],
-    queryFn: () => listOrdersForAdmin(),
-  });
-  const [viewingId, setViewingId] = useState<string | null>(null);
-
-  const statusMutation = useMutation({
-    mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
-      updateOrderStatus(orderId, status),
-    onSuccess: () => {
-      toast.success("Order updated");
-      qc.invalidateQueries({ queryKey: ["admin-orders"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const viewing = orders.find((o) => o.id === viewingId) ?? null;
-
-  if (viewing) {
-    return (
-      <OrderDetail
-        order={viewing}
-        onBack={() => setViewingId(null)}
-        onStatusChange={(status) => statusMutation.mutate({ orderId: viewing.id, status })}
-        busy={statusMutation.isPending}
-      />
-    );
-  }
-
-  return (
-    <div>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <SectionHeading
-          title={`Orders — ${orders.length}`}
-          description="Every order placed by a customer, newest first"
-        />
-        <TestDataControls />
-      </div>
-      <div className="mt-6 space-y-2">
-        {isLoading ? (
-          <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
-            Loading…
-          </p>
-        ) : orders.length === 0 ? (
-          <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
-            No orders yet
-          </p>
-        ) : (
-          orders.map((o, i) => (
-            <ListRow
-              key={o.id}
-              index={i + 1}
-              title={o.email}
-              subtitle={new Date(o.createdAt).toLocaleString()}
-              meta={
-                <div className="flex items-center gap-4">
-                  <span className="font-mono text-[11px] text-neutral-600">
-                    ₹{o.total.toLocaleString("en-IN")}
-                  </span>
-                  <span
-                    className={`font-mono text-[9px] uppercase tracking-[0.2em] ${statusClass[o.status] ?? "text-neutral-500"}`}
-                  >
-                    {o.status}
-                  </span>
-                </div>
-              }
-              onEdit={() => setViewingId(o.id)}
-            />
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function OrderDetail({
-  order,
-  onBack,
-  onStatusChange,
-  busy,
-}: {
-  order: AdminOrder;
-  onBack: () => void;
-  onStatusChange: (status: string) => void;
-  busy: boolean;
-}) {
-  return (
-    <div>
-      <div className="flex items-center justify-between">
-        <SectionHeading
-          title={`Order · ${order.email}`}
-          description={new Date(order.createdAt).toLocaleString()}
-        />
-        <button
-          onClick={onBack}
-          className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400 hover:text-black"
-        >
-          Back to orders
-        </button>
-      </div>
-
-      <div className="mt-6 flex items-center gap-4 border border-black/12 p-5">
-        <span className={labelClass}>Status</span>
-        <select
-          value={order.status}
-          disabled={busy}
-          onChange={(e) => onStatusChange(e.target.value)}
-          className="border border-black/15 bg-transparent px-3 py-2 font-mono text-[14px] uppercase tracking-[0.2em] text-neutral-900 outline-none focus:border-black/60 [&>option]:bg-white"
-        >
-          {ORDER_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mt-6 grid gap-5 border border-black/12 p-5 sm:grid-cols-2">
-        <div>
-          <span className={labelClass}>Customer</span>
-          <p className="mt-2 font-sans text-[13px] text-neutral-900">
-            {order.fullName || "Not provided"}
-          </p>
-          <p className="mt-1 font-mono text-[11px] text-neutral-600">{order.email}</p>
-          <p className="mt-1 font-mono text-[11px] text-neutral-600">
-            {order.phone || "No phone on file"}
-          </p>
-        </div>
-        <div>
-          <span className={labelClass}>Shipping address</span>
-          {order.addressLine1 ? (
-            <p className="mt-2 font-sans text-[13px] leading-relaxed text-neutral-900">
-              {order.addressLine1}
-              {order.addressLine2 ? <>, {order.addressLine2}</> : null}
-              <br />
-              {[order.city, order.state, order.postalCode].filter(Boolean).join(", ")}
-              {order.country ? (
-                <>
-                  <br />
-                  {order.country}
-                </>
-              ) : null}
-            </p>
-          ) : (
-            <p className="mt-2 font-mono text-[11px] text-neutral-400">No address on file</p>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-2">
-        {order.items.map((item) => (
-          <ListRow
-            key={item.id}
-            thumbnail={null}
-            title={item.productName}
-            subtitle={
-              item.size ? `Size ${item.size} · Qty ${item.quantity}` : `Qty ${item.quantity}`
-            }
-            meta={
-              <span className="font-mono text-[11px] text-neutral-600">
-                ₹{item.price.toLocaleString("en-IN")}
-              </span>
-            }
-          />
-        ))}
-      </div>
-
-      <div className="mt-6 flex items-baseline justify-between border-t border-black/10 pt-5">
-        <span className={labelClass}>Total</span>
-        <span className="font-mono text-[14px] text-neutral-900">
-          ₹{order.total.toLocaleString("en-IN")}
-        </span>
-      </div>
     </div>
   );
 }

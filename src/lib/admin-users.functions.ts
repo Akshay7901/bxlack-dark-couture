@@ -92,6 +92,8 @@ export type AdminCustomer = {
   createdAt: string;
   lastSignInAt: string | null;
   orderCount: number;
+  /** Sum of non-cancelled order totals. */
+  totalSpent: number;
   isAdmin: boolean;
 };
 
@@ -113,7 +115,7 @@ export const listCustomers = createServerFn({ method: "GET" })
 
     const [profilesRes, ordersRes, rolesRes] = await Promise.all([
       supabaseAdmin.from("profiles").select("id, full_name, phone, instagram"),
-      supabaseAdmin.from("orders").select("user_id"),
+      supabaseAdmin.from("orders").select("user_id, total, status"),
       supabaseAdmin.from("user_roles").select("user_id").eq("role", "admin"),
     ]);
     if (profilesRes.error || ordersRes.error || rolesRes.error) {
@@ -122,8 +124,12 @@ export const listCustomers = createServerFn({ method: "GET" })
 
     const profiles = new Map((profilesRes.data ?? []).map((p) => [p.id, p]));
     const orderCounts = new Map<string, number>();
+    const spent = new Map<string, number>();
     for (const o of ordersRes.data ?? []) {
       orderCounts.set(o.user_id, (orderCounts.get(o.user_id) ?? 0) + 1);
+      if (o.status !== "cancelled") {
+        spent.set(o.user_id, (spent.get(o.user_id) ?? 0) + Number(o.total));
+      }
     }
     const admins = new Set((rolesRes.data ?? []).map((r) => r.user_id));
 
@@ -139,6 +145,7 @@ export const listCustomers = createServerFn({ method: "GET" })
           createdAt: u.created_at,
           lastSignInAt: u.last_sign_in_at ?? null,
           orderCount: orderCounts.get(u.id) ?? 0,
+          totalSpent: spent.get(u.id) ?? 0,
           isAdmin: admins.has(u.id),
         };
       })

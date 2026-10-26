@@ -74,7 +74,7 @@ export function OrdersSection() {
               <div key={o.id} className="border border-white/10 bg-white/[0.02] p-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-4">
                   <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/70">
-                    Order #{o.id.slice(0, 8)}
+                    Order #{o.order_number}
                   </p>
                   <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
                     {new Date(o.created_at).toLocaleDateString()} · {o.status}
@@ -88,7 +88,17 @@ export function OrdersSection() {
                     </p>
                   ))}
                 </div>
+                {o.discount_amount > 0 ? (
+                  <p className="mt-3 font-mono text-[11px] text-white/50">
+                    Discount{o.discount_code ? ` (${o.discount_code})` : ""}: −₹{o.discount_amount}
+                  </p>
+                ) : null}
                 <p className="mt-3 font-mono text-[12px] text-white/80">Total: ₹{o.total}</p>
+                {o.tracking_number ? (
+                  <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">
+                    {o.courier ? `${o.courier} · ` : ""}Tracking {o.tracking_number}
+                  </p>
+                ) : null}
 
                 <div className="mt-4 border-t border-white/10 pt-4">
                   {o.returnRequest ? (
@@ -100,7 +110,7 @@ export function OrdersSection() {
                       onClick={() =>
                         confirm({
                           title: "Cancel order",
-                          message: `Cancel order #${o.id.slice(0, 8)}? This can't be undone.`,
+                          message: `Cancel order #${o.order_number}? This can't be undone.`,
                           confirmLabel: "Cancel order",
                           destructive: true,
                           onConfirm: () => cancel.mutate(o.id),

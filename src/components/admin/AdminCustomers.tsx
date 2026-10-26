@@ -2,9 +2,48 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, User } from "lucide-react";
 import { listCustomers } from "@/lib/admin-users.functions";
+import { listOrdersForAdmin } from "@/lib/orders.functions";
+import { statusClass } from "@/components/admin/AdminOrders";
+
+/** A customer's order history, drawn from the same cached query as the Orders tab. */
+function CustomerOrders({ userId }: { userId: string }) {
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ["admin-orders"],
+    queryFn: () => listOrdersForAdmin(),
+  });
+  const mine = orders.filter((o) => o.userId === userId);
+
+  return (
+    <div className="border-t border-black/10 px-4 py-4">
+      {isLoading ? (
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-neutral-500">Loading…</p>
+      ) : mine.length === 0 ? (
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-neutral-500">No orders yet</p>
+      ) : (
+        <div className="divide-y divide-black/10">
+          {mine.map((o) => (
+            <div key={o.id} className="flex flex-wrap items-baseline justify-between gap-3 py-2.5">
+              <span className="font-sans text-[13px] text-neutral-900">
+                #{o.orderNumber} · {new Date(o.createdAt).toLocaleDateString()}
+                <span className="ml-2 font-mono text-[11px] text-neutral-500">
+                  {o.items.map((i) => `${i.quantity}× ${i.productName}`).join(", ")}
+                </span>
+              </span>
+              <span className="font-mono text-[11px] text-neutral-600">
+                ₹{o.total.toLocaleString("en-IN")} ·{" "}
+                <span className={`uppercase ${statusClass[o.status] ?? ""}`}>{o.status}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function AdminCustomers() {
   const [query, setQuery] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const { data: customers = [], isLoading, error } = useQuery({
     queryKey: ["admin-customers"],
     queryFn: () => listCustomers(),
@@ -56,9 +95,11 @@ export function AdminCustomers() {
           </p>
         ) : (
           filtered.map((c) => (
-            <div
-              key={c.userId}
-              className="flex flex-wrap items-center gap-x-4 gap-y-2 border border-black/10 bg-black/[0.02] px-4 py-3.5"
+            <div key={c.userId} className="border border-black/10 bg-black/[0.02]">
+            <button
+              type="button"
+              onClick={() => setExpandedId(expandedId === c.userId ? null : c.userId)}
+              className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3.5 text-left transition-colors hover:bg-black/[0.04]"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-black/10 bg-black/5 text-neutral-400">
                 <User size={16} />
@@ -86,9 +127,12 @@ export function AdminCustomers() {
               <div className="shrink-0 text-right font-mono text-[11px] text-neutral-500">
                 <p>Joined {new Date(c.createdAt).toLocaleDateString()}</p>
                 <p className="mt-0.5">
-                  {c.orderCount} {c.orderCount === 1 ? "order" : "orders"}
+                  {c.orderCount} {c.orderCount === 1 ? "order" : "orders"} · ₹
+                  {c.totalSpent.toLocaleString("en-IN")}
                 </p>
               </div>
+            </button>
+            {expandedId === c.userId ? <CustomerOrders userId={c.userId} /> : null}
             </div>
           ))
         )}

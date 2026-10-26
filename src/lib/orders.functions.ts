@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
+import { assertCallerIsAdmin, listAllUsers } from "@/lib/admin-guard";
 
 export type AdminOrderItem = {
   id: string;
@@ -14,9 +14,20 @@ export type AdminOrderItem = {
 
 export type AdminOrder = {
   id: string;
+  orderNumber: number;
+  userId: string;
   status: string;
   total: number;
+  subtotal: number;
+  discountCode: string | null;
+  discountAmount: number;
+  paymentMethod: string;
   createdAt: string;
+  shippedAt: string | null;
+  deliveredAt: string | null;
+  courier: string | null;
+  trackingNumber: string | null;
+  note: string;
   email: string;
   fullName: string | null;
   phone: string | null;
@@ -29,19 +40,9 @@ export type AdminOrder = {
   items: AdminOrderItem[];
 };
 
-async function assertCallerIsAdmin(supabase: SupabaseClient<Database>, userId: string) {
-  const { data } = await supabase
-    .from("user_roles")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (!data) throw new Error("Forbidden");
-}
-
-/** Every order across every customer, with items and the placing customer's
- * email resolved — plain RLS can't join to auth.users, so this goes through
- * the service-role client instead. */
+/** Every order across every customer, with items, the placing customer's
+ * email and the internal note resolved — plain RLS can't join to auth.users,
+ * so this goes through the service-role client instead. */
 export const listOrdersForAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminOrder[]> => {
@@ -51,29 +52,31 @@ export const listOrdersForAdmin = createServerFn({ method: "GET" })
     const { data: orders, error: ordersError } = await supabaseAdmin
       .from("orders")
       .select(
-        "id, user_id, status, total, created_at, full_name, phone, address_line1, address_line2, city, state, postal_code, country",
+        "id, order_number, user_id, status, total, subtotal, discount_code, discount_amount, payment_method, created_at, shipped_at, delivered_at, courier, tracking_number, full_name, phone, address_line1, address_line2, city, state, postal_code, country, order_items(id, product_name, image_path, size, quantity, price), order_notes(note)",
       )
       .order("created_at", { ascending: false });
     if (ordersError) throw new Error("Could not load orders");
     if (!orders || orders.length === 0) return [];
 
-    const { data: items, error: itemsError } = await supabaseAdmin
-      .from("order_items")
-      .select("id, order_id, product_name, image_path, size, quantity, price")
-      .in(
-        "order_id",
-        orders.map((o) => o.id),
-      );
-    if (itemsError) throw new Error("Could not load order items");
-
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    const emails = new Map((users?.users ?? []).map((u) => [u.id, u.email ?? "unknown"]));
+    const users = await listAllUsers(supabaseAdmin);
+    const emails = new Map(users.map((u) => [u.id, u.email ?? "unknown"]));
 
     return orders.map((o) => ({
       id: o.id,
+      orderNumber: o.order_number,
+      userId: o.user_id,
       status: o.status,
-      total: o.total,
+      total: Number(o.total),
+      subtotal: Number(o.subtotal ?? o.total),
+      discountCode: o.discount_code,
+      discountAmount: Number(o.discount_amount ?? 0),
+      paymentMethod: o.payment_method,
       createdAt: o.created_at,
+      shippedAt: o.shipped_at,
+      deliveredAt: o.delivered_at,
+      courier: o.courier,
+      trackingNumber: o.tracking_number,
+      note: o.order_notes?.note ?? "",
       email: emails.get(o.user_id) ?? "unknown",
       fullName: o.full_name,
       phone: o.phone,
@@ -83,15 +86,43 @@ export const listOrdersForAdmin = createServerFn({ method: "GET" })
       state: o.state,
       postalCode: o.postal_code,
       country: o.country,
-      items: (items ?? [])
-        .filter((i) => i.order_id === o.id)
-        .map((i) => ({
-          id: i.id,
-          productName: i.product_name,
-          imagePath: i.image_path,
-          size: i.size,
-          quantity: i.quantity,
-          price: i.price,
-        })),
+      items: (o.order_items ?? []).map((i) => ({
+        id: i.id,
+        productName: i.product_name,
+        imagePath: i.image_path,
+        size: i.size,
+        quantity: i.quantity,
+        price: Number(i.price),
+      })),
     }));
+  });
+
+/** Saves shipping details (shown to the customer) and the internal note (admins only). */
+export const updateOrderFulfillment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        orderId: z.string().uuid(),
+        courier: z.string().trim().max(100).nullable(),
+        trackingNumber: z.string().trim().max(100).nullable(),
+        note: z.string().trim().max(5000),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertCallerIsAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error } = await supabaseAdmin
+      .from("orders")
+      .update({ courier: data.courier || null, tracking_number: data.trackingNumber || null })
+      .eq("id", data.orderId);
+    if (error) throw new Error("Could not save shipping details");
+
+    const { error: noteError } = await supabaseAdmin
+      .from("order_notes")
+      .upsert({ order_id: data.orderId, note: data.note }, { onConflict: "order_id" });
+    if (noteError) throw new Error("Could not save note");
+    return { ok: true };
   });

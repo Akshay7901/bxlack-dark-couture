@@ -79,6 +79,11 @@ export async function setDefaultAddress(userId: string, id: string): Promise<voi
 
 export type Order = {
   id: string;
+  order_number: number;
+  courier: string | null;
+  tracking_number: string | null;
+  discount_code: string | null;
+  discount_amount: number;
   status: string;
   total: number;
   created_at: string;
@@ -104,12 +109,17 @@ export async function fetchOrders(): Promise<Order[]> {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, status, total, created_at, delivered_at, country, order_items(id, product_name, image_path, size, quantity, price), return_requests(type, status, admin_note, created_at)",
+      "id, order_number, courier, tracking_number, discount_code, discount_amount, status, total, created_at, delivered_at, country, order_items(id, product_name, image_path, size, quantity, price), return_requests(type, status, admin_note, created_at)",
     )
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((o) => ({
     id: o.id,
+    order_number: o.order_number,
+    courier: o.courier,
+    tracking_number: o.tracking_number,
+    discount_code: o.discount_code,
+    discount_amount: Number(o.discount_amount ?? 0),
     status: o.status,
     total: o.total,
     created_at: o.created_at,

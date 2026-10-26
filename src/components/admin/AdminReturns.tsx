@@ -69,7 +69,7 @@ export function AdminReturns() {
                       {r.type === "exchange" ? "Exchange" : "Return"} · {r.fullName || r.email}
                     </p>
                     <p className="mt-0.5 truncate font-mono text-[11px] text-neutral-500">
-                      Order #{r.orderId.slice(0, 8)} · {new Date(r.createdAt).toLocaleDateString()}
+                      Order #{r.orderNumber ?? r.orderId.slice(0, 8)} · {new Date(r.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <span

@@ -257,6 +257,15 @@ export type Database = {
           postal_code: string | null;
           country: string | null;
           delivered_at: string | null;
+          order_number: number;
+          courier: string | null;
+          tracking_number: string | null;
+          shipped_at: string | null;
+          subtotal: number | null;
+          discount_code: string | null;
+          discount_amount: number;
+          payment_method: string;
+          stock_deducted: boolean;
         };
         Insert: {
           id?: string;
@@ -273,6 +282,15 @@ export type Database = {
           postal_code?: string | null;
           country?: string | null;
           delivered_at?: string | null;
+          order_number?: number;
+          courier?: string | null;
+          tracking_number?: string | null;
+          shipped_at?: string | null;
+          subtotal?: number | null;
+          discount_code?: string | null;
+          discount_amount?: number;
+          payment_method?: string;
+          stock_deducted?: boolean;
         };
         Update: {
           id?: string;
@@ -289,6 +307,74 @@ export type Database = {
           postal_code?: string | null;
           country?: string | null;
           delivered_at?: string | null;
+          order_number?: number;
+          courier?: string | null;
+          tracking_number?: string | null;
+          shipped_at?: string | null;
+          subtotal?: number | null;
+          discount_code?: string | null;
+          discount_amount?: number;
+          payment_method?: string;
+          stock_deducted?: boolean;
+        };
+        Relationships: [];
+      };
+      order_notes: {
+        Row: { order_id: string; note: string; updated_at: string };
+        Insert: { order_id: string; note?: string; updated_at?: string };
+        Update: { order_id?: string; note?: string; updated_at?: string };
+        Relationships: [
+          {
+            foreignKeyName: "order_notes_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: true;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      discount_codes: {
+        Row: {
+          id: string;
+          code: string;
+          type: string;
+          value: number;
+          min_order: number;
+          max_uses: number | null;
+          used_count: number;
+          starts_at: string | null;
+          ends_at: string | null;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          type: string;
+          value: number;
+          min_order?: number;
+          max_uses?: number | null;
+          used_count?: number;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          type?: string;
+          value?: number;
+          min_order?: number;
+          max_uses?: number | null;
+          used_count?: number;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -445,6 +531,18 @@ export type Database = {
       };
       update_launch_password: {
         Args: { new_password: string };
+        Returns: undefined;
+      };
+      adjust_stock: {
+        Args: { p_items: Json; p_direction: number };
+        Returns: undefined;
+      };
+      apply_discount_code: {
+        Args: { p_code: string; p_subtotal: number; p_redeem?: boolean };
+        Returns: number;
+      };
+      release_discount_code: {
+        Args: { p_code: string };
         Returns: undefined;
       };
     };
