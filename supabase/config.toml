@@ -1,1 +1,3 @@
-project_id = "qivuqacqszgywjsobzhk"
+# Local identifier for the Supabase CLI. The hosted project this repo deploys
+# to is chosen with `npx supabase link --project-ref <your-project-ref>`.
+project_id = "bxlack-dark-couture"

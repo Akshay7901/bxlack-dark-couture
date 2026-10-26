@@ -1,8 +1,8 @@
 export const SITE_URL = "https://bxlack-dark-couture.vercel.app";
 export const SITE_NAME = "BXLACK";
 
-const DEFAULT_IMAGE =
-  "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/afb6a951-f712-44a6-a4ca-ee8297bef8cf/id-preview-f05dbdd6--c7d592ab-0631-4cbf-a1c0-5593066198cf.lovable.app-1785229126911.png";
+/** 1200×630 share image served from /public. */
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 type SeoInput = {
   /** Full page title, e.g. "Shop — BXLACK". */
