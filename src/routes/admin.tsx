@@ -55,6 +55,7 @@ import {
 import { TestDataControls } from "@/components/admin/TestDataControls";
 import { AdminOrders } from "@/components/admin/AdminOrders";
 import { AdminDiscounts } from "@/components/admin/AdminDiscounts";
+import { AdminEmails } from "@/components/admin/AdminEmails";
 import { StudioOverview } from "@/components/admin/StudioOverview";
 import {
   deleteContactMessage,
@@ -193,6 +194,7 @@ const NAV_GROUPS = [
   {
     label: "Settings",
     items: [
+      { key: "emails", label: "Emails", icon: Mail },
       { key: "launch", label: "Launch", icon: Rocket },
       { key: "team", label: "Team", icon: Users },
     ],
@@ -270,6 +272,7 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           {active === "returns" ? <AdminReturns /> : null}
           {active === "customers" ? <AdminCustomers /> : null}
           {active === "discounts" ? <AdminDiscounts /> : null}
+          {active === "emails" ? <AdminEmails /> : null}
           {active === "messages" ? <MessagesSection /> : null}
           {active === "launch" ? <LaunchSection /> : null}
           {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
