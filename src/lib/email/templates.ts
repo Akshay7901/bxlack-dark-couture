@@ -78,7 +78,7 @@ const C = {
 };
 const BODY = "Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif";
 const DISPLAY = "'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif";
-const LOGO_URL = `${SITE_URL}/email-logo.png`;
+const LOGO_URL = `${SITE_URL}/email-signature.png`;
 
 export const esc = (v: unknown) =>
   String(v ?? "").replace(
@@ -223,7 +223,7 @@ function layout({ preheader, tag, body, footerNote }: { preheader: string; tag: 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
 <tr><td style="background:${C.card};border:1px solid ${C.border};border-radius:6px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-<td style="padding:28px 40px;border-bottom:1px solid ${C.border};"><a href="${SITE_URL}"><img src="${LOGO_URL}" width="72" height="40" alt="BXLACK" style="display:block;height:40px;width:auto;border:0;"></a></td>
+<td style="padding:28px 40px;border-bottom:1px solid ${C.border};"><a href="${SITE_URL}"><img src="${LOGO_URL}" width="111" height="44" alt="BXLACK" style="display:block;width:111px;height:44px;border:0;"></a></td>
 <td align="right" style="padding:28px 40px;border-bottom:1px solid ${C.border};">${eyebrow(tag)}</td>
 </tr>
 <tr><td colspan="2" style="padding:48px 40px 20px;">${body}</td></tr>
