@@ -17,9 +17,11 @@ import {
   listEmailTemplateSettings,
   resetEmailTemplate,
   saveEmailTemplate,
+  sendTestEmail,
   type TemplateSetting,
 } from "@/lib/email/templates.functions";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
+import { useAuth } from "@/hooks/useAuth";
 
 const DEVICES = [
   { key: "phone", label: "Phone", width: 375, icon: Smartphone },
@@ -60,6 +62,9 @@ export function AdminEmails() {
       {settingsError ? (
         <p className="mt-3 font-mono text-[11px] text-red-600">{(settingsError as Error).message}</p>
       ) : null}
+
+      <SendTestPanel catalog={catalog} selected={selected} />
+
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
         <nav aria-label="Email templates" className="space-y-5">
@@ -110,6 +115,101 @@ export function AdminEmails() {
         />
       </div>
     </section>
+  );
+}
+
+type SendStatus = { id: string; name: string; state: "sending" | "sent" | "failed"; error?: string };
+
+/** Sends real test emails (sample data, saved wording) to check them in an inbox. */
+function SendTestPanel({ catalog, selected }: { catalog: EmailPreview[]; selected: EmailPreview }) {
+  const { user } = useAuth();
+  const [to, setTo] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [results, setResults] = useState<SendStatus[]>([]);
+
+  useEffect(() => {
+    if (!to && user?.email) setTo(user.email);
+  }, [user?.email, to]);
+
+  const run = async (items: EmailPreview[]) => {
+    const address = to.trim();
+    if (!/^\S+@\S+\.\S+$/.test(address)) return toast.error("Enter a valid email address");
+    setBusy(true);
+    setResults(items.map((e) => ({ id: e.id, name: e.name, state: "sending" })));
+    let sent = 0;
+    for (const [i, e] of items.entries()) {
+      try {
+        const r = await sendTestEmail({ data: { id: e.id, to: address } });
+        if (r.ok) sent++;
+        setResults((prev) =>
+          prev.map((p) => (p.id === e.id ? { ...p, state: r.ok ? "sent" : "failed", error: r.error } : p)),
+        );
+        // Stop early if email isn't configured at all — every other send would fail the same way.
+        if (!r.ok && r.error?.startsWith("Email isn't set up")) {
+          toast.error(r.error);
+          setResults((prev) => prev.filter((p) => p.state !== "sending"));
+          break;
+        }
+      } catch (err) {
+        setResults((prev) =>
+          prev.map((p) =>
+            p.id === e.id ? { ...p, state: "failed", error: err instanceof Error ? err.message : "Failed" } : p,
+          ),
+        );
+      }
+      // Resend allows a couple of requests per second; pace "Send all".
+      if (i < items.length - 1) await new Promise((r) => setTimeout(r, 650));
+    }
+    setBusy(false);
+    if (sent) toast.success(`Sent ${sent} of ${items.length} to ${address}`);
+  };
+
+  return (
+    <div className="mt-6 border border-black/12 p-5">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block min-w-[220px] flex-1" htmlFor="test-email-to">
+          <span className={labelClass}>Send test emails to</span>
+          <input
+            id="test-email-to"
+            type="email"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            placeholder="you@example.com"
+            className={inputClass}
+          />
+        </label>
+        <button type="button" disabled={busy} onClick={() => run([selected])} className={smallButton}>
+          Send “{selected.name}”
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => run(catalog)}
+          className="border border-black bg-black px-5 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-white disabled:opacity-40"
+        >
+          {busy ? "Sending…" : `Send all ${catalog.length}`}
+        </button>
+      </div>
+      <p className="mt-2 text-[12px] text-neutral-500">
+        Uses sample data and your saved wording. Subjects start with “[Test]”.
+      </p>
+      {results.length ? (
+        <ul className="mt-4 divide-y divide-black/10 border-t border-black/10">
+          {results.map((r) => (
+            <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-[13px]">
+              <span>{r.name}</span>
+              <span
+                className={
+                  r.state === "sent" ? "text-green-700" : r.state === "failed" ? "text-red-600" : "text-neutral-500"
+                }
+              >
+                {r.state === "sending" ? "Waiting…" : r.state === "sent" ? "Sent" : `Failed — ${r.error}`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 

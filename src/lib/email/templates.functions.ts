@@ -82,6 +82,51 @@ export const saveEmailTemplate = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Sends one template, rendered with sample data and the saved wording, to a
+ * test address. The Studio calls this once per email ("Send all" loops on the
+ * client), so each request stays short and the admin sees per-email results.
+ */
+export const sendTestEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.enum(TEMPLATE_IDS), to: z.string().trim().email().max(255) }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; subject: string }> => {
+    await assertCallerIsAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { sendEmail } = await import("@/lib/email/send.server");
+    const { emailCatalog } = await import("@/lib/email/catalog");
+    const { SITE_URL } = await import("@/lib/seo");
+
+    // Real product photos for the sample order, so thumbnails look like the real thing.
+    const { data: products } = await supabaseAdmin
+      .from("products")
+      .select("card_image_path, image_path")
+      .eq("published", true)
+      .order("sort_order", { ascending: true })
+      .limit(2);
+    const images = (products ?? []).map((p) => {
+      const path = p.card_image_path ?? p.image_path;
+      return path ? supabaseAdmin.storage.from("product-images").getPublicUrl(path).data.publicUrl : null;
+    });
+
+    const { data: saved } = await supabaseAdmin.from("email_templates").select("*").eq("id", data.id).maybeSingle();
+    const copy = saved
+      ? Object.fromEntries(COPY_FIELDS.filter((f) => saved[f]).map((f) => [f, saved[f] as string]))
+      : null;
+
+    const preview = emailCatalog(images).find((e) => e.id === data.id)!;
+    const email = preview.render(copy);
+    // Supabase fills this link in real sends; point it somewhere harmless for the test.
+    const html = email.html.replaceAll("{{ .ConfirmationURL }}", `${SITE_URL}/account`);
+    const text = email.text.replaceAll("{{ .ConfirmationURL }}", `${SITE_URL}/account`);
+    const subject = `[Test] ${email.subject}`;
+
+    const result = await sendEmail(data.to, { subject, html, text });
+    return result.ok ? { ok: true, subject } : { ok: false, error: result.error, subject };
+  });
+
 export const resetEmailTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.enum(TEMPLATE_IDS) }).parse(input))
