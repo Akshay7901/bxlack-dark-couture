@@ -10,16 +10,6 @@ export type ContactMessage = {
   created_at: string;
 };
 
-export async function submitContactMessage(input: {
-  name: string;
-  email: string;
-  order_number: string | null;
-  message: string;
-}): Promise<void> {
-  const { error } = await supabase.from("contact_messages").insert(input);
-  if (error) throw error;
-}
-
 export async function fetchContactMessages(): Promise<ContactMessage[]> {
   const { data, error } = await supabase
     .from("contact_messages")

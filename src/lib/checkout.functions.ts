@@ -162,5 +162,9 @@ export const placeOrder = createServerFn({ method: "POST" })
       throw new Error("Could not create order");
     }
 
+    // Confirmation to the customer + alert to the store; never blocks the order.
+    const { notifyOrderPlaced } = await import("@/lib/email/notify.server");
+    await notifyOrderPlaced(order.id);
+
     return { orderId: order.id, orderNumber: order.order_number };
   });

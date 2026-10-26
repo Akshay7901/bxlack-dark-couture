@@ -4,8 +4,13 @@ import { toast } from "sonner";
 import { Download, Printer, Search } from "lucide-react";
 import { ListRow } from "@/components/admin/ListRow";
 import { TestDataControls } from "@/components/admin/TestDataControls";
-import { ORDER_STATUSES, updateOrderStatus } from "@/lib/orders";
-import { listOrdersForAdmin, updateOrderFulfillment, type AdminOrder } from "@/lib/orders.functions";
+import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
+import {
+  listOrdersForAdmin,
+  setOrderStatus,
+  updateOrderFulfillment,
+  type AdminOrder,
+} from "@/lib/orders.functions";
 
 export const statusClass: Record<string, string> = {
   pending: "text-neutral-500",
@@ -32,7 +37,7 @@ export function AdminOrders() {
 
   const statusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
-      updateOrderStatus(orderId, status),
+      setOrderStatus({ data: { orderId, status: status as OrderStatus } }),
     onSuccess: () => {
       toast.success("Order updated");
       ["admin-orders", "admin-dashboard"].forEach((key) => qc.invalidateQueries({ queryKey: [key] }));
@@ -233,11 +238,11 @@ function OrderDetail({
           {order.deliveredAt ? ` · Delivered ${new Date(order.deliveredAt).toLocaleDateString()}` : null}
         </span>
       </div>
-      {order.status !== "cancelled" ? (
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-400">
-          Cancelling puts this order's items back into stock.
-        </p>
-      ) : null}
+      <p className="mt-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.18em] text-neutral-400">
+        The customer is emailed when you mark it shipped, delivered or cancelled — save the
+        tracking number below before marking it shipped so it's included.
+        {order.status !== "cancelled" ? " Cancelling puts the items back into stock." : ""}
+      </p>
 
       <div className="mt-6 grid gap-5 border border-black/12 p-5 sm:grid-cols-2">
         <div>

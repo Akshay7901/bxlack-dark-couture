@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertCallerIsAdmin, listAllUsers } from "@/lib/admin-guard";
+import { ORDER_STATUSES } from "@/lib/orders";
 
 export type AdminOrderItem = {
   id: string;
@@ -95,6 +96,37 @@ export const listOrdersForAdmin = createServerFn({ method: "GET" })
         price: Number(i.price),
       })),
     }));
+  });
+
+/** Changes an order's status and emails the customer about shipped,
+ * delivered and cancelled orders. Stock is restored by a database trigger
+ * when an order is cancelled. */
+export const setOrderStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ orderId: z.string().uuid(), status: z.enum(ORDER_STATUSES) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertCallerIsAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: before } = await supabaseAdmin
+      .from("orders")
+      .select("status")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (!before) throw new Error("Order not found");
+    if (before.status === data.status) return { ok: true };
+
+    const { error } = await supabaseAdmin
+      .from("orders")
+      .update({ status: data.status })
+      .eq("id", data.orderId);
+    if (error) throw new Error("Could not update order");
+
+    const { notifyOrderStatus } = await import("@/lib/email/notify.server");
+    await notifyOrderStatus(data.orderId, data.status);
+    return { ok: true };
   });
 
 /** Saves shipping details (shown to the customer) and the internal note (admins only). */

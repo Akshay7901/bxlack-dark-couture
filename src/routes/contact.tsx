@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { InfoPage } from "@/components/InfoPage";
-import { submitContactMessage } from "@/lib/contact";
+import { submitContactMessage } from "@/lib/contact.functions";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
@@ -63,10 +63,12 @@ function ContactPage() {
                 setBusy(true);
                 try {
                   await submitContactMessage({
-                    name: String(data.get("name") ?? "").trim(),
-                    email: String(data.get("email") ?? "").trim(),
-                    order_number: String(data.get("order") ?? "").trim() || null,
-                    message: String(data.get("message") ?? "").trim(),
+                    data: {
+                      name: String(data.get("name") ?? "").trim(),
+                      email: String(data.get("email") ?? "").trim(),
+                      order_number: String(data.get("order") ?? "").trim() || null,
+                      message: String(data.get("message") ?? "").trim(),
+                    },
                   });
                   setSent(true);
                 } catch (err) {

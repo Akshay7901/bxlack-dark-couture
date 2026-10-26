@@ -79,21 +79,28 @@ export const createReturnRequest = createServerFn({ method: "POST" })
       };
     });
 
-    const { error: insertError } = await supabaseAdmin.from("return_requests").insert({
-      order_id: order.id,
-      user_id: context.userId,
-      type: data.type,
-      items,
-      reason: data.reason,
-      details: data.details || null,
-    });
-    if (insertError) {
+    const { data: created, error: insertError } = await supabaseAdmin
+      .from("return_requests")
+      .insert({
+        order_id: order.id,
+        user_id: context.userId,
+        type: data.type,
+        items,
+        reason: data.reason,
+        details: data.details || null,
+      })
+      .select("id")
+      .single();
+    if (insertError || !created) {
       // 23505 = unique violation on order_id: the policy allows one request per order.
-      if (insertError.code === "23505") {
+      if (insertError?.code === "23505") {
         throw new Error("A return or exchange has already been requested for this order.");
       }
       throw new Error("Could not submit your request");
     }
+
+    const { notifyReturnCreated } = await import("@/lib/email/notify.server");
+    await notifyReturnCreated(created.id);
     return { ok: true };
   });
 
@@ -124,6 +131,9 @@ export const cancelMyOrder = createServerFn({ method: "POST" })
       .select("id");
     if (error) throw new Error("Could not cancel order");
     if (!updated?.length) throw new Error("This order can no longer be cancelled.");
+
+    const { notifyOrderStatus } = await import("@/lib/email/notify.server");
+    await notifyOrderStatus(order.id, "cancelled");
     return { ok: true };
   });
 
@@ -202,10 +212,23 @@ export const updateReturnRequest = createServerFn({ method: "POST" })
     await assertCallerIsAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { data: before } = await supabaseAdmin
+      .from("return_requests")
+      .select("status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!before) throw new Error("Request not found");
+
     const { error } = await supabaseAdmin
       .from("return_requests")
       .update({ status: data.status, admin_note: data.adminNote || null })
       .eq("id", data.id);
     if (error) throw new Error("Could not update request");
+
+    // Email only on a status change, not when just the note is edited.
+    if (before.status !== data.status) {
+      const { notifyReturnUpdated } = await import("@/lib/email/notify.server");
+      await notifyReturnUpdated(data.id);
+    }
     return { ok: true };
   });
