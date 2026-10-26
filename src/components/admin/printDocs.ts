@@ -30,6 +30,16 @@ function barcodeSvg(value: string, height = 56): string {
     background: "#ffffff",
     lineColor: "#000000",
   });
+  // Make it scalable: CSS sets the printed size instead of JsBarcode's fixed pixels.
+  const w = svg.getAttribute("width");
+  const h = svg.getAttribute("height");
+  if (w && h) {
+    svg.setAttribute("viewBox", `0 0 ${parseFloat(w)} ${parseFloat(h)}`);
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.removeAttribute("width");
+    svg.removeAttribute("height");
+    svg.removeAttribute("style");
+  }
   return svg.outerHTML;
 }
 
@@ -68,62 +78,98 @@ const itemCount = (o: AdminOrder) => o.items.reduce((n, i) => n + i.quantity, 0)
 // ---------------------------------------------------------------------------
 // 4×6" shipping label
 // ---------------------------------------------------------------------------
+// Borders and black text only (no filled backgrounds), so it prints the same
+// whether or not "Background graphics" is ticked in the print dialog.
+
+/** Absolute URL: the print window is about:blank, so relative paths don't resolve. */
+const logoUrl = () => `${window.location.origin}/label-signature.png`;
 
 const LABEL_CSS = `
   @page{size:4in 6in;margin:0}
-  .label{width:4in;height:6in;padding:0.14in;display:flex;flex-direction:column;gap:0.08in;overflow:hidden}
-  .box{border:2px solid #000;border-radius:4px;padding:0.08in 0.1in}
-  .k{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#000}
-  .from{font-size:10px;line-height:1.35}
-  .to{flex:1;font-size:14px;line-height:1.35}
-  .to .name{font-size:19px;font-weight:700;margin:2px 0 3px}
-  .to .pin{font-size:24px;font-weight:800;letter-spacing:.06em;margin-top:3px}
-  .to .phone{font-size:14px;font-weight:700;margin-top:4px}
-  .pay{display:flex;justify-content:space-between;align-items:center;background:#000;color:#fff;border-radius:4px;padding:0.07in 0.1in}
-  .pay.prepaid{background:#fff;color:#000;border:2px solid #000}
-  .pay .mode{font-size:18px;font-weight:800;letter-spacing:.04em}
-  .pay .amt{font-size:22px;font-weight:800}
-  .order{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
-  .order .num{font-size:22px;font-weight:800}
-  .order .meta{font-size:10px;text-align:right;line-height:1.4}
-  .bar{text-align:center}
-  .bar svg{width:100%;height:0.6in}
-  .items{font-size:9.5px;line-height:1.35;border-top:1px dashed #000;padding-top:0.05in}
+  .label{width:4in;height:6in;padding:0.13in 0.15in;display:flex;flex-direction:column;gap:0.075in;overflow:hidden}
+  .hd{display:flex;justify-content:space-between;align-items:center;padding-bottom:0.06in;border-bottom:2.5px solid #000}
+  .hd img{height:0.5in;width:auto;display:block;margin:-0.04in 0}
+  .hd .r{text-align:right;line-height:1.1}
+  .k{font-size:7.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .hd .num{font-size:19px;font-weight:800;letter-spacing:.02em}
+  .bc{text-align:center}
+  .bc svg{width:88%;height:0.5in;display:block;margin:0 auto}
+  .bc .code{font-family:"Courier New",monospace;font-size:10px;font-weight:700;letter-spacing:.35em;margin-top:2px}
+  .to{border:2.5px solid #000;border-radius:7px;padding:0.08in 0.11in;display:flex;flex-direction:column}
+  .awb{flex:1;border:1.5px dashed #000;border-radius:7px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:0.5in}
+  .awb span{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#555}
+  .to .name{font-size:18px;font-weight:800;line-height:1.15;margin:3px 0 4px}
+  .to .addr{font-size:12.5px;line-height:1.38}
+  .to .row{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding-top:7px}
+  .pin{border:2px solid #000;border-radius:5px;padding:2px 8px;font-size:22px;font-weight:800;letter-spacing:.12em}
+  .phone{font-size:13px;font-weight:700;text-align:right}
+  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:0.07in}
+  .pay{border:3px solid #000;border-radius:7px;padding:0.06in 0.09in;display:flex;flex-direction:column;justify-content:center}
+  .pay .mode{font-size:13px;font-weight:800;letter-spacing:.06em}
+  .pay .amt{font-size:24px;font-weight:900;line-height:1.1}
+  .pay .hint{font-size:8px;font-weight:600}
+  .info{border:1.5px solid #000;border-radius:7px;padding:0.06in 0.09in;font-size:9.5px;line-height:1.55}
+  .info b{font-weight:700}
+  .contents{font-size:9px;line-height:1.4}
+  .ret{border-top:1.5px dashed #000;padding-top:0.05in;font-size:8.5px;line-height:1.4;display:flex;justify-content:space-between;gap:8px}
+  .ret .site{text-align:right;white-space:nowrap}
 `;
 
 function labelHtml(o: AdminOrder): string {
   const cod = o.paymentMethod === "cod";
+  const count = itemCount(o);
   const items = o.items
-    .slice(0, 6)
+    .slice(0, 5)
     .map((i) => `${i.quantity}× ${esc(i.productName)}${i.size ? ` (${esc(i.size)})` : ""}`)
     .join(" · ");
-  const more = o.items.length > 6 ? ` · +${o.items.length - 6} more` : "";
-  const from = [STORE.name, ...STORE.returnAddress, STORE.phone].filter(Boolean).map(esc).join("<br>");
+  const more = o.items.length > 5 ? ` · +${o.items.length - 5} more` : "";
+  const ret = [STORE.name, ...STORE.returnAddress, STORE.phone].filter(Boolean).map(esc).join(", ");
+  const abroad = o.country && !/^india$/i.test(o.country) ? `<div>${esc(o.country)}</div>` : "";
+
   return `<section class="page label">
-  <div class="box from"><div class="k">From (return to)</div>${from}</div>
-  <div class="box to">
-    <div class="k">Ship to</div>
+  <div class="hd">
+    <img src="${logoUrl()}" alt="${esc(STORE.name)}">
+    <div class="r"><div class="k">Shipping label</div><div class="num">#${o.orderNumber}</div></div>
+  </div>
+
+  <div class="bc">${barcodeSvg(String(o.orderNumber))}<div class="code">${o.orderNumber}</div></div>
+
+  <div class="to">
+    <div class="k">Deliver to</div>
     <div class="name">${esc(o.fullName || "Customer")}</div>
-    ${addressLines(o).map((l) => `<div>${esc(l)}</div>`).join("")}
-    <div class="pin">${esc(o.postalCode)}</div>
-    ${o.country && !/^india$/i.test(o.country) ? `<div>${esc(o.country)}</div>` : ""}
-    ${o.phone ? `<div class="phone">☎ ${esc(o.phone)}</div>` : ""}
+    <div class="addr">${addressLines(o).map(esc).join("<br>")}${abroad}</div>
+    <div class="row">
+      <span class="pin">${esc(o.postalCode)}</span>
+      ${o.phone ? `<span class="phone">☎ ${esc(o.phone)}</span>` : ""}
+    </div>
   </div>
-  <div class="pay ${cod ? "" : "prepaid"}">
-    <span class="mode">${cod ? "COD — COLLECT" : "PREPAID"}</span>
-    <span class="amt">${cod ? inr(o.total) : "₹0"}</span>
+
+  <div class="awb"><span>${o.trackingNumber ? `AWB ${esc(o.trackingNumber)}` : "Paste courier AWB sticker here"}</span></div>
+
+  <div class="grid">
+    <div class="pay">
+      ${
+        cod
+          ? `<div class="mode">COD · COLLECT</div><div class="amt">${inr(o.total)}</div><div class="hint">Collect cash on delivery</div>`
+          : `<div class="mode">PREPAID</div><div class="amt">PAID</div><div class="hint">Do not collect cash</div>`
+      }
+    </div>
+    <div class="info">
+      <div><b>Date</b> ${date(o.createdAt)}</div>
+      <div><b>Items</b> ${count} pc${count === 1 ? "" : "s"}</div>
+      ${o.courier ? `<div><b>Courier</b> ${esc(o.courier)}</div>` : ""}
+      ${o.trackingNumber ? `<div><b>AWB</b> ${esc(o.trackingNumber)}</div>` : ""}
+    </div>
   </div>
-  <div class="order">
-    <div><div class="k">Order</div><div class="num">#${o.orderNumber}</div></div>
-    <div class="meta">${date(o.createdAt)}<br>${itemCount(o)} item${itemCount(o) === 1 ? "" : "s"}${
-      o.courier ? `<br>${esc(o.courier)}` : ""
-    }${o.trackingNumber ? `<br>AWB ${esc(o.trackingNumber)}` : ""}</div>
+
+  <div class="contents"><span class="k">Contents</span> ${items}${more}</div>
+
+  <div class="ret">
+    <div><span class="k">If undelivered, return to</span><br>${ret || esc(STORE.name)}</div>
+    <div class="site">${esc(STORE.email)}</div>
   </div>
-  <div class="bar">${barcodeSvg(String(o.orderNumber))}</div>
-  <div class="items">${items}${more}</div>
 </section>`;
 }
-
 export function shippingLabelsDocument(orders: AdminOrder[], autoPrint = true): string {
   const title = orders.length === 1 ? `Label #${orders[0].orderNumber}` : `${orders.length} shipping labels`;
   return printDocument(title, LABEL_CSS, orders.map(labelHtml).join(""), autoPrint);
@@ -141,7 +187,7 @@ const SLIP_CSS = `
   @page{size:A4;margin:14mm}
   .slip{font-size:12.5px;line-height:1.45}
   .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:18px}
-  .brand{font-size:22px;font-weight:800;letter-spacing:.3em}
+  .logo{height:42px;width:auto;display:block;margin-bottom:4px}
   .muted{color:#555}
   .title{text-align:right}
   .title .t{font-size:16px;font-weight:700}
@@ -167,7 +213,7 @@ function slipHtml(o: AdminOrder): string {
     .join("");
   return `<section class="page slip">
   <div class="head">
-    <div><div class="brand">${esc(STORE.name)}</div><div class="muted">${esc(STORE.email)}</div></div>
+    <div><img class="logo" src="${logoUrl()}" alt="${esc(STORE.name)}"><div class="muted">${esc(STORE.email)}</div></div>
     <div class="title"><div class="t">Packing slip · Order #${o.orderNumber}</div><div class="muted">${date(o.createdAt)}</div>
       <div class="bar">${barcodeSvg(String(o.orderNumber), 40)}</div></div>
   </div>

@@ -518,7 +518,7 @@ function printInvoice(o: AdminOrder) {
   @media print{body{margin:16mm}}
 </style></head><body>
   <div class="head">
-    <div><h1>BXLACK</h1><p class="muted">clients@bxlack.com</p></div>
+    <div><img src="${window.location.origin}/label-signature.png" alt="BXLACK" style="height:44px;width:auto;display:block;margin-bottom:6px"><p class="muted" style="margin:0">clients@bxlack.com</p></div>
     <div class="r"><strong>Invoice #${o.orderNumber}</strong><br><span class="muted">${esc(new Date(o.createdAt).toLocaleDateString("en-IN"))}</span><br><span class="muted">${o.paymentMethod === "cod" ? "Cash on delivery" : esc(o.paymentMethod)}</span></div>
   </div>
   <div class="cols">
