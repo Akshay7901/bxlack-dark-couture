@@ -1,9 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertCallerIsAdmin, listAllUsers } from "@/lib/admin-guard";
+import { TEST_TAG } from "@/lib/test-data";
 
-// Every dummy row is tagged with this prefix so it can be found and removed.
-const TAG = "TEST ";
+// Every dummy row is tagged with this prefix so it can be found, removed, and
+// left out of the Overview's real figures.
+const TAG = TEST_TAG;
 
 const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000).toISOString();
 

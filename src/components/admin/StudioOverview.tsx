@@ -36,7 +36,10 @@ export function StudioOverview({ onNavigate }: { onNavigate: (key: Target) => vo
       <div>
         <h2 className="font-display text-xl uppercase tracking-[-0.01em] text-neutral-900">Overview</h2>
         <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-neutral-500">
-          Sales exclude cancelled orders
+          Real orders only · sales exclude cancelled orders
+          {data.testOrdersHidden > 0
+            ? ` · ${data.testOrdersHidden} test ${data.testOrdersHidden === 1 ? "order" : "orders"} hidden`
+            : ""}
         </p>
       </div>
 

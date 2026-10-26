@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertCallerIsAdmin } from "@/lib/admin-guard";
+import { isTestName } from "@/lib/test-data";
 
 /** Units at or below this count show up as low stock on the dashboard. */
 export const LOW_STOCK_THRESHOLD = 3;
@@ -13,6 +14,8 @@ export type DashboardStats = {
   returnsToReview: number;
   exchangesToReview: number;
   unreadMessages: number;
+  /** Dummy "TEST" orders in the last 30 days left out of these figures. */
+  testOrdersHidden: number;
   lowStock: { productName: string; size: string; quantity: number }[];
   topProducts: { productName: string; units: number; revenue: number }[];
   recentOrders: { id: string; orderNumber: number; name: string; total: number; status: string; createdAt: string }[];
@@ -37,15 +40,9 @@ export const getDashboardStats = createServerFn({ method: "GET" })
         .select("id, order_number, status, total, created_at, full_name, order_items(product_name, quantity, price)")
         .gte("created_at", monthAgo)
         .order("created_at", { ascending: false }),
-      supabaseAdmin
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["pending", "processing"]),
-      supabaseAdmin.from("return_requests").select("type").eq("status", "requested"),
-      supabaseAdmin
-        .from("contact_messages")
-        .select("id", { count: "exact", head: true })
-        .neq("status", "read"),
+      supabaseAdmin.from("orders").select("full_name").in("status", ["pending", "processing"]),
+      supabaseAdmin.from("return_requests").select("type, orders(full_name)").eq("status", "requested"),
+      supabaseAdmin.from("contact_messages").select("name").neq("status", "read"),
       supabaseAdmin
         .from("product_inventory")
         .select("size, quantity, products(name)")
@@ -54,8 +51,13 @@ export const getDashboardStats = createServerFn({ method: "GET" })
     ]);
     if (ordersRes.error) throw new Error("Could not load dashboard");
 
+    // Real figures only: dummy rows from "Add test data" are left out everywhere.
+    const allRecent = ordersRes.data ?? [];
+    const realRecent = allRecent.filter((o) => !isTestName(o.full_name));
+    const openReturns = (returnsRes.data ?? []).filter((r) => !isTestName(r.orders?.full_name));
+
     // Cancelled orders aren't sales.
-    const sales = (ordersRes.data ?? []).filter((o) => o.status !== "cancelled");
+    const sales = realRecent.filter((o) => o.status !== "cancelled");
     const since = (ms: number) => sales.filter((o) => new Date(o.created_at).getTime() >= ms);
     const sum = (list: typeof sales) => list.reduce((s, o) => s + Number(o.total), 0);
     const today = since(startOfToday.getTime());
@@ -75,10 +77,11 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       revenue: { today: sum(today), week: sum(week), month: sum(sales) },
       orders: { today: today.length, week: week.length, month: sales.length },
       averageOrderValue: sales.length ? Math.round(sum(sales) / sales.length) : 0,
-      toFulfil: openRes.count ?? 0,
-      returnsToReview: (returnsRes.data ?? []).filter((r) => r.type !== "exchange").length,
-      exchangesToReview: (returnsRes.data ?? []).filter((r) => r.type === "exchange").length,
-      unreadMessages: messagesRes.count ?? 0,
+      toFulfil: (openRes.data ?? []).filter((o) => !isTestName(o.full_name)).length,
+      returnsToReview: openReturns.filter((r) => r.type !== "exchange").length,
+      exchangesToReview: openReturns.filter((r) => r.type === "exchange").length,
+      unreadMessages: (messagesRes.data ?? []).filter((m) => !isTestName(m.name)).length,
+      testOrdersHidden: allRecent.length - realRecent.length,
       lowStock: (inventoryRes.data ?? []).slice(0, 12).map((r) => ({
         productName: r.products?.name ?? "Unknown product",
         size: r.size,
@@ -88,7 +91,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
         .map(([productName, p]) => ({ productName, ...p }))
         .sort((a, b) => b.units - a.units)
         .slice(0, 5),
-      recentOrders: (ordersRes.data ?? []).slice(0, 6).map((o) => ({
+      recentOrders: realRecent.slice(0, 6).map((o) => ({
         id: o.id,
         orderNumber: o.order_number,
         name: o.full_name ?? "Customer",
