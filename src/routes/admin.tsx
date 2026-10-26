@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  ArrowLeftRight,
   Image as ImageIcon,
   LayoutDashboard,
   Mail,
@@ -183,6 +184,7 @@ const NAV_GROUPS = [
     items: [
       { key: "orders", label: "Orders", icon: Package },
       { key: "returns", label: "Returns", icon: RotateCcw },
+      { key: "exchanges", label: "Exchanges", icon: ArrowLeftRight },
       { key: "customers", label: "Customers", icon: UserRound },
       { key: "discounts", label: "Discounts", icon: Tag },
     ],
@@ -269,7 +271,8 @@ function AdminDashboard({ email, userId }: { email: string; userId: string }) {
           {active === "products" ? <ProductsSection /> : null}
           {active === "categories" ? <CategoriesSection /> : null}
           {active === "orders" ? <AdminOrders /> : null}
-          {active === "returns" ? <AdminReturns /> : null}
+          {active === "returns" ? <AdminReturns key="returns" type="return" /> : null}
+          {active === "exchanges" ? <AdminReturns key="exchanges" type="exchange" /> : null}
           {active === "customers" ? <AdminCustomers /> : null}
           {active === "discounts" ? <AdminDiscounts /> : null}
           {active === "emails" ? <AdminEmails /> : null}

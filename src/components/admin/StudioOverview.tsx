@@ -4,7 +4,7 @@ import { getDashboardStats, LOW_STOCK_THRESHOLD } from "@/lib/dashboard.function
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-500";
 
-type Target = "orders" | "returns" | "messages" | "products";
+type Target = "orders" | "returns" | "exchanges" | "messages" | "products";
 
 export function StudioOverview({ onNavigate }: { onNavigate: (key: Target) => void }) {
   const { data, isLoading, error } = useQuery({
@@ -26,6 +26,7 @@ export function StudioOverview({ onNavigate }: { onNavigate: (key: Target) => vo
   const todos = [
     { count: data.toFulfil, label: "orders to fulfil", target: "orders" as const },
     { count: data.returnsToReview, label: "returns to review", target: "returns" as const },
+    { count: data.exchangesToReview, label: "exchanges to review", target: "exchanges" as const },
     { count: data.unreadMessages, label: "unread messages", target: "messages" as const },
     { count: data.lowStock.length, label: "sizes low on stock", target: "products" as const },
   ].filter((t) => t.count > 0);

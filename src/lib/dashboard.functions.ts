@@ -11,6 +11,7 @@ export type DashboardStats = {
   averageOrderValue: number;
   toFulfil: number;
   returnsToReview: number;
+  exchangesToReview: number;
   unreadMessages: number;
   lowStock: { productName: string; size: string; quantity: number }[];
   topProducts: { productName: string; units: number; revenue: number }[];
@@ -40,10 +41,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
         .from("orders")
         .select("id", { count: "exact", head: true })
         .in("status", ["pending", "processing"]),
-      supabaseAdmin
-        .from("return_requests")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "requested"),
+      supabaseAdmin.from("return_requests").select("type").eq("status", "requested"),
       supabaseAdmin
         .from("contact_messages")
         .select("id", { count: "exact", head: true })
@@ -78,7 +76,8 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       orders: { today: today.length, week: week.length, month: sales.length },
       averageOrderValue: sales.length ? Math.round(sum(sales) / sales.length) : 0,
       toFulfil: openRes.count ?? 0,
-      returnsToReview: returnsRes.count ?? 0,
+      returnsToReview: (returnsRes.data ?? []).filter((r) => r.type !== "exchange").length,
+      exchangesToReview: (returnsRes.data ?? []).filter((r) => r.type === "exchange").length,
       unreadMessages: messagesRes.count ?? 0,
       lowStock: (inventoryRes.data ?? []).slice(0, 12).map((r) => ({
         productName: r.products?.name ?? "Unknown product",

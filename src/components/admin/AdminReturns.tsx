@@ -23,25 +23,52 @@ const statusClass: Record<string, string> = {
 
 const labelClass = "font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-400";
 
-export function AdminReturns() {
+/** One tab per request type: Studio → Returns and Studio → Exchanges. */
+export function AdminReturns({ type }: { type: "return" | "exchange" }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const { data: requests = [], isLoading, error } = useQuery({
+  const [status, setStatus] = useState<string>("all");
+  const { data: all = [], isLoading, error } = useQuery({
     queryKey: ["admin-returns"],
     queryFn: () => listReturnRequestsForAdmin(),
   });
 
-  const open = requests.filter((r) => r.status === "requested").length;
+  const isExchange = type === "exchange";
+  const requests = all.filter((r) => (isExchange ? r.type === "exchange" : r.type !== "exchange"));
+  const counts: Record<string, number> = { all: requests.length };
+  for (const r of requests) counts[r.status] = (counts[r.status] ?? 0) + 1;
+  const shown = status === "all" ? requests : requests.filter((r) => r.status === status);
+  const noun = isExchange ? "exchange" : "return";
 
   return (
     <section>
       <h2 className="font-display text-xl uppercase tracking-[-0.01em] text-neutral-900">
-        Returns — {requests.length}
+        {isExchange ? "Exchanges" : "Returns"} — {requests.length}
       </h2>
       <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-neutral-500">
-        {open > 0 ? `${open} awaiting review` : "Return and exchange requests from customers"}
+        {counts.requested
+          ? `${counts.requested} awaiting review`
+          : isExchange
+            ? "Customers swapping a piece for another size"
+            : "Customers sending a piece back for a refund"}
       </p>
 
-      <div className="mt-6 space-y-2">
+      <div className="mt-6 flex flex-wrap gap-1.5" role="group" aria-label="Filter by status">
+        {["all", ...RETURN_STATUSES].map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setStatus(s)}
+            aria-pressed={status === s}
+            className={`px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+              status === s ? "bg-black text-white" : "bg-black/5 text-neutral-600 hover:bg-black/10"
+            }`}
+          >
+            {s === "all" ? "All" : RETURN_STATUS_LABELS[s].split(" — ")[0]} {counts[s] ? `(${counts[s]})` : ""}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-4 space-y-2">
         {isLoading ? (
           <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
             Loading…
@@ -50,26 +77,35 @@ export function AdminReturns() {
           <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-red-600">
             {(error as Error).message}
           </p>
-        ) : requests.length === 0 ? (
+        ) : shown.length === 0 ? (
           <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
-            No return requests yet
+            {requests.length === 0 ? `No ${noun} requests yet` : `No ${noun} requests with this status`}
           </p>
         ) : (
-          requests.map((r) => {
+          shown.map((r) => {
             const expanded = expandedId === r.id;
+            const summary = r.items
+              .map((i) =>
+                isExchange && i.exchangeSize
+                  ? `${i.productName} · ${i.size ?? "?"} → ${i.exchangeSize}`
+                  : `${i.quantity}× ${i.productName}${i.size ? ` (${i.size})` : ""}`,
+              )
+              .join(", ");
             return (
               <div key={r.id} className="border border-black/10 bg-black/[0.02]">
                 <button
                   type="button"
                   onClick={() => setExpandedId(expanded ? null : r.id)}
+                  aria-expanded={expanded}
                   className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3.5 text-left transition-colors hover:bg-black/[0.04]"
                 >
                   <div className="min-w-[160px] flex-1">
                     <p className="truncate font-sans text-[14px] text-neutral-900">
-                      {r.type === "exchange" ? "Exchange" : "Return"} · {r.fullName || r.email}
+                      {r.fullName || r.email} · Order #{r.orderNumber ?? r.orderId.slice(0, 8)}
                     </p>
-                    <p className="mt-0.5 truncate font-mono text-[11px] text-neutral-500">
-                      Order #{r.orderNumber ?? r.orderId.slice(0, 8)} · {new Date(r.createdAt).toLocaleDateString()}
+                    <p className="mt-0.5 truncate font-mono text-[11px] text-neutral-600">{summary}</p>
+                    <p className="mt-0.5 truncate font-mono text-[11px] text-neutral-400">
+                      {r.reason} · {new Date(r.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                   <span
