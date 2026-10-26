@@ -1,9 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useLocation } from "@tanstack/react-router";
 import signatureMark from "@/assets/signature-mark.webp";
 
 export function Loader() {
-  const [gone, setGone] = useState(false);
+  // The cinematic intro is for the storefront; the studio and sign-in open straight away.
+  const { pathname } = useLocation();
+  const skip = pathname.startsWith("/admin") || pathname.startsWith("/auth");
+  const [gone, setGone] = useState(skip);
   useEffect(() => {
     const t = setTimeout(() => setGone(true), 2200);
     return () => clearTimeout(t);

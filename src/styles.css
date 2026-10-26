@@ -181,3 +181,103 @@
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+/* ---------------------------------------------------------------------------
+   Admin studio skin (Shopify-style).
+   The studio screens share the storefront's utility classes (mono type,
+   uppercase, wide tracking, square edges). Inside .admin-ui these rules
+   re-skin them into a calm admin system: sans type, sentence case, rounded
+   controls and white cards on a grey canvas. Unlayered on purpose, so they
+   win over Tailwind's layered utilities — only within the studio.
+   --------------------------------------------------------------------------- */
+.admin-ui {
+  --a-canvas: #f1f1f1;
+  --a-surface: #ffffff;
+  --a-sidebar: #ebebeb;
+  --a-topbar: #1a1a1a;
+  --a-border: #e3e3e3;
+  --a-text: #303030;
+  --a-subdued: #616161;
+  --a-hover: #f7f7f7;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  color: var(--a-text);
+  background: var(--a-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+.admin-ui ::selection { background: #303030; color: #fff; }
+/* Default border colour lives in the base layer so explicit border utilities still win. */
+@layer base {
+  .admin-ui * { border-color: var(--a-border); }
+}
+
+/* Typography: one sans family, sentence case, normal tracking, readable sizes. */
+.admin-ui :is(h1, h2, h3, h4) {
+  font-family: inherit;
+  letter-spacing: normal;
+  line-height: 1.3;
+}
+.admin-ui :is(.font-mono, .font-display, .font-editorial) { font-family: inherit; }
+.admin-ui .uppercase { text-transform: none; }
+.admin-ui [class*="tracking-["] { letter-spacing: normal; }
+.admin-ui :is(.text-\[9px\], .text-\[10px\], .text-\[11px\]) { font-size: 12px; }
+.admin-ui :is(.text-\[12px\], .text-\[13px\]) { font-size: 13px; }
+.admin-ui :is(.text-\[14px\]) { font-size: 14px; }
+.admin-ui h2.text-xl { font-size: 20px; font-weight: 650; color: var(--a-text); }
+.admin-ui .text-neutral-400 { color: #8a8a8a; }
+.admin-ui :is(.text-neutral-500, .text-neutral-600) { color: var(--a-subdued); }
+
+/* Controls: rounded, quiet borders, visible focus. */
+.admin-ui :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  border-radius: 8px;
+  border-color: #8a8a8a66;
+  background-color: #fff;
+}
+.admin-ui :is(input, select, textarea):focus {
+  border-color: #303030;
+  box-shadow: 0 0 0 1px #303030;
+  outline: none;
+}
+.admin-ui button { border-radius: 8px; }
+.admin-ui button:focus-visible { outline: 2px solid #005bd3; outline-offset: 1px; }
+/* Primary action: solid dark button. */
+.admin-ui button.bg-black { background: #303030; border-color: #303030; box-shadow: inset 0 -1px 0 #000; }
+.admin-ui button.bg-black:hover:not(:disabled) { background: #1a1a1a; color: #fff; }
+/* Secondary buttons: white with a soft border. */
+.admin-ui button.border:not(.bg-black) {
+  background: #fff;
+  border-color: #d4d4d4;
+  box-shadow: 0 1px 0 #00000014;
+}
+.admin-ui button.border:not(.bg-black):hover:not(:disabled) { background: var(--a-hover); }
+
+/* Search fields built as a bordered label wrapping a bare input: style the
+   label as the field, and keep the inner input plain. */
+.admin-ui label.border:has(> input) {
+  border-radius: 8px;
+  border-color: #8a8a8a66;
+  background: #fff;
+}
+.admin-ui label.border:has(> input):focus-within { border-color: #303030; box-shadow: 0 0 0 1px #303030; }
+.admin-ui label.border > input,
+.admin-ui label.border > input:focus {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Cards: list rows and panels become white rounded surfaces. */
+.admin-ui .border-black\/10.bg-black\/\[0\.02\],
+.admin-ui .border.border-black\/12 {
+  background: var(--a-surface);
+  border-color: var(--a-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 0 #1a1a1a12;
+  overflow: hidden;
+}
+.admin-ui .border-black\/10.bg-black\/\[0\.02\]:hover { background: var(--a-surface); }
+.admin-ui .hover\:bg-black\/\[0\.04\]:hover { background: var(--a-hover); }
+/* Filter chips and pills. */
+.admin-ui :is(.bg-black\/5, .bg-black\/\[0\.03\]) { background: #e3e3e3; }
+.admin-ui :is(.bg-black\/5, .bg-black\/\[0\.03\]):hover { background: #d4d4d4; }

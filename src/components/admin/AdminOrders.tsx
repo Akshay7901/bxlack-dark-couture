@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Download, Printer, Search } from "lucide-react";
 import { ListRow } from "@/components/admin/ListRow";
+import { Badge, ORDER_STATUS_TONE, statusLabel } from "@/components/admin/Badge";
 import { TestDataControls } from "@/components/admin/TestDataControls";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import {
@@ -25,7 +26,7 @@ const labelClass = "font-mono text-[11px] uppercase tracking-[0.28em] text-neutr
 const inputClass =
   "mt-2 w-full border border-black/15 bg-transparent px-3 py-2 font-mono text-[13px] text-neutral-900 outline-none focus:border-black/60";
 
-export function AdminOrders() {
+export function AdminOrders({ initialQuery = "" }: { initialQuery?: string }) {
   const qc = useQueryClient();
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -33,7 +34,7 @@ export function AdminOrders() {
   });
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("all");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
 
   const statusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
@@ -115,7 +116,7 @@ export function AdminOrders() {
               status === s ? "bg-black text-white" : "bg-black/5 text-neutral-600 hover:bg-black/10"
             }`}
           >
-            {s} {counts[s] ? `(${counts[s]})` : ""}
+            {s === "all" ? "All" : statusLabel(s)} {counts[s] ? `(${counts[s]})` : ""}
           </button>
         ))}
       </div>
@@ -136,11 +137,7 @@ export function AdminOrders() {
               meta={
                 <div className="flex items-center gap-4">
                   <span className="font-mono text-[11px] text-neutral-600">{inr(o.total)}</span>
-                  <span
-                    className={`font-mono text-[9px] uppercase tracking-[0.2em] ${statusClass[o.status] ?? "text-neutral-500"}`}
-                  >
-                    {o.status}
-                  </span>
+                  <Badge tone={ORDER_STATUS_TONE[o.status]}>{statusLabel(o.status)}</Badge>
                 </div>
               }
               onEdit={() => setViewingId(o.id)}
@@ -198,7 +195,11 @@ function OrderDetail({
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-display text-xl uppercase tracking-[-0.01em]">Order #{order.orderNumber}</h2>
+          <h2 className="flex flex-wrap items-center gap-2 font-display text-xl uppercase tracking-[-0.01em]">
+            Order #{order.orderNumber}
+            <Badge tone={ORDER_STATUS_TONE[order.status]}>{statusLabel(order.status)}</Badge>
+            {order.paymentMethod === "cod" ? <Badge tone="attention">Payment pending · COD</Badge> : null}
+          </h2>
           <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-neutral-500">
             {new Date(order.createdAt).toLocaleString()} · {order.paymentMethod === "cod" ? "Cash on delivery" : order.paymentMethod}
           </p>

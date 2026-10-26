@@ -4,6 +4,7 @@ import { Search, User } from "lucide-react";
 import { listCustomers } from "@/lib/admin-users.functions";
 import { listOrdersForAdmin } from "@/lib/orders.functions";
 import { statusClass } from "@/components/admin/AdminOrders";
+import { Badge, ORDER_STATUS_TONE, statusLabel } from "@/components/admin/Badge";
 
 /** A customer's order history, drawn from the same cached query as the Orders tab. */
 function CustomerOrders({ userId }: { userId: string }) {
@@ -31,7 +32,7 @@ function CustomerOrders({ userId }: { userId: string }) {
               </span>
               <span className="font-mono text-[11px] text-neutral-600">
                 ₹{o.total.toLocaleString("en-IN")} ·{" "}
-                <span className={`uppercase ${statusClass[o.status] ?? ""}`}>{o.status}</span>
+                <Badge tone={ORDER_STATUS_TONE[o.status]}>{statusLabel(o.status)}</Badge>
               </span>
             </div>
           ))}

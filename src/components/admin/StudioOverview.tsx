@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardStats, LOW_STOCK_THRESHOLD } from "@/lib/dashboard.functions";
+import { Badge, ORDER_STATUS_TONE, statusLabel } from "@/components/admin/Badge";
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-500";
@@ -126,8 +127,9 @@ export function StudioOverview({ onNavigate }: { onNavigate: (key: Target) => vo
                 <span className="truncate font-sans text-[13px] text-neutral-900">
                   #{o.orderNumber} · {o.name}
                 </span>
-                <span className="shrink-0 font-mono text-[11px] text-neutral-500">
-                  {inr(o.total)} · {o.status}
+                <span className="flex shrink-0 items-center gap-3 text-[13px] text-neutral-600">
+                  {inr(o.total)}
+                  <Badge tone={ORDER_STATUS_TONE[o.status]}>{statusLabel(o.status)}</Badge>
                 </span>
               </button>
             ))

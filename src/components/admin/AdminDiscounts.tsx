@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, Tag } from "lucide-react";
 import { ListRow } from "@/components/admin/ListRow";
+import { Badge, type BadgeTone } from "@/components/admin/Badge";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import {
   deleteDiscountCode,
@@ -53,13 +54,13 @@ function describe(d: DiscountCode) {
   return `${amount}${min} · ${uses}`;
 }
 
-function state(d: DiscountCode): { label: string; className: string } {
+function state(d: DiscountCode): { label: string; tone: BadgeTone } {
   const now = Date.now();
-  if (!d.active) return { label: "Off", className: "text-neutral-400" };
-  if (d.endsAt && new Date(d.endsAt).getTime() < now) return { label: "Expired", className: "text-red-600" };
-  if (d.startsAt && new Date(d.startsAt).getTime() > now) return { label: "Scheduled", className: "text-blue-600" };
-  if (d.maxUses && d.usedCount >= d.maxUses) return { label: "Used up", className: "text-amber-600" };
-  return { label: "Active", className: "text-green-600" };
+  if (!d.active) return { label: "Off", tone: "neutral" };
+  if (d.endsAt && new Date(d.endsAt).getTime() < now) return { label: "Expired", tone: "critical" };
+  if (d.startsAt && new Date(d.startsAt).getTime() > now) return { label: "Scheduled", tone: "info" };
+  if (d.maxUses && d.usedCount >= d.maxUses) return { label: "Used up", tone: "warning" };
+  return { label: "Active", tone: "success" };
 }
 
 export function AdminDiscounts() {
@@ -252,11 +253,7 @@ export function AdminDiscounts() {
                 }
                 title={d.code}
                 subtitle={describe(d)}
-                meta={
-                  <span className={`font-mono text-[9px] uppercase tracking-[0.2em] ${s.className}`}>
-                    {s.label}
-                  </span>
-                }
+                meta={<Badge tone={s.tone}>{s.label}</Badge>}
                 onEdit={() =>
                   setForm({
                     id: d.id,

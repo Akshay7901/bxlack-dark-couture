@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { TestDataControls } from "@/components/admin/TestDataControls";
+import { Badge, RETURN_STATUS_TONE } from "@/components/admin/Badge";
 import {
   listReturnRequestsForAdmin,
   updateReturnRequest,
@@ -114,11 +115,9 @@ export function AdminReturns({ type }: { type: "return" | "exchange" }) {
                       {r.reason} · {new Date(r.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span
-                    className={`shrink-0 font-mono text-[9px] uppercase tracking-[0.2em] ${statusClass[r.status] ?? "text-neutral-500"}`}
-                  >
-                    {RETURN_STATUS_LABELS[r.status] ?? r.status}
-                  </span>
+                  <Badge tone={RETURN_STATUS_TONE[r.status]}>
+                    {(RETURN_STATUS_LABELS[r.status] ?? r.status).split(" — ")[0]}
+                  </Badge>
                 </button>
                 {expanded ? <ReturnDetail request={r} /> : null}
               </div>

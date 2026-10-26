@@ -3,20 +3,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  ArrowLeftRight,
-  Image as ImageIcon,
-  LayoutDashboard,
   Mail,
-  MessageSquare,
-  Package,
   Plus,
-  Rocket,
-  RotateCcw,
-  Shirt,
-  Tag,
   Trash2,
-  UserRound,
-  Users,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
@@ -58,6 +47,7 @@ import { AdminOrders } from "@/components/admin/AdminOrders";
 import { AdminDiscounts } from "@/components/admin/AdminDiscounts";
 import { AdminEmails } from "@/components/admin/AdminEmails";
 import { StudioOverview } from "@/components/admin/StudioOverview";
+import { AdminLayout, type NavKey } from "@/components/admin/AdminLayout";
 import {
   deleteContactMessage,
   fetchContactMessages,
@@ -167,121 +157,44 @@ function SectionHeading({ title, description }: { title: string; description?: s
   );
 }
 
-const NAV_GROUPS = [
-  {
-    label: "Home",
-    items: [{ key: "overview", label: "Overview", icon: LayoutDashboard }],
-  },
-  {
-    label: "Catalog",
-    items: [
-      { key: "products", label: "Products", icon: Shirt },
-      { key: "categories", label: "Category images", icon: ImageIcon },
-    ],
-  },
-  {
-    label: "Sales",
-    items: [
-      { key: "orders", label: "Orders", icon: Package },
-      { key: "returns", label: "Returns", icon: RotateCcw },
-      { key: "exchanges", label: "Exchanges", icon: ArrowLeftRight },
-      { key: "customers", label: "Customers", icon: UserRound },
-      { key: "discounts", label: "Discounts", icon: Tag },
-    ],
-  },
-  {
-    label: "Support",
-    items: [{ key: "messages", label: "Messages", icon: MessageSquare }],
-  },
-  {
-    label: "Settings",
-    items: [
-      { key: "emails", label: "Emails", icon: Mail },
-      { key: "launch", label: "Launch", icon: Rocket },
-      { key: "team", label: "Team", icon: Users },
-    ],
-  },
-] as const;
-type NavKey = (typeof NAV_GROUPS)[number]["items"][number]["key"];
-
 function AdminDashboard({ email, userId }: { email: string; userId: string }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [active, setActive] = useState<NavKey>("overview");
+  const [orderSearch, setOrderSearch] = useState("");
 
   return (
-    <Shell>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-neutral-600">
-            BXLACK · Studio
-          </p>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.24em] text-neutral-500">
-            {email}
-          </p>
-        </div>
-        <div className="flex items-center gap-5">
-          <button
-            onClick={async () => {
-              await qc.cancelQueries();
-              qc.clear();
-              await supabase.auth.signOut();
-              navigate({ to: "/auth", replace: true });
-            }}
-            className="font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-500 hover:text-black"
-          >
-            Sign out
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-10 grid gap-8 md:grid-cols-[190px_1fr] md:gap-12">
-        <nav className="flex gap-5 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label} className="shrink-0 md:shrink">
-              <p className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 md:mb-1.5 md:block md:px-3">
-                {group.label}
-              </p>
-              <div className="flex gap-2 md:flex-col md:gap-0.5">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = active === item.key;
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={() => setActive(item.key)}
-                      className={`flex shrink-0 items-center gap-2.5 px-3 py-2 text-left font-mono text-[12px] uppercase tracking-[0.22em] transition-colors ${
-                        isActive
-                          ? "bg-black/5 text-black"
-                          : "text-neutral-600 hover:bg-black/5 hover:text-black"
-                      }`}
-                    >
-                      <Icon size={14} className={isActive ? "text-black" : "text-neutral-500"} />
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        <div className="min-w-0">
-          {active === "overview" ? <StudioOverview onNavigate={setActive} /> : null}
-          {active === "products" ? <ProductsSection /> : null}
-          {active === "categories" ? <CategoriesSection /> : null}
-          {active === "orders" ? <AdminOrders /> : null}
-          {active === "returns" ? <AdminReturns key="returns" type="return" /> : null}
-          {active === "exchanges" ? <AdminReturns key="exchanges" type="exchange" /> : null}
-          {active === "customers" ? <AdminCustomers /> : null}
-          {active === "discounts" ? <AdminDiscounts /> : null}
-          {active === "emails" ? <AdminEmails /> : null}
-          {active === "messages" ? <MessagesSection /> : null}
-          {active === "launch" ? <LaunchSection /> : null}
-          {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
-        </div>
-      </div>
-    </Shell>
+    <AdminLayout
+      active={active}
+      onNavigate={(key) => {
+        setActive(key);
+        if (key !== "orders") setOrderSearch("");
+      }}
+      onSearch={(q) => {
+        setOrderSearch(q);
+        setActive("orders");
+      }}
+      email={email}
+      onSignOut={async () => {
+        await qc.cancelQueries();
+        qc.clear();
+        await supabase.auth.signOut();
+        navigate({ to: "/auth", replace: true });
+      }}
+    >
+      {active === "overview" ? <StudioOverview onNavigate={setActive} /> : null}
+      {active === "products" ? <ProductsSection /> : null}
+      {active === "categories" ? <CategoriesSection /> : null}
+      {active === "orders" ? <AdminOrders key={orderSearch} initialQuery={orderSearch} /> : null}
+      {active === "returns" ? <AdminReturns key="returns" type="return" /> : null}
+      {active === "exchanges" ? <AdminReturns key="exchanges" type="exchange" /> : null}
+      {active === "customers" ? <AdminCustomers /> : null}
+      {active === "discounts" ? <AdminDiscounts /> : null}
+      {active === "emails" ? <AdminEmails /> : null}
+      {active === "messages" ? <MessagesSection /> : null}
+      {active === "launch" ? <LaunchSection /> : null}
+      {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
+    </AdminLayout>
   );
 }
 
