@@ -34,15 +34,19 @@ async function loadOrder(orderId: string): Promise<EmailOrder | null> {
   const { data: o } = await db
     .from("orders")
     .select(
-      "order_number, user_id, full_name, phone, address_line1, address_line2, city, state, postal_code, country, subtotal, discount_code, discount_amount, total, payment_method, courier, tracking_number, delivered_at, order_items(product_name, size, quantity, price)",
+      "order_number, created_at, user_id, full_name, phone, address_line1, address_line2, city, state, postal_code, country, subtotal, discount_code, discount_amount, total, payment_method, courier, tracking_number, delivered_at, order_items(product_name, size, quantity, price, image_path)",
     )
     .eq("id", orderId)
     .maybeSingle();
   if (!o) return null;
   const email = await emailForUser(o.user_id);
   if (!email) return null;
+  // Product images live in the public bucket, so a plain public URL works in email.
+  const imageUrl = (path: string | null) =>
+    path ? db.storage.from("product-images").getPublicUrl(path).data.publicUrl : null;
   return {
     orderNumber: o.order_number,
+    createdAt: o.created_at,
     customerName: o.full_name,
     customerEmail: email,
     phone: o.phone,
@@ -51,6 +55,7 @@ async function loadOrder(orderId: string): Promise<EmailOrder | null> {
       size: i.size,
       quantity: i.quantity,
       price: Number(i.price),
+      imageUrl: imageUrl(i.image_path),
     })),
     subtotal: Number(o.subtotal ?? o.total),
     discountCode: o.discount_code,
