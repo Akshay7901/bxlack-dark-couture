@@ -6,14 +6,16 @@ import { clearTestData, seedTestData } from "@/lib/test-data.functions";
 export function TestDataControls() {
   const qc = useQueryClient();
   const refresh = () =>
-    ["admin-orders", "admin-messages", "admin-customers", "admin-dashboard"].forEach((key) =>
+    ["admin-orders", "admin-returns", "admin-messages", "admin-customers", "admin-dashboard"].forEach((key) =>
       qc.invalidateQueries({ queryKey: [key] }),
     );
 
   const seed = useMutation({
     mutationFn: () => seedTestData(),
-    onSuccess: () => {
-      toast.success("Added 3 test orders and 3 test messages");
+    onSuccess: (r) => {
+      toast.success(
+        `Added ${r.orders} orders, ${r.returns} returns, ${r.exchanges} exchanges and ${r.messages} messages`,
+      );
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),

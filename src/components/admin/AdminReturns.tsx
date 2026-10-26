@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { TestDataControls } from "@/components/admin/TestDataControls";
 import {
   listReturnRequestsForAdmin,
   updateReturnRequest,
@@ -41,16 +42,21 @@ export function AdminReturns({ type }: { type: "return" | "exchange" }) {
 
   return (
     <section>
-      <h2 className="font-display text-xl uppercase tracking-[-0.01em] text-neutral-900">
-        {isExchange ? "Exchanges" : "Returns"} — {requests.length}
-      </h2>
-      <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-neutral-500">
-        {counts.requested
-          ? `${counts.requested} awaiting review`
-          : isExchange
-            ? "Customers swapping a piece for another size"
-            : "Customers sending a piece back for a refund"}
-      </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 className="font-display text-xl uppercase tracking-[-0.01em] text-neutral-900">
+            {isExchange ? "Exchanges" : "Returns"} — {requests.length}
+          </h2>
+          <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-neutral-500">
+            {counts.requested
+              ? `${counts.requested} awaiting review`
+              : isExchange
+                ? "Customers swapping a piece for another size"
+                : "Customers sending a piece back for a refund"}
+          </p>
+        </div>
+        <TestDataControls />
+      </div>
 
       <div className="mt-6 flex flex-wrap gap-1.5" role="group" aria-label="Filter by status">
         {["all", ...RETURN_STATUSES].map((s) => (
