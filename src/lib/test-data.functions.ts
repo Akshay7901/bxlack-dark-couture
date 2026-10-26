@@ -236,14 +236,16 @@ export const seedTestData = createServerFn({ method: "POST" })
         .insert({ ...order, country: "India", user_id: owner, subtotal: total, total })
         .select("id, order_number")
         .single();
-      if (error || !row) throw new Error("Could not create test orders. Have all migrations been run?");
+      if (error || !row) {
+        throw new Error(`Could not create test orders: ${error?.message ?? "unknown error"}. Check the database migrations have been applied.`);
+      }
       created.push({ id: row.id, orderNumber: row.order_number });
 
       const { data: itemRows, error: itemsError } = await supabaseAdmin
         .from("order_items")
         .insert(items.map((i) => ({ ...i, order_id: row.id })))
         .select("id, product_name, size, quantity");
-      if (itemsError || !itemRows) throw new Error("Could not create test order items");
+      if (itemsError || !itemRows) throw new Error(`Could not create test order items: ${itemsError?.message ?? "unknown error"}`);
 
       if (request) {
         const { exchangeSizes, ...rest } = request;
@@ -259,7 +261,7 @@ export const seedTestData = createServerFn({ method: "POST" })
             exchangeSize: request.type === "exchange" ? (exchangeSizes?.[idx] ?? null) : null,
           })),
         });
-        if (requestError) throw new Error("Could not create test return/exchange requests");
+        if (requestError) throw new Error(`Could not create test return/exchange requests: ${requestError.message}`);
         if (request.type === "exchange") exchanges++;
         else returns++;
       }
@@ -291,7 +293,7 @@ export const seedTestData = createServerFn({ method: "POST" })
         created_at: hoursAgo(72),
       },
     ]);
-    if (messagesError) throw new Error("Could not create test messages");
+    if (messagesError) throw new Error(`Could not create test messages: ${messagesError.message}`);
 
     return { orders: created.length, returns, exchanges, messages: 3 };
   });
