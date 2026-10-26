@@ -333,6 +333,39 @@ export type Database = {
           },
         ];
       };
+      email_templates: {
+        Row: {
+          id: string;
+          enabled: boolean;
+          subject: string | null;
+          heading: string | null;
+          intro: string | null;
+          button: string | null;
+          footer: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          enabled?: boolean;
+          subject?: string | null;
+          heading?: string | null;
+          intro?: string | null;
+          button?: string | null;
+          footer?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          enabled?: boolean;
+          subject?: string | null;
+          heading?: string | null;
+          intro?: string | null;
+          button?: string | null;
+          footer?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       discount_codes: {
         Row: {
           id: string;

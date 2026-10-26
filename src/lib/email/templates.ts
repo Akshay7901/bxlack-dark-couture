@@ -11,6 +11,7 @@
  */
 import { SITE_URL } from "@/lib/seo";
 import { PACKING_TUBE_CHARGE, RETURN_WINDOW_DAYS } from "@/lib/returns";
+import { fillHtml, fillText, resolveCopy, type TemplateCopy, type TemplateId } from "@/lib/email/copy";
 
 export type Email = { subject: string; html: string; text: string };
 
@@ -86,7 +87,6 @@ export const esc = (v: unknown) =>
   );
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
-const firstName = (name: string | null) => esc(name?.trim().split(/\s+/)[0] || "there");
 const paymentLabel = (m: string) => (m === "cod" ? "Cash on delivery" : m);
 const dateLabel = (iso?: string | null) =>
   new Date(iso ?? Date.now()).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
@@ -100,9 +100,10 @@ const block = (html: string, gap = 28) => `<div style="margin:0 0 ${gap}px;">${h
 const eyebrow = (text: string) =>
   `<span style="font-family:${BODY};font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:${C.muted};">${esc(text)}</span>`;
 
-function heading(text: string, sub?: string) {
+/** Takes already-escaped HTML (from fillHtml), since both lines are editable copy. */
+function heading(titleHtml: string, sub?: string) {
   return block(
-    `<h1 style="margin:0 0 12px;font-family:${DISPLAY};font-weight:700;font-size:34px;line-height:1.1;letter-spacing:-0.5px;color:${C.text};">${esc(text)}</h1>` +
+    `<h1 style="margin:0 0 12px;font-family:${DISPLAY};font-weight:700;font-size:34px;line-height:1.1;letter-spacing:-0.5px;color:${C.text};">${titleHtml}</h1>` +
       (sub ? `<p style="margin:0;font-family:${BODY};font-size:16px;line-height:1.6;color:${C.muted};">${sub}</p>` : ""),
   );
 }
@@ -236,18 +237,52 @@ function layout({ preheader, tag, body, footerNote }: { preheader: string; tag: 
 </body></html>`;
 }
 
-const helpNote = `Questions? <a href="${SITE_URL}/contact" style="color:${C.muted};">Contact us</a> or reply to this email.`;
 const textFooter = `\n\n—\nBXLACK · ${SITE_URL}\nQuestions? Reply to this email or visit ${SITE_URL}/contact`;
 const textItems = (items: EmailOrderItem[]) =>
   items.map((i) => `- ${i.quantity}x ${i.name}${i.size ? ` (${i.size})` : ""}: ${inr(i.price * i.quantity)}`).join("\n");
+
+type Overrides = Partial<TemplateCopy> | null | undefined;
+
+/** Resolves a template's wording (defaults + admin edits) and fills variables. */
+function wording(id: TemplateId, overrides: Overrides, vars: Record<string, string>) {
+  const c = resolveCopy(id, overrides);
+  return {
+    subject: fillText(c.subject, vars),
+    headingHtml: fillHtml(c.heading, vars),
+    headingText: fillText(c.heading, vars),
+    introHtml: fillHtml(c.intro, vars),
+    introText: fillText(c.intro, vars),
+    button: fillText(c.button, vars),
+    footerHtml: fillHtml(c.footer, vars),
+  };
+}
+
+const orderVars = (o: EmailOrder) => ({
+  first_name: o.customerName?.trim().split(/\s+/)[0] || "there",
+  order_number: String(o.orderNumber),
+  total: inr(o.total),
+  tracking_number: o.trackingNumber ?? "",
+  courier: o.courier ?? "",
+  customer_name: o.customerName ?? "A customer",
+  customer_email: o.customerEmail,
+});
+
+const returnVars = (r: EmailReturn) => ({
+  first_name: r.customerName?.trim().split(/\s+/)[0] || "there",
+  order_number: String(r.orderNumber),
+  request_type: r.type === "exchange" ? "exchange" : "return",
+  customer_name: r.customerName ?? "A customer",
+  customer_email: r.customerEmail,
+});
 
 // ---------------------------------------------------------------------------
 // Customer emails
 // ---------------------------------------------------------------------------
 
-export function orderConfirmationEmail(o: EmailOrder): Email {
+export function orderConfirmationEmail(o: EmailOrder, overrides?: Overrides): Email {
+  const w = wording("order-confirmed", overrides, orderVars(o));
   const body = [
-    heading("Order confirmed", `Thanks, ${firstName(o.customerName)}. We're getting your order ready and will email you when it ships.`),
+    heading(w.headingHtml, w.introHtml),
     facts([
       ["Order", `#${o.orderNumber}`],
       ["Date", dateLabel(o.createdAt)],
@@ -257,23 +292,19 @@ export function orderConfirmationEmail(o: EmailOrder): Email {
     totals(o),
     addressBlock("Shipping to", o),
     o.paymentMethod === "cod" ? paragraph(`Please keep <span style="color:${C.text};">${inr(o.total)}</span> ready at delivery.`, 14) : "",
-    button("View order", `${SITE_URL}/account`),
+    button(w.button, `${SITE_URL}/account`),
   ].join("");
   return {
-    subject: `Order #${o.orderNumber} confirmed`,
-    html: layout({
-      preheader: "Thanks for your order — here are the details.",
-      tag: `Order #${o.orderNumber}`,
-      body,
-      footerNote: `Need to change something? <a href="${SITE_URL}/contact" style="color:${C.muted};">Contact us</a> before your order ships.`,
-    }),
-    text: `Order #${o.orderNumber} confirmed.\n\n${textItems(o.items)}\n\nTotal: ${inr(o.total)} (${paymentLabel(o.paymentMethod)})\n\nShipping to:\n${[o.customerName, ...o.address].filter(Boolean).join("\n")}\n\nView your order: ${SITE_URL}/account${textFooter}`,
+    subject: w.subject,
+    html: layout({ preheader: "Thanks for your order — here are the details.", tag: `Order #${o.orderNumber}`, body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n\n${w.introText}\n\n${textItems(o.items)}\n\nTotal: ${inr(o.total)} (${paymentLabel(o.paymentMethod)})\n\nShipping to:\n${[o.customerName, ...o.address].filter(Boolean).join("\n")}\n\nView your order: ${SITE_URL}/account${textFooter}`,
   };
 }
 
-export function orderShippedEmail(o: EmailOrder): Email {
+export function orderShippedEmail(o: EmailOrder, overrides?: Overrides): Email {
+  const w = wording("order-shipped", overrides, orderVars(o));
   const body = [
-    heading("Your order is on its way", `Good news, ${firstName(o.customerName)} — order #${o.orderNumber} has left the studio and is headed to you.`),
+    heading(w.headingHtml, w.introHtml),
     progress(2),
     o.trackingNumber
       ? panelFacts([
@@ -283,66 +314,59 @@ export function orderShippedEmail(o: EmailOrder): Email {
       : panel("Tracking details will follow as soon as the courier confirms them."),
     addressBlock("Delivering to", o),
     itemsList(o.items, false),
-    button("View order", `${SITE_URL}/account`),
+    button(w.button, `${SITE_URL}/account`),
   ].join("");
   return {
-    subject: `Order #${o.orderNumber} has shipped`,
+    subject: w.subject,
     html: layout({
       preheader: o.trackingNumber ? `Order #${o.orderNumber} has shipped — tracking ${o.trackingNumber}.` : `Order #${o.orderNumber} has shipped.`,
       tag: "Shipping",
       body,
-      footerNote: helpNote,
+      footerNote: w.footerHtml,
     }),
-    text: `Order #${o.orderNumber} has shipped.${o.trackingNumber ? `\nTracking: ${o.trackingNumber}${o.courier ? ` (${o.courier})` : ""}` : ""}\n\n${textItems(o.items)}\n\nView your order: ${SITE_URL}/account${textFooter}`,
+    text: `${w.headingText}\n\n${w.introText}${o.trackingNumber ? `\nTracking: ${o.trackingNumber}${o.courier ? ` (${o.courier})` : ""}` : ""}\n\n${textItems(o.items)}\n\nView your order: ${SITE_URL}/account${textFooter}`,
   };
 }
 
-export function orderDeliveredEmail(o: EmailOrder): Email {
+export function orderDeliveredEmail(o: EmailOrder, overrides?: Overrides): Email {
   const delivered = o.deliveredAt ? new Date(o.deliveredAt) : new Date();
   const windowEnds = new Date(delivered.getTime() + RETURN_WINDOW_DAYS * 86_400_000).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "long",
   });
+  const w = wording("order-delivered", overrides, { ...orderVars(o), return_deadline: windowEnds });
   const body = [
-    heading("Delivered", `Order #${o.orderNumber} has arrived, ${firstName(o.customerName)}. We hope it was worth the wait.`),
+    heading(w.headingHtml, w.introHtml),
     progress(4),
     itemsList(o.items, false),
     panel(
       `<strong style="font-size:14px;font-weight:600;color:${C.text};">Not quite right?</strong><br>Request a return or exchange from your account until <span style="color:${C.text};">${esc(windowEnds)}</span>. Keep the brand tag and plastic seal attached and send it back in the original packing tube — ${inr(PACKING_TUBE_CHARGE)} is deducted if the tube is missing.`,
     ),
-    button("Return or exchange", `${SITE_URL}/account`),
+    button(w.button, `${SITE_URL}/account`),
   ].join("");
   return {
-    subject: `Order #${o.orderNumber} delivered`,
-    html: layout({
-      preheader: `Delivered. Returns and exchanges are open until ${windowEnds}.`,
-      tag: "Delivered",
-      body,
-      footerNote: helpNote,
-    }),
-    text: `Order #${o.orderNumber} has been delivered.\n\nNeed a return or exchange? Request it from your account until ${windowEnds}: ${SITE_URL}/account\nKeep the tag and seal attached and return the original packing tube (${inr(PACKING_TUBE_CHARGE)} charge if missing).${textFooter}`,
+    subject: w.subject,
+    html: layout({ preheader: `Delivered. Returns and exchanges are open until ${windowEnds}.`, tag: "Delivered", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n\n${w.introText}\n\nNeed a return or exchange? Request it from your account until ${windowEnds}: ${SITE_URL}/account\nKeep the tag and seal attached and return the original packing tube (${inr(PACKING_TUBE_CHARGE)} charge if missing).${textFooter}`,
   };
 }
 
-export function orderCancelledEmail(o: EmailOrder): Email {
+export function orderCancelledEmail(o: EmailOrder, overrides?: Overrides): Email {
+  const w = wording("order-cancelled", overrides, orderVars(o));
   const body = [
-    heading(
-      "Order cancelled",
-      `Order #${o.orderNumber} has been cancelled${o.paymentMethod === "cod" ? ". Nothing was charged, since it was cash on delivery" : ""}.`,
-    ),
+    heading(w.headingHtml, w.introHtml),
     facts([
       ["Order", `#${o.orderNumber}`],
       ["Placed", dateLabel(o.createdAt)],
       ["Total", inr(o.total)],
     ]),
     itemsList(o.items),
-    paragraph("If this wasn't expected, reply to this email and we'll sort it out.", 14),
-    button("Continue shopping", `${SITE_URL}/shop`),
+    button(w.button, `${SITE_URL}/shop`),
   ].join("");
   return {
-    subject: `Order #${o.orderNumber} cancelled`,
-    html: layout({ preheader: `Order #${o.orderNumber} has been cancelled.`, tag: "Cancelled", body, footerNote: helpNote }),
-    text: `Order #${o.orderNumber} has been cancelled.\n\n${textItems(o.items)}\n\nIf this wasn't expected, reply to this email.${textFooter}`,
+    subject: w.subject,
+    html: layout({ preheader: `Order #${o.orderNumber} has been cancelled.`, tag: "Cancelled", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n\n${w.introText}\n\n${textItems(o.items)}${textFooter}`,
   };
 }
 
@@ -362,90 +386,65 @@ const reasonBlock = (r: EmailReturn) =>
     `${eyebrow("Reason")}<p style="margin:6px 0 0;font-family:${BODY};font-size:14px;line-height:1.6;color:${C.text};">${esc(r.reason)}${r.details ? `<br><span style="color:${C.muted};">${esc(r.details)}</span>` : ""}</p>`,
   );
 
-export function returnReceivedEmail(r: EmailReturn): Email {
-  const kind = r.type === "exchange" ? "exchange" : "return";
+export function returnReceivedEmail(r: EmailReturn, overrides?: Overrides): Email {
+  const w = wording("return-received", overrides, returnVars(r));
   const body = [
-    heading(
-      `${kind === "exchange" ? "Exchange" : "Return"} requested`,
-      `Thanks, ${firstName(r.customerName)}. We'll review your ${kind} for order #${r.orderNumber} within 1–2 business days and email you once it's approved, with pickup details.`,
-    ),
+    heading(w.headingHtml, w.introHtml),
     returnItems(r),
     reasonBlock(r),
     panel(
       `<strong style="font-size:14px;font-weight:600;color:${C.text};">Until pickup</strong><br>Keep the piece unworn with the brand tag and plastic seal attached, packed in its original tube. ${inr(PACKING_TUBE_CHARGE)} is deducted if the tube is missing.`,
     ),
-    button("View request", `${SITE_URL}/account`),
+    button(w.button, `${SITE_URL}/account`),
   ].join("");
   return {
-    subject: `We've received your ${kind} request — order #${r.orderNumber}`,
+    subject: w.subject,
     html: layout({
-      preheader: `Your ${kind} request for order #${r.orderNumber} is being reviewed.`,
-      tag: kind === "exchange" ? "Exchange" : "Return",
+      preheader: `Your ${r.type} request for order #${r.orderNumber} is being reviewed.`,
+      tag: r.type === "exchange" ? "Exchange" : "Return",
       body,
-      footerNote: helpNote,
+      footerNote: w.footerHtml,
     }),
-    text: `We've received your ${kind} request for order #${r.orderNumber} and will review it within 1–2 business days.\n\nReason: ${r.reason}\n\nKeep the tag and seal attached and pack it in the original tube.${textFooter}`,
+    text: `${w.headingText}\n\n${w.introText}\n\nReason: ${r.reason}\n\nKeep the tag and seal attached and pack it in the original tube.${textFooter}`,
   };
 }
 
-const RETURN_COPY: Record<string, { title: string; line: string }> = {
-  approved: {
-    title: "approved",
-    line: "Your request is approved. Our courier partner will attempt pickup at your address twice — please have the piece packed in its original tube with tag and seal attached.",
-  },
-  rejected: {
-    title: "not approved",
-    line: "We couldn't approve this request. The note below explains why — reply to this email if you have questions.",
-  },
-  picked_up: {
-    title: "picked up",
-    line: "The courier has collected your piece. We'll inspect it as soon as it reaches the studio.",
-  },
-  completed: {
-    title: "completed",
-    line: "All done. Refunds typically reach your original payment method within 3–5 business days; exchanges ship out separately.",
-  },
+const RETURN_TEMPLATE: Record<string, TemplateId> = {
+  approved: "return-approved",
+  rejected: "return-rejected",
+  picked_up: "return-picked-up",
+  completed: "return-completed",
 };
 
-export function returnUpdateEmail(r: EmailReturn): Email {
-  const kind = r.type === "exchange" ? "Exchange" : "Return";
-  const copy = RETURN_COPY[r.status] ?? { title: "updated", line: "There's an update on your request." };
+/** The template a return/exchange status change sends, if any. */
+export const returnTemplateFor = (status: string): TemplateId | null => RETURN_TEMPLATE[status] ?? null;
+
+export function returnUpdateEmail(r: EmailReturn, overrides?: Overrides): Email {
+  const id = returnTemplateFor(r.status) ?? "return-approved";
+  const w = wording(id, overrides, returnVars(r));
   const body = [
-    heading(`${kind} ${copy.title}`, `Hi ${firstName(r.customerName)}. ${esc(copy.line)}`),
+    heading(w.headingHtml, w.introHtml),
     r.note ? panel(`${eyebrow("Note from BXLACK")}<br><span style="color:${C.text};">${esc(r.note)}</span>`) : "",
     returnItems(r),
-    button("View request", `${SITE_URL}/account`),
+    button(w.button, `${SITE_URL}/account`),
   ].join("");
   return {
-    subject: `${kind} ${copy.title} — order #${r.orderNumber}`,
-    html: layout({
-      preheader: `${kind} for order #${r.orderNumber}: ${copy.title}.`,
-      tag: `Order #${r.orderNumber}`,
-      body,
-      footerNote: helpNote,
-    }),
-    text: `${kind} ${copy.title} — order #${r.orderNumber}\n\n${copy.line}${r.note ? `\n\nNote from BXLACK: ${r.note}` : ""}\n\n${SITE_URL}/account${textFooter}`,
+    subject: w.subject,
+    html: layout({ preheader: w.introText.slice(0, 110), tag: `Order #${r.orderNumber}`, body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n\n${w.introText}${r.note ? `\n\nNote from BXLACK: ${r.note}` : ""}\n\n${SITE_URL}/account${textFooter}`,
   };
 }
 
 /** Auto-reply to the contact form. The form is public and anyone can type any
  * address into it, so this deliberately repeats none of what was submitted —
  * otherwise it could be abused to send arbitrary text from our domain. */
-export function contactReceivedEmail(): Email {
-  const body = [
-    heading("We've got your message", "Thanks for reaching out to BXLACK. A member of our team will reply to this address shortly."),
-    paragraph(`In the meantime, our <a href="${SITE_URL}/faq" style="color:${C.text};">FAQ</a> covers sizing, delivery and returns.`),
-    button("Visit the FAQ", `${SITE_URL}/faq`),
-  ].join("");
+export function contactReceivedEmail(overrides?: Overrides): Email {
+  const w = wording("contact-received", overrides, {});
+  const body = [heading(w.headingHtml, w.introHtml), button(w.button, `${SITE_URL}/faq`)].join("");
   return {
-    subject: "We've received your message",
-    html: layout({
-      preheader: "A member of our team will reply shortly.",
-      tag: "Client services",
-      body,
-      footerNote: "Didn't contact us? You can safely ignore this email.",
-    }),
-    text: `Thanks for reaching out to BXLACK. We'll reply to this address shortly.\n\nDidn't contact us? You can safely ignore this email.${textFooter}`,
+    subject: w.subject,
+    html: layout({ preheader: "A member of our team will reply shortly.", tag: "Client services", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n\n${w.introText}${textFooter}`,
   };
 }
 
@@ -455,34 +454,30 @@ export function contactReceivedEmail(): Email {
 // ---------------------------------------------------------------------------
 
 const CONFIRMATION_URL = "{{ .ConfirmationURL }}";
-const securityNote = "This is an automated security message from BXLACK.";
 
-export function authConfirmSignupEmail(): Email {
-  const body = [
-    heading("Confirm your email", "Tap the button below to confirm this address belongs to you and finish setting up your BXLACK account."),
-    button("Verify email", CONFIRMATION_URL),
-    paragraph("If you didn't create a BXLACK account, you can ignore this email.", 14),
-  ].join("");
+export function authConfirmSignupEmail(overrides?: Overrides): Email {
+  const w = wording("confirm-signup", overrides, {});
+  const body = [heading(w.headingHtml, w.introHtml), button(w.button, CONFIRMATION_URL)].join("");
   return {
-    subject: "Confirm your BXLACK account",
-    html: layout({ preheader: "Confirm your email to finish setting up.", tag: "Verification", body, footerNote: securityNote }),
-    text: `Confirm your BXLACK account: ${CONFIRMATION_URL}`,
+    subject: w.subject,
+    html: layout({ preheader: "Confirm your email to finish setting up.", tag: "Verification", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n\n${w.introText}\n\n${CONFIRMATION_URL}`,
   };
 }
 
-export function authResetPasswordEmail(): Email {
+export function authResetPasswordEmail(overrides?: Overrides): Email {
+  const w = wording("reset-password", overrides, {});
   const body = [
-    heading("Reset your password", "We got a request to reset the password for your BXLACK account. Choose a new one using the button below."),
-    button("Set new password", CONFIRMATION_URL),
-    paragraph("This link expires in one hour and can only be used once.", 14),
+    heading(w.headingHtml, w.introHtml),
+    button(w.button, CONFIRMATION_URL),
     panel(
       `<strong style="font-size:14px;font-weight:600;color:${C.text};">Didn't ask for this?</strong><br>Your password hasn't changed. You can ignore this email, or <a href="${SITE_URL}/contact" style="color:${C.text};">contact us</a> if you think someone is trying to access your account.`,
     ),
   ].join("");
   return {
-    subject: "Reset your BXLACK password",
-    html: layout({ preheader: "Use this link to choose a new password.", tag: "Security", body, footerNote: securityNote }),
-    text: `Reset your BXLACK password: ${CONFIRMATION_URL}\n\nDidn't ask for this? Ignore this email and your password stays the same.`,
+    subject: w.subject,
+    html: layout({ preheader: "Use this link to choose a new password.", tag: "Security", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n\n${w.introText}\n\n${CONFIRMATION_URL}\n\nDidn't ask for this? Ignore this email and your password stays the same.`,
   };
 }
 
@@ -491,11 +486,11 @@ export function authResetPasswordEmail(): Email {
 // ---------------------------------------------------------------------------
 
 const studio = `${SITE_URL}/admin`;
-const alertNote = "Store alert from your BXLACK studio.";
 
-export function adminNewOrderEmail(o: EmailOrder): Email {
+export function adminNewOrderEmail(o: EmailOrder, overrides?: Overrides): Email {
+  const w = wording("admin-new-order", overrides, orderVars(o));
   const body = [
-    heading(`New order · ${inr(o.total)}`, `${esc(o.customerName ?? "A customer")} (${esc(o.customerEmail)}) just placed order #${o.orderNumber}.`),
+    heading(w.headingHtml, w.introHtml),
     facts([
       ["Order", `#${o.orderNumber}`],
       ["Items", String(o.items.reduce((n, i) => n + i.quantity, 0))],
@@ -504,38 +499,35 @@ export function adminNewOrderEmail(o: EmailOrder): Email {
     itemsList(o.items),
     totals(o),
     addressBlock("Ship to", o),
-    button("Open in Studio", studio),
+    button(w.button, studio),
   ].join("");
   return {
-    subject: `New order #${o.orderNumber} — ${inr(o.total)}`,
-    html: layout({ preheader: `${o.customerName ?? o.customerEmail} · ${o.items.length} item(s)`, tag: "New order", body, footerNote: alertNote }),
-    text: `New order #${o.orderNumber} — ${inr(o.total)}\n${o.customerName ?? ""} <${o.customerEmail}>\n\n${textItems(o.items)}\n\n${studio}`,
+    subject: w.subject,
+    html: layout({ preheader: `${o.customerName ?? o.customerEmail} · ${o.items.length} item(s)`, tag: "New order", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n${w.introText}\n\n${textItems(o.items)}\n\n${studio}`,
   };
 }
 
-export function adminNewReturnEmail(r: EmailReturn): Email {
-  const body = [
-    heading(`New ${r.type} request`, `${esc(r.customerName ?? "A customer")} (${esc(r.customerEmail)}) requested a ${esc(r.type)} for order #${r.orderNumber}.`),
-    returnItems(r),
-    reasonBlock(r),
-    button("Review in Studio", studio),
-  ].join("");
+export function adminNewReturnEmail(r: EmailReturn, overrides?: Overrides): Email {
+  const w = wording("admin-new-return", overrides, returnVars(r));
+  const body = [heading(w.headingHtml, w.introHtml), returnItems(r), reasonBlock(r), button(w.button, studio)].join("");
   return {
-    subject: `New ${r.type} request — order #${r.orderNumber}`,
-    html: layout({ preheader: `${r.customerName ?? r.customerEmail}: ${r.reason}`, tag: "Returns", body, footerNote: alertNote }),
-    text: `New ${r.type} request for order #${r.orderNumber}\n${r.customerName ?? ""} <${r.customerEmail}>\nReason: ${r.reason}${r.details ? `\n${r.details}` : ""}\n\n${studio}`,
+    subject: w.subject,
+    html: layout({ preheader: `${r.customerName ?? r.customerEmail}: ${r.reason}`, tag: "Returns", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n${w.introText}\nReason: ${r.reason}${r.details ? `\n${r.details}` : ""}\n\n${studio}`,
   };
 }
 
-export function adminNewMessageEmail(c: EmailContact): Email {
+export function adminNewMessageEmail(c: EmailContact, overrides?: Overrides): Email {
+  const w = wording("admin-new-message", overrides, { sender_name: c.name, sender_email: c.email });
   const body = [
-    heading(`Message from ${c.name}`, `<a href="mailto:${esc(c.email)}" style="color:${C.text};">${esc(c.email)}</a>${c.orderNumber ? ` · Order ${esc(c.orderNumber)}` : ""}`),
+    heading(w.headingHtml, w.introHtml + (c.orderNumber ? ` · Order ${esc(c.orderNumber)}` : "")),
     panel(`<span style="white-space:pre-wrap;color:${C.text};">${esc(c.message)}</span>`),
-    button("Reply by email", `mailto:${c.email}`),
+    button(w.button, `mailto:${c.email}`),
   ].join("");
   return {
-    subject: `New message from ${c.name}`,
-    html: layout({ preheader: c.message.slice(0, 90), tag: "Message", body, footerNote: alertNote }),
-    text: `New message from ${c.name} <${c.email}>${c.orderNumber ? ` (order ${c.orderNumber})` : ""}\n\n${c.message}`,
+    subject: w.subject,
+    html: layout({ preheader: c.message.slice(0, 90), tag: "Message", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n${w.introText}${c.orderNumber ? ` (order ${c.orderNumber})` : ""}\n\n${c.message}`,
   };
 }

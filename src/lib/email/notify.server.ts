@@ -1,8 +1,10 @@
 /**
- * Loads what each email needs and sends it. Call these from server handlers
- * after the database change succeeds; they never throw.
+ * Loads what each email needs and sends it, applying the admin's wording
+ * edits and on/off switches. Call these from server handlers after the
+ * database change succeeds; they never throw.
  */
 import { adminRecipients, sendEmail } from "@/lib/email/send.server";
+import { COPY_FIELDS, type TemplateCopy, type TemplateId } from "@/lib/email/copy";
 import {
   adminNewMessageEmail,
   adminNewOrderEmail,
@@ -13,7 +15,9 @@ import {
   orderDeliveredEmail,
   orderShippedEmail,
   returnReceivedEmail,
+  returnTemplateFor,
   returnUpdateEmail,
+  type Email,
   type EmailContact,
   type EmailOrder,
   type EmailReturn,
@@ -22,6 +26,35 @@ import {
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
+}
+
+/** The admin's saved wording and on/off switch for a template. Falls back to
+ * the defaults if the table is missing or unreadable, so mail never breaks. */
+async function settingFor(id: TemplateId): Promise<{ enabled: boolean; copy: Partial<TemplateCopy> | null }> {
+  try {
+    const { data } = await (await admin()).from("email_templates").select("*").eq("id", id).maybeSingle();
+    if (!data) return { enabled: true, copy: null };
+    return {
+      enabled: data.enabled,
+      copy: Object.fromEntries(COPY_FIELDS.filter((f) => data[f]).map((f) => [f, data[f] as string])),
+    };
+  } catch {
+    return { enabled: true, copy: null };
+  }
+}
+
+/** Sends a template unless the admin switched it off. */
+async function send(
+  id: TemplateId,
+  to: string | string[],
+  render: (copy: Partial<TemplateCopy> | null) => Email,
+) {
+  const setting = await settingFor(id);
+  if (!setting.enabled) {
+    console.info(`[email] "${id}" is switched off — skipped`);
+    return;
+  }
+  await sendEmail(to, render(setting.copy));
 }
 
 async function emailForUser(userId: string): Promise<string | null> {
@@ -109,15 +142,15 @@ export const notifyOrderPlaced = (orderId: string) =>
     const o = await loadOrder(orderId);
     if (!o) return;
     await Promise.all([
-      sendEmail(o.customerEmail, orderConfirmationEmail(o)),
-      sendEmail(adminRecipients(), adminNewOrderEmail(o)),
+      send("order-confirmed", o.customerEmail, (c) => orderConfirmationEmail(o, c)),
+      send("admin-new-order", adminRecipients(), (c) => adminNewOrderEmail(o, c)),
     ]);
   });
 
-const STATUS_EMAILS: Record<string, (o: EmailOrder) => ReturnType<typeof orderShippedEmail>> = {
-  shipped: orderShippedEmail,
-  delivered: orderDeliveredEmail,
-  cancelled: orderCancelledEmail,
+const STATUS_EMAILS: Record<string, { id: TemplateId; render: (o: EmailOrder, c: Partial<TemplateCopy> | null) => Email }> = {
+  shipped: { id: "order-shipped", render: orderShippedEmail },
+  delivered: { id: "order-delivered", render: orderDeliveredEmail },
+  cancelled: { id: "order-cancelled", render: orderCancelledEmail },
 };
 
 export const notifyOrderStatus = (orderId: string, status: string) =>
@@ -125,7 +158,7 @@ export const notifyOrderStatus = (orderId: string, status: string) =>
     const template = STATUS_EMAILS[status];
     if (!template) return;
     const o = await loadOrder(orderId);
-    if (o) await sendEmail(o.customerEmail, template(o));
+    if (o) await send(template.id, o.customerEmail, (c) => template.render(o, c));
   });
 
 export const notifyReturnCreated = (returnId: string) =>
@@ -133,21 +166,22 @@ export const notifyReturnCreated = (returnId: string) =>
     const r = await loadReturn(returnId);
     if (!r) return;
     await Promise.all([
-      sendEmail(r.customerEmail, returnReceivedEmail(r)),
-      sendEmail(adminRecipients(), adminNewReturnEmail(r)),
+      send("return-received", r.customerEmail, (c) => returnReceivedEmail(r, c)),
+      send("admin-new-return", adminRecipients(), (c) => adminNewReturnEmail(r, c)),
     ]);
   });
 
 export const notifyReturnUpdated = (returnId: string) =>
   safely(async () => {
     const r = await loadReturn(returnId);
-    if (r && r.status !== "requested") await sendEmail(r.customerEmail, returnUpdateEmail(r));
+    const id = r ? returnTemplateFor(r.status) : null;
+    if (r && id) await send(id, r.customerEmail, (c) => returnUpdateEmail(r, c));
   });
 
 export const notifyContactMessage = (c: EmailContact) =>
   safely(() =>
     Promise.all([
-      sendEmail(c.email, contactReceivedEmail()),
-      sendEmail(adminRecipients(), adminNewMessageEmail(c)),
+      send("contact-received", c.email, (copy) => contactReceivedEmail(copy)),
+      send("admin-new-message", adminRecipients(), (copy) => adminNewMessageEmail(c, copy)),
     ]),
   );

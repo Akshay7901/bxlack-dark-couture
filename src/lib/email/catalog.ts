@@ -1,6 +1,6 @@
 /**
- * Every email the store sends, with sample data, for previewing designs in
- * the Studio. Renders the real templates, so previews always match what
+ * Every email the store sends, with sample data, for previewing and editing
+ * in the Studio. Renders the real templates, so previews always match what
  * customers receive.
  */
 import {
@@ -20,15 +20,10 @@ import {
   type EmailOrder,
   type EmailReturn,
 } from "@/lib/email/templates";
+import { TEMPLATE_DEFS, type TemplateCopy, type TemplateDef, type TemplateId } from "@/lib/email/copy";
 
-export type EmailPreview = {
-  id: string;
-  group: "Orders" | "Returns" | "Account" | "Store alerts";
-  name: string;
-  /** What triggers the email. */
-  when: string;
-  to: string;
-  render: () => Email;
+export type EmailPreview = TemplateDef & {
+  render: (copy?: Partial<TemplateCopy> | null) => Email;
 };
 
 const sampleOrder = (images: (string | null)[] = []): EmailOrder => ({
@@ -67,36 +62,33 @@ const sampleReturn = (status: string, note: string | null = null): EmailReturn =
 /** `images` are optional product thumbnails for the sample order. */
 export function emailCatalog(images: (string | null)[] = []): EmailPreview[] {
   const order = sampleOrder(images);
-  return [
-    { id: "order-confirmed", group: "Orders", name: "Order confirmed", when: "Customer places an order", to: "Customer", render: () => orderConfirmationEmail(order) },
-    { id: "order-shipped", group: "Orders", name: "Order shipped", when: "You mark the order Shipped", to: "Customer", render: () => orderShippedEmail(order) },
-    { id: "order-delivered", group: "Orders", name: "Order delivered", when: "You mark the order Delivered", to: "Customer", render: () => orderDeliveredEmail(order) },
-    { id: "order-cancelled", group: "Orders", name: "Order cancelled", when: "The customer or you cancel the order", to: "Customer", render: () => orderCancelledEmail(order) },
-    { id: "return-received", group: "Returns", name: "Request received", when: "Customer requests a return or exchange", to: "Customer", render: () => returnReceivedEmail(sampleReturn("requested")) },
-    { id: "return-approved", group: "Returns", name: "Request approved", when: "You set the request to Approved", to: "Customer", render: () => returnUpdateEmail(sampleReturn("approved", "Pickup scheduled for Monday, 10am–6pm.")) },
-    { id: "return-rejected", group: "Returns", name: "Request not approved", when: "You set the request to Not approved", to: "Customer", render: () => returnUpdateEmail(sampleReturn("rejected", "The plastic seal was removed, so this piece isn't eligible.")) },
-    { id: "return-picked-up", group: "Returns", name: "Picked up", when: "You set the request to Picked up", to: "Customer", render: () => returnUpdateEmail(sampleReturn("picked_up")) },
-    { id: "return-completed", group: "Returns", name: "Completed", when: "You set the request to Completed", to: "Customer", render: () => returnUpdateEmail(sampleReturn("completed")) },
-    { id: "contact-received", group: "Account", name: "Message received", when: "Someone submits the contact form", to: "Sender", render: () => contactReceivedEmail() },
-    { id: "confirm-signup", group: "Account", name: "Confirm email", when: "Customer signs up (if email confirmation is on in Supabase)", to: "Customer", render: () => authConfirmSignupEmail() },
-    { id: "reset-password", group: "Account", name: "Reset password", when: "Customer clicks “Forgot password”", to: "Customer", render: () => authResetPasswordEmail() },
-    { id: "admin-new-order", group: "Store alerts", name: "New order", when: "Customer places an order", to: "You (ADMIN_NOTIFY_EMAIL)", render: () => adminNewOrderEmail(order) },
-    { id: "admin-new-return", group: "Store alerts", name: "New return request", when: "Customer requests a return or exchange", to: "You (ADMIN_NOTIFY_EMAIL)", render: () => adminNewReturnEmail(sampleReturn("requested")) },
-    {
-      id: "admin-new-message",
-      group: "Store alerts",
-      name: "New message",
-      when: "Someone submits the contact form",
-      to: "You (ADMIN_NOTIFY_EMAIL)",
-      render: () =>
-        adminNewMessageEmail({
+  const renderers: Record<TemplateId, EmailPreview["render"]> = {
+    "order-confirmed": (c) => orderConfirmationEmail(order, c),
+    "order-shipped": (c) => orderShippedEmail(order, c),
+    "order-delivered": (c) => orderDeliveredEmail(order, c),
+    "order-cancelled": (c) => orderCancelledEmail(order, c),
+    "return-received": (c) => returnReceivedEmail(sampleReturn("requested"), c),
+    "return-approved": (c) => returnUpdateEmail(sampleReturn("approved", "Pickup scheduled for Monday, 10am–6pm."), c),
+    "return-rejected": (c) => returnUpdateEmail(sampleReturn("rejected", "The plastic seal was removed, so this piece isn't eligible."), c),
+    "return-picked-up": (c) => returnUpdateEmail(sampleReturn("picked_up"), c),
+    "return-completed": (c) => returnUpdateEmail(sampleReturn("completed"), c),
+    "contact-received": (c) => contactReceivedEmail(c),
+    "confirm-signup": (c) => authConfirmSignupEmail(c),
+    "reset-password": (c) => authResetPasswordEmail(c),
+    "admin-new-order": (c) => adminNewOrderEmail(order, c),
+    "admin-new-return": (c) => adminNewReturnEmail(sampleReturn("requested"), c),
+    "admin-new-message": (c) =>
+      adminNewMessageEmail(
+        {
           name: "Arjun Mehta",
           email: "arjun@example.com",
           orderNumber: "1024",
           message: "Hi! Do you ship to Dubai? I'd love to order the Shipwreck Tee.",
-        }),
-    },
-  ];
+        },
+        c,
+      ),
+  };
+  return TEMPLATE_DEFS.map((d) => ({ ...d, render: renderers[d.id] }));
 }
 
 /** The preheader is the hidden first line inbox apps show after the subject. */
