@@ -76,99 +76,144 @@ const addressLines = (o: AdminOrder) =>
 const itemCount = (o: AdminOrder) => o.items.reduce((n, i) => n + i.quantity, 0);
 
 // ---------------------------------------------------------------------------
-// 4×6" shipping label
+// 4×6" shipping label — "Index" design
 // ---------------------------------------------------------------------------
-// Borders and black text only (no filled backgrounds), so it prints the same
-// whether or not "Background graphics" is ticked in the print dialog.
+// Black spine and header band, numbered sections 01–06, handling strip.
+// Every solid black area is drawn with a thick border instead of a
+// background, because borders still print when "Background graphics" is
+// unticked in the print dialog (backgrounds don't).
 
-/** Absolute URL: the print window is about:blank, so relative paths don't resolve. */
+/** Absolute URLs: the print window is about:blank, so relative paths don't resolve. */
 const logoUrl = () => `${window.location.origin}/label-signature.png`;
+const whiteLogoUrl = () => `${window.location.origin}/email-signature.png`;
+
+const ICON = {
+  up: `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5M5 11l7-7 7 7"/></svg>`,
+  fragile: `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10l-1 7a4 4 0 0 1-8 0L7 3zM12 14v7M8 21h8"/></svg>`,
+  dry: `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 18 0H3zM12 12v7a2 2 0 0 0 4 0"/></svg>`,
+};
 
 const LABEL_CSS = `
   @page{size:4in 6in;margin:0}
-  .label{width:4in;height:6in;padding:0.13in 0.15in;display:flex;flex-direction:column;gap:0.075in;overflow:hidden}
-  .hd{display:flex;justify-content:space-between;align-items:center;padding-bottom:0.06in;border-bottom:2.5px solid #000}
-  .hd img{height:0.5in;width:auto;display:block;margin:-0.04in 0}
-  .hd .r{text-align:right;line-height:1.1}
-  .k{font-size:7.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
-  .hd .num{font-size:19px;font-weight:800;letter-spacing:.02em}
-  .bc{text-align:center}
-  .bc svg{width:88%;height:0.5in;display:block;margin:0 auto}
-  .bc .code{font-family:"Courier New",monospace;font-size:10px;font-weight:700;letter-spacing:.35em;margin-top:2px}
-  .to{border:2.5px solid #000;border-radius:7px;padding:0.08in 0.11in;display:flex;flex-direction:column}
-  .awb{flex:1;border:1.5px dashed #000;border-radius:7px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:0.5in}
-  .awb span{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#555}
-  .to .name{font-size:18px;font-weight:800;line-height:1.15;margin:3px 0 4px}
-  .to .addr{font-size:12.5px;line-height:1.38}
-  .to .row{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding-top:7px}
-  .pin{border:2px solid #000;border-radius:5px;padding:2px 8px;font-size:22px;font-weight:800;letter-spacing:.12em}
-  .phone{font-size:13px;font-weight:700;text-align:right}
-  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:0.07in}
-  .pay{border:3px solid #000;border-radius:7px;padding:0.06in 0.09in;display:flex;flex-direction:column;justify-content:center}
-  .pay .mode{font-size:13px;font-weight:800;letter-spacing:.06em}
-  .pay .amt{font-size:24px;font-weight:900;line-height:1.1}
-  .pay .hint{font-size:8px;font-weight:600}
-  .info{border:1.5px solid #000;border-radius:7px;padding:0.06in 0.09in;font-size:9.5px;line-height:1.55}
-  .info b{font-weight:700}
-  .contents{font-size:9px;line-height:1.4}
-  .ret{border-top:1.5px dashed #000;padding-top:0.05in;font-size:8.5px;line-height:1.4;display:flex;justify-content:space-between;gap:8px}
-  .ret .site{text-align:right;white-space:nowrap}
+  .label{width:4in;height:6in;padding:0.1in}
+  .frame{position:relative;height:100%;border:2px solid #000;border-left:0.28in solid #000;display:flex;flex-direction:column}
+  .spine{position:absolute;left:-0.28in;top:0;bottom:0;width:0.28in;display:flex;align-items:center;justify-content:center}
+  .spine span{writing-mode:vertical-rl;transform:rotate(180deg);color:#fff;font-size:8.5px;font-weight:800;letter-spacing:.32em;white-space:nowrap}
+  /* Solid black header band via a thick top border; content is laid over it. */
+  .band{position:relative;height:0;border-top:0.5in solid #000;flex:none}
+  .band .in{position:absolute;left:0;right:0;top:-0.5in;height:0.5in;display:flex;justify-content:space-between;align-items:center;padding:0 0.1in;color:#fff}
+  .band img{height:0.36in;width:auto;display:block}
+  .band .r{text-align:right;line-height:1.15}
+  .band .t{font-size:8px;font-weight:800;letter-spacing:.18em}
+  .band .num{font-size:14px;font-weight:800;letter-spacing:.03em}
+  .sec{border-top:1.5px solid #000;padding:0.06in 0.1in;flex:none}
+  .sec:first-of-type{border-top:0}
+  .h{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+  .h b{font-size:8.5px;font-weight:800;letter-spacing:.16em}
+  /* Numbered badge: a black square from a thick border, number laid on top. */
+  .n{position:relative;display:inline-block;width:17px;height:0;border-top:14px solid #000}
+  .n span{position:absolute;left:0;top:-14px;width:17px;line-height:14px;text-align:center;color:#fff;font-size:8.5px;font-weight:800}
+  .pin{font-size:36px;font-weight:900;letter-spacing:.04em;line-height:1}
+  .name{font-size:14px;font-weight:800;margin-top:3px}
+  .addr{font-size:9.5px;line-height:1.38;margin-top:1px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;border-top:1.5px solid #000;flex:none}
+  .row2 > div{padding:0.06in 0.1in}
+  .row2 > div + div{border-left:1.5px solid #000}
+  .big{font-size:17px;font-weight:800;line-height:1.15}
+  .small{font-size:8.5px;font-weight:600;margin-top:2px}
+  /* Solid black COD pill (border technique again). */
+  .cod{position:relative;display:inline-block;vertical-align:top;height:0;border-top:22px solid #000;border-radius:4px;padding:0 8px;margin-bottom:-22px}
+  .cod span{position:relative;top:-22px;display:block;line-height:22px;color:#fff;font-size:14px;font-weight:900;white-space:nowrap}
+  .awb{border:1.5px dashed #000;border-radius:3px;height:0.48in;display:flex;align-items:center;justify-content:center;padding:4px 8px}
+  .awb svg{width:100%;height:100%}
+  .awb em{font-style:normal;font-size:8px;font-weight:700;letter-spacing:.16em;color:#444}
+  .awbno{text-align:center;font-size:10px;font-weight:800;letter-spacing:.14em;margin-top:3px}
+  .grow{flex:1}
+  .items{font-size:9px;line-height:1.5}
+  .items .li{display:flex;justify-content:space-between;gap:6px}
+  .items .li span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .items .tot{display:flex;justify-content:space-between;font-weight:800;font-size:10px;border-top:1px solid #000;margin-top:2px;padding-top:2px}
+  .ret{font-size:8.5px;line-height:1.4}
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);border-top:1.5px solid #000;flex:none}
+  .strip div{display:flex;align-items:center;justify-content:center;gap:4px;padding:4px 0;font-size:7.5px;font-weight:800;letter-spacing:.12em}
+  .strip div + div{border-left:1.5px solid #000}
 `;
+
+const badge = (n: string) => `<span class="n"><span>${n}</span></span>`;
 
 function labelHtml(o: AdminOrder): string {
   const cod = o.paymentMethod === "cod";
   const count = itemCount(o);
-  const items = o.items
-    .slice(0, 5)
-    .map((i) => `${i.quantity}× ${esc(i.productName)}${i.size ? ` (${esc(i.size)})` : ""}`)
-    .join(" · ");
-  const more = o.items.length > 5 ? ` · +${o.items.length - 5} more` : "";
-  const ret = [STORE.name, ...STORE.returnAddress, STORE.phone].filter(Boolean).map(esc).join(", ");
-  const abroad = o.country && !/^india$/i.test(o.country) ? `<div>${esc(o.country)}</div>` : "";
+  const shown = o.items.slice(0, 4);
+  const more = o.items.length - shown.length;
+  const ret = [...STORE.returnAddress, STORE.phone ? `Ph: ${STORE.phone}` : ""].filter(Boolean).map(esc).join(", ");
+  const abroad = o.country && !/^india$/i.test(o.country) ? `, ${esc(o.country)}` : "";
 
-  return `<section class="page label">
-  <div class="hd">
-    <img src="${logoUrl()}" alt="${esc(STORE.name)}">
-    <div class="r"><div class="k">Shipping label</div><div class="num">#${o.orderNumber}</div></div>
-  </div>
+  return `<section class="page label"><div class="frame">
+  <div class="spine"><span>${esc(STORE.name)} · HANDLE WITH CARE · ${esc(STORE.name)}</span></div>
 
-  <div class="bc">${barcodeSvg(String(o.orderNumber))}<div class="code">${o.orderNumber}</div></div>
+  <div class="band"><div class="in">
+    <img src="${whiteLogoUrl()}" alt="${esc(STORE.name)}">
+    <div class="r"><div class="t">SHIPMENT</div><div class="num">#${o.orderNumber}</div></div>
+  </div></div>
 
-  <div class="to">
-    <div class="k">Deliver to</div>
+  <div class="sec grow">
+    <div class="h">${badge("01")}<b>DELIVER TO</b></div>
+    <div class="pin">${esc(o.postalCode)}</div>
     <div class="name">${esc(o.fullName || "Customer")}</div>
-    <div class="addr">${addressLines(o).map(esc).join("<br>")}${abroad}</div>
-    <div class="row">
-      <span class="pin">${esc(o.postalCode)}</span>
-      ${o.phone ? `<span class="phone">☎ ${esc(o.phone)}</span>` : ""}
-    </div>
+    <div class="addr">${addressLines(o).map(esc).join("<br>")}${abroad}${o.phone ? ` · Ph: ${esc(o.phone)}` : ""}</div>
   </div>
 
-  <div class="awb"><span>${o.trackingNumber ? `AWB ${esc(o.trackingNumber)}` : "Paste courier AWB sticker here"}</span></div>
-
-  <div class="grid">
-    <div class="pay">
+  <div class="row2">
+    <div>
+      <div class="h">${badge("02")}<b>PAYMENT</b></div>
       ${
         cod
-          ? `<div class="mode">COD · COLLECT</div><div class="amt">${inr(o.total)}</div><div class="hint">Collect cash on delivery</div>`
-          : `<div class="mode">PREPAID</div><div class="amt">PAID</div><div class="hint">Do not collect cash</div>`
+          ? `<div style="height:22px"><span class="cod"><span>COD ${inr(o.total)}</span></span></div><div class="small">Collect cash on delivery</div>`
+          : `<div class="big">PREPAID</div><div class="small">Do not collect cash</div>`
       }
     </div>
-    <div class="info">
-      <div><b>Date</b> ${date(o.createdAt)}</div>
-      <div><b>Items</b> ${count} pc${count === 1 ? "" : "s"}</div>
-      ${o.courier ? `<div><b>Courier</b> ${esc(o.courier)}</div>` : ""}
-      ${o.trackingNumber ? `<div><b>AWB</b> ${esc(o.trackingNumber)}</div>` : ""}
+    <div>
+      <div class="h">${badge("03")}<b>PARCEL</b></div>
+      <div class="big">____ kg</div>
+      <div class="small">Inv. #${o.orderNumber} · ${count} pc${count === 1 ? "" : "s"}</div>
     </div>
   </div>
 
-  <div class="contents"><span class="k">Contents</span> ${items}${more}</div>
-
-  <div class="ret">
-    <div><span class="k">If undelivered, return to</span><br>${ret || esc(STORE.name)}</div>
-    <div class="site">${esc(STORE.email)}</div>
+  <div class="sec" style="border-top:1.5px solid #000">
+    <div class="h">${badge("04")}<b>TRACKING</b></div>
+    <div class="awb">${o.trackingNumber ? barcodeSvg(o.trackingNumber, 40) : "<em>PASTE COURIER AWB STICKER HERE</em>"}</div>
+    <div class="awbno">AWB ${o.trackingNumber ? esc(o.trackingNumber) : "________________"}${o.courier ? ` · ${esc(o.courier)}` : ""}</div>
   </div>
-</section>`;
+
+  <div class="sec">
+    <div class="h">${badge("05")}<b>CONTENTS</b></div>
+    <div class="items">
+      ${shown
+        .map(
+          (i) =>
+            `<div class="li"><span>${i.quantity} × ${esc(i.productName)}${i.size ? ` · ${esc(i.size)}` : ""}</span><span>${inr(
+              i.price * i.quantity,
+            )}</span></div>`,
+        )
+        .join("")}
+      ${more > 0 ? `<div class="li"><span>+ ${more} more item${more === 1 ? "" : "s"}</span><span></span></div>` : ""}
+      ${o.discountAmount > 0 ? `<div class="li"><span>Discount${o.discountCode ? ` (${esc(o.discountCode)})` : ""}</span><span>−${inr(o.discountAmount)}</span></div>` : ""}
+      <div class="tot"><span>Total</span><span>${inr(o.total)}</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="h">${badge("06")}<b>RETURN TO</b></div>
+    <div class="ret"><strong>${esc(STORE.name)}</strong>${ret ? ` · ${ret}` : ""}<br>${esc(STORE.email)} · Ordered ${date(o.createdAt)}</div>
+  </div>
+
+  <div class="strip">
+    <div>${ICON.up} THIS SIDE UP</div>
+    <div>${ICON.fragile} FRAGILE</div>
+    <div>${ICON.dry} KEEP DRY</div>
+  </div>
+</div></section>`;
 }
 export function shippingLabelsDocument(orders: AdminOrder[], autoPrint = true): string {
   const title = orders.length === 1 ? `Label #${orders[0].orderNumber}` : `${orders.length} shipping labels`;
