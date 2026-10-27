@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { TestDataControls } from "@/components/admin/TestDataControls";
+import { WhatsAppMenu } from "@/components/admin/WhatsAppMenu";
 import { Badge, RETURN_STATUS_TONE } from "@/components/admin/Badge";
 import {
   listReturnRequestsForAdmin,
@@ -157,6 +158,21 @@ function ReturnDetail({ request: r }: { request: AdminReturnRequest }) {
           <p className="mt-2 font-sans text-[13px] text-neutral-900">{r.fullName || "Not provided"}</p>
           <p className="mt-1 font-mono text-[11px] text-neutral-600">{r.email}</p>
           <p className="mt-1 font-mono text-[11px] text-neutral-600">{r.phone || "No phone on file"}</p>
+          <div className="mt-3">
+            <WhatsAppMenu
+              scope="return"
+              phone={r.phone}
+              context={{
+                name: r.fullName,
+                orderNumber: r.orderNumber,
+                requestType: r.type,
+                exchangeSizes: r.items
+                  .filter((i) => i.exchangeSize)
+                  .map((i) => `${i.productName} in ${i.exchangeSize}`)
+                  .join(", "),
+              }}
+            />
+          </div>
         </div>
         <div>
           <span className={labelClass}>Pickup address</span>

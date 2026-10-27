@@ -5,6 +5,18 @@ import { Download, Printer, Search } from "lucide-react";
 import { ListRow } from "@/components/admin/ListRow";
 import { Badge, ORDER_STATUS_TONE, statusLabel } from "@/components/admin/Badge";
 import { printPackingSlips, printShippingLabels } from "@/components/admin/printDocs";
+import { WhatsAppMenu } from "@/components/admin/WhatsAppMenu";
+import type { WhatsAppContext } from "@/lib/whatsapp";
+
+const waContext = (o: AdminOrder): WhatsAppContext => ({
+  name: o.fullName,
+  orderNumber: o.orderNumber,
+  total: o.total,
+  paymentMethod: o.paymentMethod,
+  courier: o.courier,
+  trackingNumber: o.trackingNumber,
+  items: o.items.map((i) => `${i.quantity} × ${i.productName}${i.size ? ` (${i.size})` : ""}`),
+});
 import { TestDataControls } from "@/components/admin/TestDataControls";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import {
@@ -162,6 +174,7 @@ export function AdminOrders({ initialQuery = "" }: { initialQuery?: string }) {
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[11px] text-neutral-600">{inr(o.total)}</span>
                       <Badge tone={ORDER_STATUS_TONE[o.status]}>{statusLabel(o.status)}</Badge>
+                      <WhatsAppMenu compact scope="order" phone={o.phone} context={waContext(o)} />
                       <button
                         type="button"
                         onClick={() => printShippingLabels([o])}
@@ -304,6 +317,7 @@ function OrderDetail({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <WhatsAppMenu scope="order" phone={order.phone} context={waContext(order)} />
           <button
             onClick={() => printShippingLabels([order])}
             className="flex items-center gap-2 border border-black bg-black px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-white"

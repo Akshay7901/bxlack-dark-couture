@@ -3,11 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Search, User } from "lucide-react";
 import { listCustomers } from "@/lib/admin-users.functions";
 import { listOrdersForAdmin } from "@/lib/orders.functions";
+import { WhatsAppMenu } from "@/components/admin/WhatsAppMenu";
 import { statusClass } from "@/components/admin/AdminOrders";
 import { Badge, ORDER_STATUS_TONE, statusLabel } from "@/components/admin/Badge";
 
 /** A customer's order history, drawn from the same cached query as the Orders tab. */
-function CustomerOrders({ userId }: { userId: string }) {
+function CustomerOrders({ userId, phone, name }: { userId: string; phone: string | null; name: string | null }) {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["admin-orders"],
     queryFn: () => listOrdersForAdmin(),
@@ -16,6 +17,10 @@ function CustomerOrders({ userId }: { userId: string }) {
 
   return (
     <div className="border-t border-black/10 px-4 py-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[12px] text-neutral-500">{phone ? `Phone ${phone}` : "No phone on file"}</span>
+        <WhatsAppMenu scope="customer" phone={phone} context={{ name }} />
+      </div>
       {isLoading ? (
         <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-neutral-500">Loading…</p>
       ) : mine.length === 0 ? (
@@ -133,7 +138,7 @@ export function AdminCustomers() {
                 </p>
               </div>
             </button>
-            {expandedId === c.userId ? <CustomerOrders userId={c.userId} /> : null}
+            {expandedId === c.userId ? <CustomerOrders userId={c.userId} phone={c.phone} name={c.fullName} /> : null}
             </div>
           ))
         )}

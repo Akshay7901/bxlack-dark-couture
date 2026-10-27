@@ -5,6 +5,7 @@ import {
   Home,
   Mail,
   Menu,
+  MessageCircle,
   MessageSquare,
   Package,
   Rocket,
@@ -30,6 +31,7 @@ export type NavKey =
   | "discounts"
   | "messages"
   | "emails"
+  | "whatsapp"
   | "launch"
   | "team";
 
@@ -77,6 +79,7 @@ const NAV_PERMISSION: Record<NavKey, Permission | "admin"> = {
   discounts: "discounts",
   messages: "messages",
   emails: "content",
+  whatsapp: "content",
   launch: "content",
   team: "admin",
 };
@@ -97,6 +100,7 @@ const NAV_ORDER: NavKey[] = [
   "discounts",
   "messages",
   "emails",
+  "whatsapp",
   "launch",
   "team",
 ];
@@ -119,6 +123,7 @@ function filterNav(items: NavItem[], access: StudioAccess): NavItem[] {
 
 const STORE_NAV: NavItem[] = [
   { key: "emails", label: "Email templates", icon: Mail },
+  { key: "whatsapp", label: "WhatsApp", icon: MessageCircle },
   { key: "launch", label: "Launch", icon: Rocket },
 ];
 
