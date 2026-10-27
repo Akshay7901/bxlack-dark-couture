@@ -136,7 +136,7 @@ export function AdminLayout({
             />
             <aside className="relative h-full w-72 max-w-[85vw] overflow-y-auto bg-[var(--a-sidebar)] shadow-xl">
               <div className="flex items-center justify-between px-5 pt-4">
-                <span className="text-[14px] font-semibold">BXLACK</span>
+                <img src="/label-signature.png" alt="BXLACK" className="h-10 w-auto" />
                 <button
                   type="button"
                   aria-label="Close menu"
@@ -267,7 +267,7 @@ function TopBar({
         <Menu size={20} />
       </button>
       <div className="hidden shrink-0 items-center gap-2.5 sm:flex lg:w-[228px]">
-        <img src="/email-signature.png" alt="BXLACK" className="h-6 w-auto" />
+        <img src="/email-signature.png" alt="BXLACK" className="h-10 w-auto" />
         <span className="hidden rounded-md bg-white/10 px-1.5 py-0.5 text-[11px] font-medium text-white/70 sm:inline">
           Studio
         </span>
