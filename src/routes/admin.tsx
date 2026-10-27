@@ -8,7 +8,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth, useIsAdmin } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
+import { getMyStudioAccess } from "@/lib/admin-users.functions";
+import type { StudioAccess } from "@/lib/permissions";
 import { AdminCustomers } from "@/components/admin/AdminCustomers";
 import { AdminReturns } from "@/components/admin/AdminReturns";
 import { AdminTeam } from "@/components/admin/AdminTeam";
@@ -47,7 +49,7 @@ import { AdminOrders } from "@/components/admin/AdminOrders";
 import { AdminDiscounts } from "@/components/admin/AdminDiscounts";
 import { AdminEmails } from "@/components/admin/AdminEmails";
 import { StudioOverview } from "@/components/admin/StudioOverview";
-import { AdminLayout, type NavKey } from "@/components/admin/AdminLayout";
+import { AdminLayout, firstAllowed, navAllowed, type NavKey } from "@/components/admin/AdminLayout";
 import {
   deleteContactMessage,
   fetchContactMessages,
@@ -93,13 +95,18 @@ function AdminPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { user, loading } = useAuth();
-  const isAdmin = useIsAdmin(user?.id);
+  const { data: access, isLoading: accessLoading } = useQuery({
+    queryKey: ["studio-access", user?.id],
+    queryFn: () => getMyStudioAccess(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
   }, [loading, user, navigate]);
 
-  if (loading || (user && isAdmin === null)) {
+  if (loading || (user && accessLoading)) {
     return (
       <Shell>
         <p className="font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
@@ -110,13 +117,13 @@ function AdminPage() {
   }
   if (!user) return null;
 
-  if (!isAdmin) {
+  if (!access?.role) {
     return (
       <Shell>
         <h1 className="font-display text-3xl uppercase tracking-[-0.02em]">Not authorised</h1>
         <p className="mt-3 max-w-md font-mono text-[11px] leading-relaxed text-neutral-500">
-          This account ({user.email}) does not have studio access. Only an existing admin can create
-          admin accounts.
+          This account ({user.email}) does not have studio access. Ask a store admin to add you
+          under Settings → Staff & permissions.
         </p>
         <button
           onClick={async () => {
@@ -133,13 +140,16 @@ function AdminPage() {
     );
   }
 
-  return <AdminDashboard email={user.email ?? ""} userId={user.id} />;
+  return <AdminDashboard email={user.email ?? ""} userId={user.id} access={access} />;
 }
 
+/** Full-page frame for the loading and not-authorised states. */
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-white px-5 py-24 text-neutral-900 sm:px-8 md:px-12">
-      <div className="mx-auto max-w-[1100px]">{children}</div>
+    <div className="admin-ui flex min-h-screen items-center justify-center px-5 py-24">
+      <div className="w-full max-w-md rounded-xl border border-[#e3e3e3] bg-white p-8 shadow-[0_1px_0_#1a1a1a12]">
+        {children}
+      </div>
     </div>
   );
 }
@@ -157,20 +167,26 @@ function SectionHeading({ title, description }: { title: string; description?: s
   );
 }
 
-function AdminDashboard({ email, userId }: { email: string; userId: string }) {
+function AdminDashboard({ email, userId, access }: { email: string; userId: string; access: StudioAccess }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [active, setActive] = useState<NavKey>("overview");
+  const allowed = (key: NavKey) => navAllowed(key, access);
+  const [active, setActiveRaw] = useState<NavKey>(() => firstAllowed(access));
+  const setActive = (key: NavKey) => {
+    if (allowed(key)) setActiveRaw(key);
+  };
   const [orderSearch, setOrderSearch] = useState("");
 
   return (
     <AdminLayout
+      access={access}
       active={active}
       onNavigate={(key) => {
         setActive(key);
         if (key !== "orders") setOrderSearch("");
       }}
       onSearch={(q) => {
+        if (!allowed("orders")) return;
         setOrderSearch(q);
         setActive("orders");
       }}

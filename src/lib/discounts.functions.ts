@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertCallerIsAdmin } from "@/lib/admin-guard";
+import { assertCan } from "@/lib/admin-guard";
 
 export type DiscountCode = {
   id: string;
@@ -19,7 +19,7 @@ export type DiscountCode = {
 export const listDiscountCodes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DiscountCode[]> => {
-    await assertCallerIsAdmin(context.supabase, context.userId);
+    await assertCan(context.supabase, context.userId, "discounts");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("discount_codes")
@@ -66,7 +66,7 @@ export const saveDiscountCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => saveSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertCallerIsAdmin(context.supabase, context.userId);
+    await assertCan(context.supabase, context.userId, "discounts");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const row = {
       code: data.code,
@@ -92,7 +92,7 @@ export const deleteDiscountCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    await assertCallerIsAdmin(context.supabase, context.userId);
+    await assertCan(context.supabase, context.userId, "discounts");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("discount_codes").delete().eq("id", data.id);
     if (error) throw new Error("Could not delete discount code");

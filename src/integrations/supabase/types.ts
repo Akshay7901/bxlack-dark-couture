@@ -333,6 +333,12 @@ export type Database = {
           },
         ];
       };
+      staff_members: {
+        Row: { user_id: string; permissions: string[]; created_at: string; updated_at: string };
+        Insert: { user_id: string; permissions?: string[]; created_at?: string; updated_at?: string };
+        Update: { user_id?: string; permissions?: string[]; created_at?: string; updated_at?: string };
+        Relationships: [];
+      };
       email_templates: {
         Row: {
           id: string;

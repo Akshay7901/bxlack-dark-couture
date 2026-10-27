@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
+import { assertCan } from "@/lib/admin-guard";
 import {
   RETURN_REASONS,
   RETURN_STATUSES,
@@ -11,16 +10,6 @@ import {
   returnEligibility,
   type ReturnRequestItem,
 } from "@/lib/returns";
-
-async function assertCallerIsAdmin(supabase: SupabaseClient<Database>, userId: string) {
-  const { data } = await supabase
-    .from("user_roles")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (!data) throw new Error("Forbidden");
-}
 
 const createSchema = z.object({
   orderId: z.string().uuid(),
@@ -158,7 +147,7 @@ export type AdminReturnRequest = {
 export const listReturnRequestsForAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminReturnRequest[]> => {
-    await assertCallerIsAdmin(context.supabase, context.userId);
+    await assertCan(context.supabase, context.userId, "returns");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: requests, error } = await supabaseAdmin
@@ -209,7 +198,7 @@ export const updateReturnRequest = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertCallerIsAdmin(context.supabase, context.userId);
+    await assertCan(context.supabase, context.userId, "returns");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: before } = await supabaseAdmin

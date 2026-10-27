@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertCallerIsAdmin } from "@/lib/admin-guard";
+import { assertCan } from "@/lib/admin-guard";
 import { isTestName } from "@/lib/test-data";
 
 /** Units at or below this count show up as low stock on the dashboard. */
@@ -26,7 +26,7 @@ const DAY = 86_400_000;
 export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DashboardStats> => {
-    await assertCallerIsAdmin(context.supabase, context.userId);
+    await assertCan(context.supabase, context.userId, "home");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const now = Date.now();

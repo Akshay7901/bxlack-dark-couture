@@ -1,15 +1,44 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { PERMISSION_KEYS, type Permission, type StudioAccess } from "@/lib/permissions";
 
-/** Throws unless the signed-in caller has the admin role. */
-export async function assertCallerIsAdmin(supabase: SupabaseClient<Database>, userId: string) {
-  const { data } = await supabase
+/** The caller's studio role and permissions, read with their own (RLS) client. */
+export async function getStudioAccess(supabase: SupabaseClient<Database>, userId: string): Promise<StudioAccess> {
+  const { data: admin } = await supabase
     .from("user_roles")
     .select("id")
     .eq("user_id", userId)
     .eq("role", "admin")
     .maybeSingle();
-  if (!data) throw new Error("Forbidden");
+  if (admin) return { role: "admin", permissions: [...PERMISSION_KEYS] };
+
+  const { data: staff } = await supabase
+    .from("staff_members")
+    .select("permissions")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (staff) {
+    return {
+      role: "staff",
+      permissions: (staff.permissions ?? []).filter((p): p is Permission =>
+        (PERMISSION_KEYS as string[]).includes(p),
+      ),
+    };
+  }
+  return { role: null, permissions: [] };
+}
+
+/** Throws unless the signed-in caller has the admin role. */
+export async function assertCallerIsAdmin(supabase: SupabaseClient<Database>, userId: string) {
+  const access = await getStudioAccess(supabase, userId);
+  if (access.role !== "admin") throw new Error("Forbidden");
+}
+
+/** Throws unless the caller is an admin, or staff holding this permission. */
+export async function assertCan(supabase: SupabaseClient<Database>, userId: string, permission: Permission) {
+  const access = await getStudioAccess(supabase, userId);
+  if (access.role === "admin" || access.permissions.includes(permission)) return access;
+  throw new Error("You don't have access to this section. Ask an admin to grant it.");
 }
 
 /** Every auth user, paging through the admin API (it caps each page). */

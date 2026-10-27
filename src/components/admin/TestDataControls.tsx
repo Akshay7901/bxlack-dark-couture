@@ -1,10 +1,17 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getMyStudioAccess } from "@/lib/admin-users.functions";
 import { toast } from "sonner";
 import { clearTestData, seedTestData } from "@/lib/test-data.functions";
 
 /** Temporary helpers for filling Orders/Messages with tagged dummy rows. */
 export function TestDataControls() {
   const qc = useQueryClient();
+  // Seeding and clearing test data is admin-only; staff don't see the buttons.
+  const { data: access } = useQuery({
+    queryKey: ["studio-access-self"],
+    queryFn: () => getMyStudioAccess(),
+    staleTime: 5 * 60_000,
+  });
   const refresh = () =>
     ["admin-orders", "admin-returns", "admin-messages", "admin-customers", "admin-dashboard"].forEach((key) =>
       qc.invalidateQueries({ queryKey: [key] }),
@@ -29,6 +36,8 @@ export function TestDataControls() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  if (access?.role !== "admin") return null;
 
   const buttonClass =
     "border border-black/25 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-700 transition-colors hover:border-black hover:text-black disabled:opacity-50";

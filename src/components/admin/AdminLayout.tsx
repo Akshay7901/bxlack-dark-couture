@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getDashboardStats, type DashboardStats } from "@/lib/dashboard.functions";
+import { can, type Permission, type StudioAccess } from "@/lib/permissions";
 
 export type NavKey =
   | "overview"
@@ -64,12 +65,65 @@ const MAIN_NAV: NavItem[] = [
   { key: "messages", label: "Messages", icon: MessageSquare, count: (s) => s.unreadMessages },
 ];
 
+/** Which permission opens each section; "admin" = admins only. */
+const NAV_PERMISSION: Record<NavKey, Permission | "admin"> = {
+  overview: "home",
+  orders: "orders",
+  returns: "returns",
+  exchanges: "returns",
+  products: "products",
+  categories: "products",
+  customers: "customers",
+  discounts: "discounts",
+  messages: "messages",
+  emails: "content",
+  launch: "content",
+  team: "admin",
+};
+
+export function navAllowed(key: NavKey, access: StudioAccess | null | undefined): boolean {
+  const needed = NAV_PERMISSION[key];
+  return needed === "admin" ? access?.role === "admin" : can(access, needed);
+}
+
+const NAV_ORDER: NavKey[] = [
+  "overview",
+  "orders",
+  "returns",
+  "exchanges",
+  "products",
+  "categories",
+  "customers",
+  "discounts",
+  "messages",
+  "emails",
+  "launch",
+  "team",
+];
+
+/** The section a person lands on: Home if they have it, else their first allowed section. */
+export function firstAllowed(access: StudioAccess): NavKey {
+  return NAV_ORDER.find((k) => navAllowed(k, access)) ?? "overview";
+}
+
+/** Keeps only the items (and sub-items) this person may open. A parent they
+ * can't open still shows when one of its children is allowed, leading there. */
+function filterNav(items: NavItem[], access: StudioAccess): NavItem[] {
+  return items.flatMap((item) => {
+    const children = item.children?.filter((c) => navAllowed(c.key, access));
+    if (navAllowed(item.key, access)) return [{ ...item, children }];
+    if (children?.length) return [{ ...item, key: children[0].key, children }];
+    return [];
+  });
+}
+
 const STORE_NAV: NavItem[] = [
   { key: "emails", label: "Email templates", icon: Mail },
   { key: "launch", label: "Launch", icon: Rocket },
 ];
 
 export function AdminLayout({
+  access,
   active,
   onNavigate,
   onSearch,
@@ -77,6 +131,7 @@ export function AdminLayout({
   onSignOut,
   children,
 }: {
+  access: StudioAccess;
   active: NavKey;
   onNavigate: (key: NavKey) => void;
   onSearch: (query: string) => void;
@@ -89,7 +144,11 @@ export function AdminLayout({
     queryKey: ["admin-dashboard"],
     queryFn: () => getDashboardStats(),
     staleTime: 60_000,
+    // Counts come from the dashboard, which needs the Home permission.
+    enabled: can(access, "home"),
   });
+  const mainNav = filterNav(MAIN_NAV, access);
+  const storeNav = filterNav(STORE_NAV, access);
 
   const go = (key: NavKey) => {
     onNavigate(key);
@@ -99,18 +158,24 @@ export function AdminLayout({
 
   const sidebar = (
     <nav aria-label="Studio" className="flex h-full flex-col gap-4 px-3 py-4">
-      <NavList items={MAIN_NAV} active={active} stats={stats} onSelect={go} />
-      <div>
-        <p className="px-3 pb-1 text-[12px] font-semibold text-[#616161]">Store</p>
-        <NavList items={STORE_NAV} active={active} stats={stats} onSelect={go} />
-      </div>
+      <NavList items={mainNav} active={active} stats={stats} onSelect={go} />
+      {storeNav.length ? (
+        <div>
+          <p className="px-3 pb-1 text-[12px] font-semibold text-[#616161]">Store</p>
+          <NavList items={storeNav} active={active} stats={stats} onSelect={go} />
+        </div>
+      ) : null}
       <div className="mt-auto">
-        <NavList
-          items={[{ key: "team", label: "Settings", icon: Settings }]}
-          active={active}
-          stats={stats}
-          onSelect={go}
-        />
+        {navAllowed("team", access) ? (
+          <NavList
+            items={[{ key: "team", label: "Settings", icon: Settings }]}
+            active={active}
+            stats={stats}
+            onSelect={go}
+          />
+        ) : (
+          <p className="px-3 text-[12px] text-[#616161]">Staff account</p>
+        )}
       </div>
     </nav>
   );
