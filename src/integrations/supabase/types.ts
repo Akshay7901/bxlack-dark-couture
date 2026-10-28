@@ -333,6 +333,12 @@ export type Database = {
           },
         ];
       };
+      site_pages: {
+        Row: { slug: string; content: Json; updated_at: string };
+        Insert: { slug: string; content: Json; updated_at?: string };
+        Update: { slug?: string; content?: Json; updated_at?: string };
+        Relationships: [];
+      };
       staff_members: {
         Row: { user_id: string; permissions: string[]; created_at: string; updated_at: string };
         Insert: { user_id: string; permissions?: string[]; created_at?: string; updated_at?: string };

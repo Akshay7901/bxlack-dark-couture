@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { InfoPage } from "@/components/InfoPage";
 import { submitContactMessage } from "@/lib/contact.functions";
 import { seo } from "@/lib/seo";
+import { loadPage } from "@/lib/pages/pages";
 
 export const Route = createFileRoute("/contact")({
   head: () =>
@@ -13,35 +14,31 @@ export const Route = createFileRoute("/contact")({
         "Get in touch with BXLACK for help with orders, sizing, shipping or returns. Find our support hours, email and phone details.",
       path: "/contact",
     }),
+  // Copy and contact details are editable in Studio → Store → Pages.
+  loader: () => loadPage("contact"),
   component: ContactPage,
 });
-
-// Placeholder contact details — replace with the real timing/email/number.
-const CHANNELS = [
-  { label: "Timing", value: "Mon – Sat, 10:00 AM – 7:00 PM" },
-  { label: "Email", value: "hello@bxlack.com" },
-  { label: "Contact number", value: "+91 00000 00000" },
-];
 
 const inputClass =
   "w-full border-b border-light-grey/20 bg-transparent py-4 text-base text-white outline-none transition-colors placeholder:text-mid-grey/60 focus:border-white sm:text-sm";
 
 function ContactPage() {
+  const page = Route.useLoaderData();
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
 
   return (
     <InfoPage
-      eyebrow="Client Services"
-      title="Write to"
-      italic="us."
-      intro="We answer every message within one working day. For order enquiries, include your order number."
+      eyebrow={page.eyebrow || undefined}
+      title={page.title}
+      italic={page.italic || undefined}
+      intro={page.intro || undefined}
     >
       <div className="grid grid-cols-1 gap-12 border-t border-light-grey/10 pt-12 md:grid-cols-12 md:gap-16">
         <div className="md:col-span-4">
           <ul className="space-y-8">
-            {CHANNELS.map((c) => (
-              <li key={c.label}>
+            {page.channels.map((c, i) => (
+              <li key={i}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mid-grey/70">{c.label}</p>
                 <p className="mt-2 text-sm text-light-grey/80">{c.value}</p>
               </li>

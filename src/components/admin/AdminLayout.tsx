@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ExternalLink,
+  FileText,
   Home,
   Mail,
   Menu,
@@ -30,6 +31,7 @@ export type NavKey =
   | "customers"
   | "discounts"
   | "messages"
+  | "pages"
   | "emails"
   | "whatsapp"
   | "launch"
@@ -78,6 +80,7 @@ const NAV_PERMISSION: Record<NavKey, Permission | "admin"> = {
   customers: "customers",
   discounts: "discounts",
   messages: "messages",
+  pages: "content",
   emails: "content",
   whatsapp: "content",
   launch: "content",
@@ -99,6 +102,7 @@ const NAV_ORDER: NavKey[] = [
   "customers",
   "discounts",
   "messages",
+  "pages",
   "emails",
   "whatsapp",
   "launch",
@@ -122,6 +126,7 @@ function filterNav(items: NavItem[], access: StudioAccess): NavItem[] {
 }
 
 const STORE_NAV: NavItem[] = [
+  { key: "pages", label: "Pages", icon: FileText },
   { key: "emails", label: "Email templates", icon: Mail },
   { key: "whatsapp", label: "WhatsApp", icon: MessageCircle },
   { key: "launch", label: "Launch", icon: Rocket },

@@ -48,6 +48,7 @@ import { TestDataControls } from "@/components/admin/TestDataControls";
 import { AdminOrders } from "@/components/admin/AdminOrders";
 import { AdminDiscounts } from "@/components/admin/AdminDiscounts";
 import { AdminEmails } from "@/components/admin/AdminEmails";
+import { AdminPages } from "@/components/admin/AdminPages";
 import { AdminWhatsApp } from "@/components/admin/AdminWhatsApp";
 import { StudioOverview } from "@/components/admin/StudioOverview";
 import { AdminLayout, firstAllowed, navAllowed, type NavKey } from "@/components/admin/AdminLayout";
@@ -207,6 +208,7 @@ function AdminDashboard({ email, userId, access }: { email: string; userId: stri
       {active === "exchanges" ? <AdminReturns key="exchanges" type="exchange" /> : null}
       {active === "customers" ? <AdminCustomers /> : null}
       {active === "discounts" ? <AdminDiscounts /> : null}
+      {active === "pages" ? <AdminPages /> : null}
       {active === "emails" ? <AdminEmails /> : null}
       {active === "whatsapp" ? <AdminWhatsApp /> : null}
       {active === "messages" ? <MessagesSection /> : null}

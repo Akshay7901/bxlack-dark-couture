@@ -8,7 +8,7 @@ export const PERMISSIONS = [
   { key: "customers", label: "Customers", description: "View customer accounts and order history" },
   { key: "discounts", label: "Discounts", description: "Create and edit discount codes" },
   { key: "messages", label: "Messages", description: "Read and reply to contact-form messages" },
-  { key: "content", label: "Store content", description: "Email templates and launch settings" },
+  { key: "content", label: "Store content", description: "Pages (About, Shipping, Returns, FAQ, Contact), email templates, WhatsApp and launch settings" },
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number]["key"];

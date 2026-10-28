@@ -3,20 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { InfoPage } from "@/components/InfoPage";
 import { seo } from "@/lib/seo";
-
-const FAQS = [
-  { q: "When does the next drop release?", a: "Drops are announced by email first. Join the list in the footer and you will receive the exact release time 24 hours ahead of the public." },
-  { q: "Are pieces restocked?", a: "No. Every run is numbered and finite. Once a size is gone it does not return." },
-  { q: "How do your pieces fit?", a: "Cut oversized with a dropped shoulder. If you prefer a closer line, size down. Full measurements are on the size guide." },
-  { q: "How long does delivery take?", a: "1–2 working days to dispatch, then 3–5 days domestically and 4–12 days internationally depending on destination." },
-  { q: "Can I return or exchange a piece?", a: "Yes, within 14 days of delivery, unworn and with the numbered tag attached. Size exchanges are free within Europe." },
-  { q: "Which payment methods do you accept?", a: "Major cards, wallets and local methods supported by our payment provider at checkout. Card details are never stored by BXLACK." },
-  { q: "Do you ship internationally?", a: "Yes, worldwide. Orders outside the EU may attract import duties collected by the carrier on delivery." },
-  { q: "How should I care for my piece?", a: "Cold wash inside out, no bleach, hang to dry, iron on reverse. Never tumble dry embroidered or printed pieces." },
-];
+import { loadPage } from "@/lib/pages/pages";
+import { DEFAULT_PAGES } from "@/lib/pages/content";
 
 export const Route = createFileRoute("/faq")({
-  head: () => ({
+  // Copy is editable in Studio → Store → Pages; falls back to the default text.
+  loader: () => loadPage("faq"),
+  head: ({ loaderData }) => ({
     ...seo({
       title: "FAQ — BXLACK",
       description:
@@ -29,7 +22,7 @@ export const Route = createFileRoute("/faq")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          mainEntity: FAQS.map((f) => ({
+          mainEntity: (loaderData ?? DEFAULT_PAGES.faq).faqs.map((f) => ({
             "@type": "Question",
             name: f.q,
             acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -42,19 +35,20 @@ export const Route = createFileRoute("/faq")({
 });
 
 function FaqPage() {
+  const page = Route.useLoaderData();
   const [open, setOpen] = useState<number | null>(0);
   return (
     <InfoPage
-      eyebrow="Client Services"
-      title="Frequently"
-      italic="asked."
-      intro="Everything on drops, sizing, delivery and care. If your question is not here, write to clients@bxlack.com."
+      eyebrow={page.eyebrow || undefined}
+      title={page.title}
+      italic={page.italic || undefined}
+      intro={page.intro || undefined}
     >
       <div className="border-t border-light-grey/10">
-        {FAQS.map((f, i) => {
+        {page.faqs.map((f, i) => {
           const isOpen = open === i;
           return (
-            <div key={f.q} className="border-b border-light-grey/10">
+            <div key={i} className="border-b border-light-grey/10">
               <button
                 type="button"
                 onClick={() => setOpen(isOpen ? null : i)}

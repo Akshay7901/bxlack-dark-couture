@@ -42,7 +42,7 @@ export function InfoPage({
       <section className="mx-auto mt-14 max-w-[1600px] px-5 pb-32 sm:px-6 md:mt-20 md:px-10">
         {blocks?.map((b, i) => (
           <motion.div
-            key={b.heading}
+            key={i}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-10%" }}
@@ -56,8 +56,8 @@ export function InfoPage({
               <h2 className="mt-3 font-display text-2xl leading-tight tracking-[-0.02em] md:text-3xl">{b.heading}</h2>
             </div>
             <div className="space-y-4 md:col-span-8">
-              {b.body.map((p) => (
-                <p key={p} className="max-w-3xl text-sm leading-relaxed text-light-grey/70 md:text-base">
+              {b.body.map((p, j) => (
+                <p key={j} className="max-w-3xl text-sm leading-relaxed text-light-grey/70 md:text-base">
                   {p}
                 </p>
               ))}
