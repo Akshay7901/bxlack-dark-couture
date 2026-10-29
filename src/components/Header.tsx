@@ -35,7 +35,7 @@ export function Header({ onCart }: { onCart: () => void }) {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 [view-transition-name:site-header] ${
         scrolled ? "glass py-3 md:py-4" : "py-4 md:py-6"
       }`}
     >

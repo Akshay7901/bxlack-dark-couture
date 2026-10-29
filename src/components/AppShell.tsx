@@ -10,6 +10,9 @@ import { enter } from "@/lib/motion";
  * behind the intro loader) shows immediately; later navigations fade in. */
 let hasNavigated = false;
 
+const supportsViewTransitions = () =>
+  typeof document !== "undefined" && "startViewTransition" in document;
+
 /** True when this render comes from an in-app navigation rather than the first
  * server-rendered page, i.e. when it is safe to start content hidden and animate it in. */
 export function useAnimateIn() {
@@ -42,11 +45,11 @@ export function AppShell({
     <div className="store grain relative min-h-screen bg-noir text-white">
       <Header onCart={() => setCart(true)} />
       <CartDrawer open={cart} onClose={() => setCart(false)} />
-      {/* Page transition: each page fades up softly on arrival. Enter only (no
-          exit), so navigation is never held up waiting for an animation. */}
+      {/* Page transitions are a View Transitions crossfade (see router.tsx and
+          styles.css). Browsers without that API get this fade-up on arrival instead. */}
       <motion.main
         key={pathname}
-        initial={animateIn ? { opacity: 0, y: 14 } : false}
+        initial={animateIn && !supportsViewTransitions() ? { opacity: 0, y: 14 } : false}
         animate={{ opacity: 1, y: 0 }}
         transition={enter}
       >
