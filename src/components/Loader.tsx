@@ -29,18 +29,6 @@ export function Loader() {
             transition={{ delay: 0.15, duration: 1.1, ease: [0.7, 0, 0.2, 1] }}
             className="w-[78vw] max-w-[560px] md:w-[46vw]"
           />
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-            className="absolute bottom-10 left-10 right-10 h-px origin-left bg-white/40"
-          />
-          <div className="absolute bottom-14 left-10 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50">
-            Loading Universe
-          </div>
-          <div className="absolute bottom-14 right-10 font-mono text-[10px] uppercase tracking-[0.3em] text-white/50">
-            SS26 · BXLACK
-          </div>
         </motion.div>
       )}
     </AnimatePresence>
