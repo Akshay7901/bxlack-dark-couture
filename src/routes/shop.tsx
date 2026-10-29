@@ -5,7 +5,7 @@ import { AppShell, useAnimateIn } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { ProductCard } from "@/components/ProductCard";
-import { DURATION, EASE_IN, EASE_OUT, enter, gridDelay } from "@/lib/motion";
+import { EASE_IN, EASE_OUT, enter, gridDelay } from "@/lib/motion";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/shop")({
@@ -64,14 +64,14 @@ function ShopPage() {
             <motion.div
               key={selectedType}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, y: -8, transition: { duration: 0.22, ease: EASE_IN } }}
+              animate={{ opacity: 1, transition: { duration: 0.6, ease: EASE_OUT } }}
+              exit={{ opacity: 0, y: -8, transition: { duration: 0.25, ease: EASE_IN } }}
               className="min-h-[70vh]"
             >
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={enter}
+                transition={{ ...enter, duration: 0.9 }}
                 className="mb-3 flex items-baseline justify-between gap-4 md:mb-4"
               >
                 <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
@@ -92,10 +92,10 @@ function ShopPage() {
                   {filtered.map((p, i) => (
                     <motion.article
                       key={p.id}
-                      initial={{ opacity: 0, y: 28, scale: 0.97 }}
+                      initial={{ opacity: 0, y: 40, scale: 0.97 }}
                       whileInView={{ opacity: 1, y: 0, scale: 1 }}
                       viewport={{ once: true, margin: "-60px" }}
-                      transition={{ delay: 0.08 + gridDelay(i, 6, 0.07), duration: DURATION.slow, ease: EASE_OUT }}
+                      transition={{ delay: 0.25 + gridDelay(i, 6, 0.12), duration: 1.2, ease: EASE_OUT }}
                       className="group"
                     >
                       <ProductCard product={p} />
