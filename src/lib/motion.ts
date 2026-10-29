@@ -15,9 +15,9 @@ export const DURATION = {
   /** Hover / press feedback. */
   fast: 0.2,
   /** Page and section entrances. */
-  base: 0.5,
+  base: 0.8,
   /** Large editorial reveals. */
-  slow: 0.8,
+  slow: 1.1,
 } as const;
 
 /** Per-item delay for staggered lists and grids (30–50ms). */

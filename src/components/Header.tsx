@@ -78,7 +78,7 @@ export function Header({ onCart }: { onCart: () => void }) {
                       key={t}
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ ...enter, delay: 0.05 + i * STAGGER }}
+                      transition={{ ...enter, duration: 0.4, delay: 0.05 + i * STAGGER }}
                     >
                       <Link
                         to="/shop"

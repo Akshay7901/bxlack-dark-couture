@@ -46,7 +46,7 @@ export function AppShell({
           exit), so navigation is never held up waiting for an animation. */}
       <motion.main
         key={pathname}
-        initial={animateIn ? { opacity: 0, y: 10 } : false}
+        initial={animateIn ? { opacity: 0, y: 14 } : false}
         animate={{ opacity: 1, y: 0 }}
         transition={enter}
       >
