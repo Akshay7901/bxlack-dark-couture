@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { upsertProfile } from "@/lib/account";
 import { AppShell } from "@/components/AppShell";
+import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { AccountDashboard } from "@/components/account/AccountDashboard";
 import editorial from "@/assets/venus-tee-model.webp";
 import { seo } from "@/lib/seo";
@@ -154,6 +155,7 @@ function AccountPage() {
   if (user) {
     return (
       <AppShell hideNewsletter>
+        <SilkBackdrop />
         <AccountDashboard userId={user.id} email={user.email ?? ""} onSignOut={signOut} />
       </AppShell>
     );

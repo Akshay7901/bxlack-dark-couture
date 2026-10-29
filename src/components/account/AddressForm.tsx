@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import type { Address, AddressInput } from "@/lib/account";
 
 const inputClass =
-  "mt-2 w-full border border-white/15 bg-transparent px-3 py-2.5 font-mono text-base text-white outline-none transition-colors focus:border-white/60 sm:text-[12px]";
+  "mt-2 w-full border border-white/15 bg-black/40 px-3 py-2.5 font-mono text-base text-white outline-none transition-colors focus:border-white/60 sm:text-[12px]";
 const labelClass = "font-mono text-[10px] uppercase tracking-[0.28em] text-white/40";
 
 export function AddressForm({
