@@ -38,6 +38,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      categories: {
+        Row: {
+          key: string;
+          label: string;
+          page_title: string | null;
+          size_type: string;
+          sort_order: number;
+          visible: boolean;
+          image_path: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          key: string;
+          label: string;
+          page_title?: string | null;
+          size_type?: string;
+          sort_order?: number;
+          visible?: boolean;
+          image_path?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          key?: string;
+          label?: string;
+          page_title?: string | null;
+          size_type?: string;
+          sort_order?: number;
+          visible?: boolean;
+          image_path?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       category_images: {
         Row: {
           category: string;

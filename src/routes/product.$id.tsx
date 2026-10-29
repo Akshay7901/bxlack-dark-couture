@@ -17,6 +17,7 @@ import { SignInPrompt } from "@/components/SignInPrompt";
 import { useCart } from "@/lib/cart";
 import { SizeChartModal } from "@/components/SizeChartModal";
 import { sizesFor } from "@/lib/sizing";
+import { findCategory, useCategories } from "@/lib/categories";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
 
 export const Route = createFileRoute("/product/$id")({
@@ -189,6 +190,15 @@ function ProductPage() {
     enabled: !!rawProduct,
   });
 
+  const { categories } = useCategories({ includeHidden: true });
+  const sizeType = rawProduct ? findCategory(categories, rawProduct.category)?.size_type : undefined;
+  const sizes = sizesFor(id, sizeType);
+  const sizesKey = sizes.join("|");
+  // Default to M, or the only option for one-size pieces.
+  useEffect(() => {
+    if (!sizes.includes(size)) setSize(sizes.includes("M") ? "M" : sizes[0]);
+  }, [sizesKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (isLoading) {
     return (
       <AppShell hideNewsletter>
@@ -303,15 +313,17 @@ function ProductPage() {
                 <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">
                   Select Size
                 </p>
-                <button
-                  onClick={() => setOpenSizeChart(true)}
-                  className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/50 underline underline-offset-4 transition-colors hover:text-white"
-                >
-                  Size Chart
-                </button>
+                {sizeType === "one_size" ? null : (
+                  <button
+                    onClick={() => setOpenSizeChart(true)}
+                    className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/50 underline underline-offset-4 transition-colors hover:text-white"
+                  >
+                    Size Chart
+                  </button>
+                )}
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {sizesFor(product.id).map((s) => {
+                {sizes.map((s) => {
                   const soldOut = stock[s] !== undefined && stock[s] <= 0;
                   return (
                     <button
@@ -372,6 +384,7 @@ function ProductPage() {
         open={openSizeChart}
         onClose={() => setOpenSizeChart(false)}
         category={product.category}
+        sizeType={sizeType}
         productId={product.id}
         selectedSize={size}
         onSelectSize={setSize}

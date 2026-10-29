@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell, useAnimateIn } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
+import { DEFAULT_CATEGORIES, findCategory, pageTitleOf, useCategories } from "@/lib/categories";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { ProductCard } from "@/components/ProductCard";
 import { EASE_IN, EASE_OUT, enter, gridDelay } from "@/lib/motion";
@@ -14,7 +15,10 @@ export const Route = createFileRoute("/shop")({
   }),
   head: ({ match }) => {
     const type = match.search.type;
-    const label = type !== "All" ? pageTitles[type] : undefined;
+    // Meta tags render on the server before categories load, so use the
+    // built-in titles where known and the category key otherwise.
+    const known = DEFAULT_CATEGORIES.find((c) => c.key === type);
+    const label = type !== "All" ? (known ? pageTitleOf(known) : type) : undefined;
     return seo({
       title: label ? `Shop ${label} — BXLACK` : "Shop All Drops — BXLACK",
       description: label
@@ -26,19 +30,17 @@ export const Route = createFileRoute("/shop")({
   component: ShopPage,
 });
 
-const types = ["All", "Tshirt", "Shirt", "Jeans"] as const;
-const pageTitles: Record<string, string> = {
-  All: "All Products",
-  Tshirt: "T-Shirts",
-  Shirt: "Shirts",
-  Jeans: "Jeans",
-};
 function ShopPage() {
   const { type } = Route.useSearch();
   const animateIn = useAnimateIn();
+  const { categories } = useCategories({ includeHidden: true });
 
-  const selectedType: (typeof types)[number] =
-    types.includes(type as (typeof types)[number]) ? (type as (typeof types)[number]) : "All";
+  // Any category key is accepted straight from the URL (no waiting on the
+  // categories query, so the page never flips from "All" to the real one).
+  const selectedType = type.trim() || "All";
+  const category = selectedType === "All" ? undefined : findCategory(categories, selectedType);
+  const title =
+    selectedType === "All" ? "All Products" : category ? pageTitleOf(category) : selectedType;
 
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
@@ -74,7 +76,7 @@ function ShopPage() {
                 transition={{ ...enter, duration: 0.9 }}
                 className="mb-3 flex items-baseline justify-between gap-4 md:mb-4"
               >
-                <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
+                <h1 className="font-sans text-base text-white/90 sm:text-lg">{title}</h1>
                 <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
                   {filtered.length} {filtered.length === 1 ? "item" : "items"}
                 </span>

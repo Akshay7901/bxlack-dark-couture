@@ -5,11 +5,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/bxlack-logo.webp";
 import { useWishlist } from "@/lib/wishlist";
 import { useCart } from "@/lib/cart";
+import { useCategories } from "@/lib/categories";
 import { DURATION, EASE_IN, STAGGER, enter } from "@/lib/motion";
 
-const collectionTypes = ["All", "Tshirt", "Shirt", "Jeans"] as const;
-
 export function Header({ onCart }: { onCart: () => void }) {
+  const { categories } = useCategories();
+  const collectionTypes = [
+    { key: "All", label: "All" },
+    ...categories.map((c) => ({ key: c.key, label: c.label })),
+  ];
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -75,19 +79,19 @@ export function Header({ onCart }: { onCart: () => void }) {
                 >
                   {collectionTypes.map((t, i) => (
                     <motion.div
-                      key={t}
+                      key={t.key}
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ ...enter, duration: 0.4, delay: 0.05 + i * STAGGER }}
                     >
                       <Link
                         to="/shop"
-                        search={{ type: t }}
+                        search={{ type: t.key }}
                         onClick={() => setDropdownOpen(false)}
                         className="group/item flex items-center gap-2 px-4 py-2.5 font-sans text-[12px] uppercase tracking-[0.15em] text-white/70 transition-colors hover:bg-white/5 hover:text-white"
                       >
                         <span className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/item:translate-x-1">
-                          {t}
+                          {t.label}
                         </span>
                       </Link>
                     </motion.div>

@@ -1,14 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Newsletter } from "@/components/Newsletter";
+import { useCategories } from "@/lib/categories";
 import logo from "@/assets/bxlack-logo.webp";
-
-const SHOP = [
-  { label: "All Drops", type: "All" as const },
-  { label: "T-Shirt", type: "Tshirt" as const },
-  { label: "Shirt", type: "Shirt" as const },
-  { label: "Jeans", type: "Jeans" as const },
-];
 
 const SERVICES = [
   { label: "About Us", to: "/about" },
@@ -28,6 +22,12 @@ const linkClass =
   "relative inline-block text-sm text-light-grey/80 transition-colors hover:text-white after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-500 hover:after:scale-x-100";
 
 export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
+  const { categories } = useCategories();
+  const SHOP = [
+    { label: "All Drops", type: "All" },
+    ...categories.map((c) => ({ label: c.label, type: c.key })),
+  ];
+
   return (
     <footer className="grain relative overflow-hidden border-t border-light-grey/10 bg-noir px-5 pb-10 pt-16 sm:px-6 md:px-10 md:pt-24">
       <div className="mx-auto max-w-[1600px]">

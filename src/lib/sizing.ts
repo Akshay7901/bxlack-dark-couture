@@ -1,4 +1,5 @@
 import shipwreckTeeConstruction from "@/assets/shipwreck-tee-construction.webp";
+import type { SizeType } from "@/lib/categories";
 
 export type SizeRow = {
   size: string;
@@ -47,7 +48,11 @@ export function sizeRowsFor(productId?: string): SizeRow[] {
   return (productId && PRODUCT_SIZE_ROWS[productId]) || SIZE_ROWS;
 }
 
-export function sizesFor(productId?: string): string[] {
+export const ONE_SIZE = "One size";
+
+/** Size options for a product; one-size categories (caps, bags…) get a single option. */
+export function sizesFor(productId?: string, sizeType?: SizeType): string[] {
+  if (sizeType === "one_size") return [ONE_SIZE];
   return sizeRowsFor(productId).map((r) => r.size);
 }
 
@@ -71,6 +76,7 @@ export function formatMeasurement(cm: number, unit: Unit): string {
 }
 
 /** Denim uses a different diagram/measurement set than tees & shirts. */
-export function garmentKindFor(category: string): "denim" | "top" {
+export function garmentKindFor(category: string, sizeType?: SizeType): "denim" | "top" {
+  if (sizeType) return sizeType === "denim" ? "denim" : "top";
   return category === "Jeans" ? "denim" : "top";
 }

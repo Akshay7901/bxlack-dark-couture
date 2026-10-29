@@ -19,24 +19,21 @@ import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { ListRow } from "@/components/admin/ListRow";
 import { SortableRow } from "@/components/admin/SortableRow";
 import {
-  CATEGORIES,
   createProduct,
   deleteProduct,
-  fetchCategoryImages,
   fetchInventory,
   fetchProductStock,
   fetchProducts,
-  removeCategoryImage,
   saveProductStock,
-  setCategoryImage,
   slugify,
   updateProduct,
   uploadProductImage,
   type CatalogProductWithUrls,
-  type CategoryImage,
   type ProductInput,
   type StockBySize,
 } from "@/lib/catalog";
+import { findCategory, useCategories } from "@/lib/categories";
+import { AdminCategories } from "@/components/admin/AdminCategories";
 import { sizesFor } from "@/lib/sizing";
 import {
   fetchSiteSettings,
@@ -204,7 +201,7 @@ function AdminDashboard({ email, userId, access }: { email: string; userId: stri
     >
       {active === "overview" ? <StudioOverview onNavigate={setActive} /> : null}
       {active === "products" ? <ProductsSection /> : null}
-      {active === "categories" ? <CategoriesSection /> : null}
+      {active === "categories" ? <AdminCategories /> : null}
       {active === "orders" ? <AdminOrders key={orderSearch} initialQuery={orderSearch} /> : null}
       {active === "returns" ? <AdminReturns key="returns" type="return" /> : null}
       {active === "exchanges" ? <AdminReturns key="exchanges" type="exchange" /> : null}
@@ -241,7 +238,8 @@ function ProductsSection() {
 
   const [editing, setEditing] = useState<CatalogProductWithUrls | null>(null);
   const [creating, setCreating] = useState(false);
-  const [filter, setFilter] = useState<"all" | (typeof CATEGORIES)[number]>("all");
+  const [filter, setFilter] = useState<string>("all");
+  const { categories } = useCategories({ includeHidden: true });
   const { confirm, dialog } = useConfirm("light");
 
   // Storefront order (by sort_order) as product ids. The "All" tab reorders it
@@ -342,7 +340,7 @@ function ProductsSection() {
         <div className="mt-6">
           {products.length > 0 ? (
             <div className="mb-6 flex flex-wrap gap-2">
-              {(["all", ...CATEGORIES] as const).map((c) => {
+              {[{ key: "all", label: "All" }, ...categories].map(({ key: c, label }) => {
                 const count =
                   c === "all" ? products.length : products.filter((p) => p.category === c).length;
                 return (
@@ -357,7 +355,7 @@ function ProductsSection() {
                         : "bg-black/5 text-neutral-600 hover:bg-black/10"
                     }`}
                   >
-                    {c === "all" ? "All" : c} ({count})
+                    {label} ({count})
                   </button>
                 );
               })}
@@ -378,8 +376,9 @@ function ProductsSection() {
           ) : (
             <>
               <p className="mb-3 font-sans text-[12px] text-neutral-500">
-                Drag the handle to set the order on the {filter === "all" ? "All" : filter} page of
-                the store.
+                Drag the handle to set the order on the{" "}
+                {filter === "all" ? "All" : (findCategory(categories, filter)?.label ?? filter)} page
+                of the store.
               </p>
               <Reorder.Group
                 as="div"
@@ -464,113 +463,6 @@ function ProductsSection() {
               </Reorder.Group>
             </>
           )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function CategoriesSection() {
-  const qc = useQueryClient();
-  const { data: images = [], isLoading } = useQuery({
-    queryKey: ["category-images"],
-    queryFn: () => fetchCategoryImages(),
-  });
-  const [busy, setBusy] = useState<string | null>(null);
-
-  const byCategory = new Map(images.map((i) => [i.category, i]));
-
-  const upload = async (category: string, file: File) => {
-    setBusy(category);
-    try {
-      await setCategoryImage(category, file);
-      qc.invalidateQueries({ queryKey: ["category-images"] });
-      toast.success(`${category} image updated`);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Upload failed");
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  const remove = async (category: string) => {
-    setBusy(category);
-    try {
-      await removeCategoryImage(category);
-      qc.invalidateQueries({ queryKey: ["category-images"] });
-      toast.success(`${category} image removed`);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Remove failed");
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  return (
-    <div>
-      <SectionHeading
-        title="Category images"
-        description="Shown in Shop by Category on the homepage"
-      />
-
-      {isLoading ? (
-        <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
-          Loading…
-        </p>
-      ) : (
-        <div className="mt-6 space-y-2">
-          {CATEGORIES.map((category) => {
-            const img: CategoryImage | undefined = byCategory.get(category);
-            const busyHere = busy === category;
-            return (
-              <div
-                key={category}
-                className="flex items-center gap-4 border border-black/10 bg-black/[0.02] px-4 py-3.5 transition-colors hover:border-black/20 hover:bg-black/[0.04]"
-              >
-                <label
-                  className={`h-12 w-12 shrink-0 overflow-hidden border border-black/10 bg-black/5 ${
-                    busyHere ? "cursor-wait opacity-50" : "cursor-pointer hover:border-black/30"
-                  }`}
-                >
-                  <input
-                    type="file"
-                    accept="image/*"
-                    disabled={busyHere}
-                    className="sr-only"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      e.target.value = "";
-                      if (file) void upload(category, file);
-                    }}
-                  />
-                  {img?.imageUrl ? (
-                    <img src={img.imageUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="flex h-full items-center justify-center font-mono text-[15px] text-neutral-300">
-                      +
-                    </span>
-                  )}
-                </label>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-sans text-[13px] text-neutral-900">{category}</p>
-                  <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-400">
-                    Click thumbnail to change
-                  </p>
-                </div>
-                {img?.imageUrl ? (
-                  <button
-                    type="button"
-                    onClick={() => void remove(category)}
-                    disabled={busyHere}
-                    aria-label={`Remove ${category} image`}
-                    className="flex h-8 w-8 items-center justify-center border border-black/15 text-neutral-500 transition-colors hover:border-red-500/50 hover:text-red-600 disabled:opacity-50"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                ) : null}
-              </div>
-            );
-          })}
         </div>
       )}
     </div>
@@ -976,8 +868,9 @@ function ProductForm({
   const [busy, setBusy] = useState(false);
   const [draggedSlotIndex, setDraggedSlotIndex] = useState<number | null>(null);
 
+  const { categories } = useCategories({ includeHidden: true });
   const sizeSlug = form.slug.trim() || slugify(form.name) || product?.slug;
-  const sizeList = sizesFor(sizeSlug);
+  const sizeList = sizesFor(sizeSlug, findCategory(categories, form.category)?.size_type);
 
   const [stock, setStock] = useState<StockBySize>({});
   const { data: existingStock } = useQuery({
@@ -1127,11 +1020,15 @@ function ProductForm({
                 value={form.category}
                 onChange={(e) => set("category", e.target.value)}
               >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
+                {categories.map((c) => (
+                  <option key={c.key} value={c.key}>
+                    {c.label}
+                    {c.visible ? "" : " (hidden)"}
                   </option>
                 ))}
+                {categories.some((c) => c.key === form.category) ? null : (
+                  <option value={form.category}>{form.category}</option>
+                )}
               </select>
             </label>
             <label className="block">

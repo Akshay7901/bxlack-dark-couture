@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, ZoomIn } from "lucide-react";
 import { sizeRowsFor, diagramFor, formatMeasurement, garmentKindFor, type Unit } from "@/lib/sizing";
+import type { SizeType } from "@/lib/categories";
 import { ImageZoomModal } from "@/components/ImageZoomModal";
 
 function DimH({ x1, x2, y, label }: { x1: number; x2: number; y: number; label: string }) {
@@ -128,6 +129,7 @@ export function SizeChartModal({
   open,
   onClose,
   category,
+  sizeType,
   productId,
   selectedSize,
   onSelectSize,
@@ -135,6 +137,7 @@ export function SizeChartModal({
   open: boolean;
   onClose: () => void;
   category: string;
+  sizeType?: SizeType;
   productId?: string;
   selectedSize: string;
   onSelectSize: (size: string) => void;
@@ -143,7 +146,7 @@ export function SizeChartModal({
   const [zoomOpen, setZoomOpen] = useState(false);
   if (!open) return null;
 
-  const kind = garmentKindFor(category);
+  const kind = garmentKindFor(category, sizeType);
   const rows = sizeRowsFor(productId);
   const diagramImage = diagramFor(productId);
   const row = rows.find((r) => r.size === selectedSize) ?? rows[Math.min(1, rows.length - 1)];

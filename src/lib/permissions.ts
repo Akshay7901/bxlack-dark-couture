@@ -4,7 +4,7 @@ export const PERMISSIONS = [
   { key: "home", label: "Home", description: "Dashboard: sales, to-dos, best sellers" },
   { key: "orders", label: "Orders", description: "View and fulfil orders, print labels and invoices" },
   { key: "returns", label: "Returns & exchanges", description: "Review and update return and exchange requests" },
-  { key: "products", label: "Products", description: "Add and edit products, stock, images and category images" },
+  { key: "products", label: "Products", description: "Add and edit products, stock, images and categories" },
   { key: "customers", label: "Customers", description: "View customer accounts and order history" },
   { key: "discounts", label: "Discounts", description: "Create and edit discount codes" },
   { key: "messages", label: "Messages", description: "Read and reply to contact-form messages" },

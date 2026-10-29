@@ -62,7 +62,7 @@ const MAIN_NAV: NavItem[] = [
     key: "products",
     label: "Products",
     icon: Shirt,
-    children: [{ key: "categories", label: "Category images" }],
+    children: [{ key: "categories", label: "Categories" }],
   },
   { key: "customers", label: "Customers", icon: UserRound },
   { key: "discounts", label: "Discounts", icon: Tag },
