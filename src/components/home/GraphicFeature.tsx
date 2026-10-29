@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import stoneTeeImage from "@/assets/stone-tee-back.webp";
 import { EASE_OUT } from "@/lib/motion";
 
-/** Label → headline → tagline → button, each fading up 0.15s after the last. */
+/** Headline then button, each fading up 0.15s after the last. */
 const textBlock: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } },
@@ -47,27 +47,13 @@ export function GraphicFeature() {
         viewport={{ once: true, amount: 0.4 }}
         className="relative -mt-6 flex flex-col items-center px-6 pb-12 text-center md:absolute md:inset-y-0 md:left-8 md:mt-0 md:justify-center md:w-[min(380px,26vw)] md:items-start md:p-0 md:text-left lg:left-14"
       >
-        <motion.p
-          variants={line}
-          className="font-mono text-[10px] uppercase tracking-[0.4em] text-white/60 sm:text-[11px]"
-        >
-          New Collection
-        </motion.p>
-
         <motion.h2
           variants={line}
-          className="mt-3 font-display text-[clamp(1.75rem,3.5vw,3rem)] font-semibold uppercase leading-[1] tracking-[0.12em] text-white"
+          className="font-display text-[clamp(1.75rem,3.5vw,3rem)] font-semibold uppercase leading-[1] tracking-[0.12em] text-white"
         >
           <span className="block">T-Shirt</span>
           <span className="block">Drops</span>
         </motion.h2>
-
-        <motion.p
-          variants={line}
-          className="mt-2.5 font-editorial text-[16px] italic text-white/75 md:text-[17px]"
-        >
-          Born to stand apart.
-        </motion.p>
 
         <motion.div variants={line} className="mt-5 w-full md:w-auto">
           <Link
