@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/bxlack-logo.webp";
 import { useWishlist } from "@/lib/wishlist";
 import { useCart } from "@/lib/cart";
+import { DURATION, EASE_IN, STAGGER, enter } from "@/lib/motion";
 
 const collectionTypes = ["All", "Tshirt", "Shirt", "Jeans"] as const;
 
@@ -66,22 +67,29 @@ export function Header({ onCart }: { onCart: () => void }) {
             <AnimatePresence>
               {dropdownOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.25, ease: [0.7, 0, 0.2, 1] }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0, transition: { ...enter, duration: 0.3 } }}
+                  exit={{ opacity: 0, y: 6, transition: { duration: DURATION.fast * 0.75, ease: EASE_IN } }}
                   className="absolute left-0 top-[calc(100%+1rem)] z-50 min-w-[140px] border border-light-grey/20 bg-noir/95 p-2 backdrop-blur-md sm:min-w-[160px]"
                 >
-                  {collectionTypes.map((t) => (
-                    <Link
+                  {collectionTypes.map((t, i) => (
+                    <motion.div
                       key={t}
-                      to="/shop"
-                      search={{ type: t }}
-                      onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2.5 font-sans text-[12px] uppercase tracking-[0.15em] text-white/70 transition-colors hover:bg-white/5 hover:text-white"
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ ...enter, delay: 0.05 + i * STAGGER }}
                     >
-                      {t}
-                    </Link>
+                      <Link
+                        to="/shop"
+                        search={{ type: t }}
+                        onClick={() => setDropdownOpen(false)}
+                        className="group/item flex items-center gap-2 px-4 py-2.5 font-sans text-[12px] uppercase tracking-[0.15em] text-white/70 transition-colors hover:bg-white/5 hover:text-white"
+                      >
+                        <span className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/item:translate-x-1">
+                          {t}
+                        </span>
+                      </Link>
+                    </motion.div>
                   ))}
                 </motion.div>
               )}
