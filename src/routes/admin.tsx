@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Reorder } from "framer-motion";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ import { AdminReturns } from "@/components/admin/AdminReturns";
 import { AdminTeam } from "@/components/admin/AdminTeam";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { ListRow } from "@/components/admin/ListRow";
+import { SortableRow } from "@/components/admin/SortableRow";
 import {
   CATEGORIES,
   createProduct,
@@ -242,18 +244,51 @@ function ProductsSection() {
   const [filter, setFilter] = useState<"all" | (typeof CATEGORIES)[number]>("all");
   const { confirm, dialog } = useConfirm("light");
 
-  // Products grouped by category, in catalog order; anything uncategorised goes last.
-  const groups = useMemo(() => {
-    const known = CATEGORIES.map((category) => ({
-      category: category as string,
-      items: products.filter((p) => p.category === category),
-    }));
-    const other = products.filter((p) => !(CATEGORIES as readonly string[]).includes(p.category));
-    return [...known, ...(other.length ? [{ category: "Other", items: other }] : [])];
-  }, [products]);
-  const visibleGroups = groups.filter(
-    (g) => g.items.length > 0 && (filter === "all" || g.category === filter),
-  );
+  // Storefront order (by sort_order) as product ids. The "All" tab reorders it
+  // directly; a category tab reshuffles that category within the slots it already
+  // holds, so other categories keep their places on the All page.
+  const [order, setOrder] = useState<string[]>([]);
+  const orderRef = useRef(order);
+  orderRef.current = order;
+  const productsKey = products.map((p) => `${p.id}:${p.sort_order}`).join(",");
+  useEffect(() => setOrder(products.map((p) => p.id)), [productsKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
+  const visibleIds = order.filter((id) => filter === "all" || byId.get(id)?.category === filter);
+
+  const applyVisibleOrder = (nextVisible: string[]) => {
+    if (filter === "all") return nextVisible;
+    const next = [...orderRef.current];
+    let k = 0;
+    next.forEach((id, slot) => {
+      if (byId.get(id)?.category === filter) next[slot] = nextVisible[k++];
+    });
+    return next;
+  };
+
+  const saveOrder = async (ids: string[]) => {
+    const changed = ids
+      .map((id, i) => ({ id, sort_order: (i + 1) * 10 }))
+      .filter(({ id, sort_order }) => byId.get(id)?.sort_order !== sort_order);
+    if (!changed.length) return;
+    try {
+      await Promise.all(changed.map(({ id, sort_order }) => updateProduct(id, { sort_order })));
+      toast.success("Order saved");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save order");
+    }
+    invalidate();
+  };
+
+  const moveBy = (id: string, direction: -1 | 1) => {
+    const from = visibleIds.indexOf(id);
+    const to = from + direction;
+    if (to < 0 || to >= visibleIds.length) return;
+    const nextVisible = [...visibleIds];
+    [nextVisible[from], nextVisible[to]] = [nextVisible[to], nextVisible[from]];
+    const next = applyVisibleOrder(nextVisible);
+    setOrder(next);
+    void saveOrder(next);
+  };
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin-products"] });
@@ -309,9 +344,7 @@ function ProductsSection() {
             <div className="mb-6 flex flex-wrap gap-2">
               {(["all", ...CATEGORIES] as const).map((c) => {
                 const count =
-                  c === "all"
-                    ? products.length
-                    : (groups.find((g) => g.category === c)?.items.length ?? 0);
+                  c === "all" ? products.length : products.filter((p) => p.category === c).length;
                 return (
                   <button
                     key={c}
@@ -338,80 +371,98 @@ function ProductsSection() {
             <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
               No products yet
             </p>
-          ) : visibleGroups.length === 0 ? (
+          ) : visibleIds.length === 0 ? (
             <p className="py-10 font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
               No products in this category
             </p>
           ) : (
-            <div className="space-y-8">
-              {visibleGroups.map((g) => (
-                <section key={g.category}>
-                  <h3 className="mb-3 flex items-baseline gap-2 font-mono text-[11px] uppercase tracking-[0.28em] text-neutral-500">
-                    {g.category}
-                    <span className="text-neutral-400">{g.items.length}</span>
-                  </h3>
-                  <div className="space-y-2">
-                    {g.items.map((p, i) => (
-                      <ListRow
-                        key={p.id}
-                        index={i + 1}
-                        thumbnail={
-                          (p.cardImageUrl ?? p.imageUrl) ? (
-                            <img
-                              src={p.cardImageUrl ?? p.imageUrl ?? ""}
-                              alt={p.name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : null
-                        }
-                        title={p.name}
-                        subtitle={p.category}
-                        meta={
-                          <div className="flex items-center gap-4">
-                            <span className="font-mono text-[13px] text-neutral-700">
-                              ₹{p.price}
-                            </span>
-                            {stockKnown.has(p.id) ? (
+            <>
+              <p className="mb-3 font-sans text-[12px] text-neutral-500">
+                Drag the handle to set the order on the {filter === "all" ? "All" : filter} page of
+                the store.
+              </p>
+              <Reorder.Group
+                as="div"
+                axis="y"
+                values={visibleIds}
+                onReorder={(next) => setOrder(applyVisibleOrder(next))}
+                className="space-y-2"
+              >
+                {visibleIds.map((id, i) => {
+                  const p = byId.get(id);
+                  if (!p) return null;
+                  return (
+                    <SortableRow
+                      key={id}
+                      value={id}
+                      label={p.name}
+                      onDragEnd={() => void saveOrder(orderRef.current)}
+                      onMove={(d) => moveBy(id, d)}
+                    >
+                      {(handle) => (
+                        <ListRow
+                          handle={handle}
+                          index={i + 1}
+                          thumbnail={
+                            (p.cardImageUrl ?? p.imageUrl) ? (
+                              <img
+                                src={p.cardImageUrl ?? p.imageUrl ?? ""}
+                                alt={p.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : null
+                          }
+                          title={p.name}
+                          subtitle={p.category}
+                          meta={
+                            <div className="flex items-center gap-4">
+                              <span className="font-mono text-[13px] text-neutral-700">
+                                ₹{p.price}
+                              </span>
+                              {stockKnown.has(p.id) ? (
+                                <span
+                                  className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
+                                    (stockTotals[p.id] ?? 0) > 0
+                                      ? "text-neutral-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  {(stockTotals[p.id] ?? 0) > 0
+                                    ? `${stockTotals[p.id]} in stock`
+                                    : "Out of stock"}
+                                </span>
+                              ) : null}
                               <span
                                 className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
-                                  (stockTotals[p.id] ?? 0) > 0 ? "text-neutral-600" : "text-red-600"
+                                  p.published ? "text-neutral-600" : "text-neutral-400"
                                 }`}
                               >
-                                {(stockTotals[p.id] ?? 0) > 0
-                                  ? `${stockTotals[p.id]} in stock`
-                                  : "Out of stock"}
+                                {p.published ? "Live" : "Hidden"}
                               </span>
-                            ) : null}
-                            <span
-                              className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
-                                p.published ? "text-neutral-600" : "text-neutral-400"
-                              }`}
-                            >
-                              {p.published ? "Live" : "Hidden"}
-                            </span>
-                          </div>
-                        }
-                        onEdit={() => {
-                          setCreating(false);
-                          setEditing(p);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        onDelete={() =>
-                          confirm({
-                            title: "Delete product",
-                            message: `"${p.name}" will be permanently removed. This cannot be undone.`,
-                            confirmLabel: "Delete",
-                            destructive: true,
-                            onConfirm: () => removeMutation.mutate(p.id),
-                          })
-                        }
-                        deleteLabel={`Delete ${p.name}`}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
+                            </div>
+                          }
+                          onEdit={() => {
+                            setCreating(false);
+                            setEditing(p);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          onDelete={() =>
+                            confirm({
+                              title: "Delete product",
+                              message: `"${p.name}" will be permanently removed. This cannot be undone.`,
+                              confirmLabel: "Delete",
+                              destructive: true,
+                              onConfirm: () => removeMutation.mutate(p.id),
+                            })
+                          }
+                          deleteLabel={`Delete ${p.name}`}
+                        />
+                      )}
+                    </SortableRow>
+                  );
+                })}
+              </Reorder.Group>
+            </>
           )}
         </div>
       )}

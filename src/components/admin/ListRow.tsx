@@ -1,6 +1,7 @@
 import { Pencil, Trash2 } from "lucide-react";
 
 export function ListRow({
+  handle,
   index,
   thumbnail,
   title,
@@ -10,6 +11,7 @@ export function ListRow({
   onDelete,
   deleteLabel,
 }: {
+  handle?: React.ReactNode;
   index?: number;
   thumbnail?: React.ReactNode;
   title: string;
@@ -21,6 +23,7 @@ export function ListRow({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border border-black/10 bg-black/[0.02] px-4 py-3.5 transition-colors hover:border-black/20 hover:bg-black/[0.04]">
+      {handle}
       {index !== undefined ? (
         <span className="w-6 shrink-0 font-mono text-[11px] text-neutral-500">
           #{String(index).padStart(2, "0")}
