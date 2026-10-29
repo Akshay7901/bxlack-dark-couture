@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { useWishlist } from "@/lib/wishlist";
+import { DURATION, EASE_OUT, gridDelay } from "@/lib/motion";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/wishlist")({
@@ -77,8 +79,14 @@ function WishlistPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-x-5 gap-y-10 py-10 md:grid-cols-3 md:gap-x-8">
-            {items.map((product) => (
-              <div key={product.id} className="group relative">
+            {items.map((product, i) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: gridDelay(i), duration: DURATION.slow, ease: EASE_OUT }}
+                className="group relative"
+              >
                 <button
                   aria-label={`Remove ${product.name} from wishlist`}
                   onClick={() => remove(product.id)}
@@ -91,7 +99,7 @@ function WishlistPage() {
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                       loading="lazy"
                     />
                   </div>
@@ -105,7 +113,7 @@ function WishlistPage() {
                     </div>
                   </div>
                 </Link>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}

@@ -183,6 +183,34 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Storefront micro-interactions
+   --------------------------------------------------------------------------- */
+/* Tactile press: buttons dip slightly while held, then ease back. Lives in the
+   base layer so a button's own transition utilities still win, and uses the
+   standalone `scale` property so it never fights framer-motion transforms. */
+@layer base {
+  .store button:not(:disabled) {
+    transition: scale 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .store button:not(:disabled):active {
+    scale: 0.97;
+  }
+}
+
+/* Respect "reduce motion": no CSS movement or looping animation, instant
+   state changes. (framer-motion is covered by <MotionConfig reducedMotion>.) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Admin studio skin (Shopify-style).
    The studio screens share the storefront's utility classes (mono type,
    uppercase, wide tracking, square edges). Inside .admin-ui these rules

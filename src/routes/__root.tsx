@@ -9,6 +9,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { MotionConfig } from "framer-motion";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
@@ -144,12 +145,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Loader />
-      <LaunchGate>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </LaunchGate>
-      <Toaster position="bottom-right" />
+      {/* Honour the OS "reduce motion" setting for every framer-motion animation:
+          movement is dropped, opacity fades remain. */}
+      <MotionConfig reducedMotion="user">
+        <Loader />
+        <LaunchGate>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </LaunchGate>
+        <Toaster position="bottom-right" />
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

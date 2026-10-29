@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { ProductCard } from "@/components/ProductCard";
+import { DURATION, EASE_OUT, gridDelay } from "@/lib/motion";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/shop")({
@@ -71,10 +72,10 @@ function ShopPage() {
               {filtered.map((p, i) => (
                 <motion.article
                   key={p.id}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05, duration: 0.8, ease: [0.7, 0, 0.2, 1] }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ delay: gridDelay(i), duration: DURATION.slow, ease: EASE_OUT }}
                   className="group"
                 >
                   <ProductCard product={p} />

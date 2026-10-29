@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { X, Minus, Plus } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
+import { enter, STAGGER } from "@/lib/motion";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/cart")({
@@ -72,8 +74,14 @@ function CartPage() {
         ) : (
           <div className="grid gap-12 py-10 lg:grid-cols-[1fr_360px] lg:gap-16">
             <ul className="divide-y divide-white/10">
-              {items.map((item) => (
-                <li key={`${item.id}-${item.size}`} className="flex gap-5 py-6 first:pt-0">
+              {items.map((item, i) => (
+                <motion.li
+                  key={`${item.id}-${item.size}`}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...enter, delay: i * STAGGER }}
+                  className="flex gap-5 py-6 first:pt-0"
+                >
                   <Link
                     to="/product/$id"
                     params={{ id: item.id }}
@@ -122,7 +130,7 @@ function CartPage() {
                       </span>
                     </div>
                   </div>
-                </li>
+                </motion.li>
               ))}
             </ul>
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +12,7 @@ import { fetchAddresses, createAddress, type Address, type AddressInput } from "
 import { AddressForm } from "@/components/account/AddressForm";
 import { placeOrder, previewDiscount } from "@/lib/checkout.functions";
 import { seo } from "@/lib/seo";
+import { enter, STAGGER } from "@/lib/motion";
 
 export const Route = createFileRoute("/checkout")({
   head: () =>
@@ -232,9 +234,12 @@ function CheckoutPage() {
             <div className="mt-6 space-y-3 border-b border-white/10 pb-6">
               {productsLoading
                 ? null
-                : items.map((item) => (
-                    <div
+                : items.map((item, i) => (
+                    <motion.div
                       key={`${item.id}-${item.size}`}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ ...enter, delay: i * STAGGER }}
                       className="flex justify-between font-mono text-[12px] text-white/70"
                     >
                       <span>
@@ -243,7 +248,7 @@ function CheckoutPage() {
                       <span className="text-white">
                         ₹{(item.product.price * item.qty).toLocaleString("en-IN")}
                       </span>
-                    </div>
+                    </motion.div>
                   ))}
             </div>
             <form
