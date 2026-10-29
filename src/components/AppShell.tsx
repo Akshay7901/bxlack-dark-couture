@@ -10,6 +10,13 @@ import { enter } from "@/lib/motion";
  * behind the intro loader) shows immediately; later navigations fade in. */
 let hasNavigated = false;
 
+/** True when this render comes from an in-app navigation rather than the first
+ * server-rendered page, i.e. when it is safe to start content hidden and animate it in. */
+export function useAnimateIn() {
+  const [animateIn] = useState(() => hasNavigated);
+  return animateIn;
+}
+
 export function AppShell({
   children,
   hideNewsletter = true,
@@ -22,7 +29,7 @@ export function AppShell({
 }) {
   const [cart, setCart] = useState(false);
   const { pathname } = useLocation();
-  const [animateIn] = useState(() => hasNavigated);
+  const animateIn = useAnimateIn();
   useEffect(() => {
     hasNavigated = true;
   }, []);

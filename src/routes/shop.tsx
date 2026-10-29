@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { AppShell } from "@/components/AppShell";
+import { AppShell, useAnimateIn } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { ProductCard } from "@/components/ProductCard";
@@ -35,6 +35,7 @@ const pageTitles: Record<string, string> = {
 };
 function ShopPage() {
   const { type } = Route.useSearch();
+  const animateIn = useAnimateIn();
 
   const selectedType: (typeof types)[number] =
     types.includes(type as (typeof types)[number]) ? (type as (typeof types)[number]) : "All";
@@ -57,7 +58,9 @@ function ShopPage() {
               the block is keyed by category: the outgoing set fades out first,
               then the new title and products stagger in. min-h keeps the footer
               from jumping up in the brief gap between them. */}
-          <AnimatePresence mode="wait" initial={false}>
+          {/* Animate on arrival from another page too (e.g. Home → Collection),
+              but not on a fresh page load, so server HTML isn't hidden until JS runs. */}
+          <AnimatePresence mode="wait" initial={animateIn}>
             <motion.div
               key={selectedType}
               initial={{ opacity: 0 }}
