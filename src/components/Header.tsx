@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { Heart, ShoppingBag, User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +11,7 @@ const collectionTypes = ["All", "Tshirt", "Shirt", "Jeans"] as const;
 
 export function Header({ onCart }: { onCart: () => void }) {
   const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { ids: wishlistIds } = useWishlist();
@@ -98,7 +99,18 @@ export function Header({ onCart }: { onCart: () => void }) {
         </nav>
 
         {/* Center: Logo */}
-        <Link to="/" className="flex shrink-0 justify-center" data-cursor="Home">
+        <Link
+          to="/"
+          onClick={(e) => {
+            // Already home: glide back to the top instead of a no-op click.
+            if (pathname === "/") {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+          className="flex shrink-0 justify-center transition-opacity duration-300 hover:opacity-80"
+          data-cursor="Home"
+        >
           <img
             src={logo}
             alt="BXLACK"

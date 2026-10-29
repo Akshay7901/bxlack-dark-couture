@@ -11,12 +11,17 @@ import { Link } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import heroImage from "@/assets/hero-front-v2.webp";
 import heroBackImage from "@/assets/hero-back-v2.webp";
+import { useAnimateIn } from "@/components/AppShell";
+import { EASE_OUT } from "@/lib/motion";
 
 const MotionLink = motion.create(Link);
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const imgWrap = useRef<HTMLDivElement>(null);
+  const animateIn = useAnimateIn();
+  // First load waits for the intro loader; in-app arrivals follow the image reveal.
+  const ctaDelay = animateIn ? 0.6 : 2.4;
 
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
@@ -83,6 +88,15 @@ export function Hero() {
         onTouchEnd={handleLeave}
         onTouchCancel={handleLeave}
       >
+        {/* Arriving from another page (e.g. the logo): the campaign image settles
+            in with a slow fade and zoom-out. Skipped on first load, where the
+            intro loader already covers the reveal. */}
+        <motion.div
+          initial={animateIn ? { opacity: 0, scale: 1.06 } : false}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.4, ease: EASE_OUT }}
+          className="absolute inset-0"
+        >
         <img
           src={heroImage}
           alt="BXLACK SS2026 campaign"
@@ -107,6 +121,7 @@ export function Hero() {
             willChange: "mask-image, -webkit-mask-image, opacity, transform",
           }}
         />
+        </motion.div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
       </motion.div>
 
@@ -118,7 +133,7 @@ export function Hero() {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.4, duration: 1 }}
+          transition={{ delay: ctaDelay, duration: 1, ease: EASE_OUT }}
           className="font-mono text-[11px] uppercase tracking-[0.35em] text-white/90"
         >
           SS2026 OUT NOW
@@ -128,7 +143,7 @@ export function Hero() {
           data-cursor="Shop"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.6, duration: 1 }}
+          transition={{ delay: ctaDelay + 0.2, duration: 1, ease: EASE_OUT }}
           className="mt-4 inline-flex items-center gap-3 border-b border-white/80 pb-1 font-mono text-[11px] uppercase tracking-[0.35em] text-white transition-all hover:gap-5"
         >
           Shop Now
