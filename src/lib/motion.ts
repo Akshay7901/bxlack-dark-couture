@@ -41,4 +41,4 @@ export const stagger = (delayChildren = 0): Variants => ({
  * Delay for the i-th item of a long grid revealed on scroll: staggers within
  * a row-sized group so items further down don't wait for the whole list.
  */
-export const gridDelay = (i: number, perGroup = 6) => (i % perGroup) * STAGGER;
+export const gridDelay = (i: number, perGroup = 6, step = STAGGER) => (i % perGroup) * step;

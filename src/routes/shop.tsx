@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { ProductCard } from "@/components/ProductCard";
-import { DURATION, EASE_OUT, enter, gridDelay } from "@/lib/motion";
+import { DURATION, EASE_IN, EASE_OUT, enter, gridDelay } from "@/lib/motion";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/shop")({
@@ -53,47 +53,55 @@ function ShopPage() {
 
       <section className="relative pt-16 md:pt-20">
         <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
-          {/* Keyed by category: switching collection only changes the search
-              param (same route), so remounting replays the title and grid reveal. */}
-          <motion.div
-            key={selectedType}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={enter}
-            className="mb-3 flex items-baseline justify-between gap-4 md:mb-4"
-          >
-            <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
-            <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
-              {filtered.length} {filtered.length === 1 ? "item" : "items"}
-            </span>
-          </motion.div>
-          {isLoading ? (
-            <div className="flex h-[40vh] items-center justify-center">
-              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading collection…</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex h-[40vh] items-center justify-center">
-              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/50">No pieces in this category.</p>
-            </div>
-          ) : (
-            <div
+          {/* Switching collection only changes the search param (same route), so
+              the block is keyed by category: the outgoing set fades out first,
+              then the new title and products stagger in. min-h keeps the footer
+              from jumping up in the brief gap between them. */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
               key={selectedType}
-              className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 md:gap-x-8 md:gap-y-14"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -8, transition: { duration: 0.22, ease: EASE_IN } }}
+              className="min-h-[70vh]"
             >
-              {filtered.map((p, i) => (
-                <motion.article
-                  key={p.id}
-                  initial={{ opacity: 0, y: 24, scale: 0.98 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ delay: gridDelay(i), duration: DURATION.slow, ease: EASE_OUT }}
-                  className="group"
-                >
-                  <ProductCard product={p} />
-                </motion.article>
-              ))}
-            </div>
-          )}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={enter}
+                className="mb-3 flex items-baseline justify-between gap-4 md:mb-4"
+              >
+                <h1 className="font-sans text-base text-white/90 sm:text-lg">{pageTitles[selectedType]}</h1>
+                <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
+                  {filtered.length} {filtered.length === 1 ? "item" : "items"}
+                </span>
+              </motion.div>
+              {isLoading ? (
+                <div className="flex h-[40vh] items-center justify-center">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/40">Loading collection…</p>
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="flex h-[40vh] items-center justify-center">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-white/50">No pieces in this category.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 md:gap-x-8 md:gap-y-14">
+                  {filtered.map((p, i) => (
+                    <motion.article
+                      key={p.id}
+                      initial={{ opacity: 0, y: 28, scale: 0.97 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ delay: 0.08 + gridDelay(i, 6, 0.07), duration: DURATION.slow, ease: EASE_OUT }}
+                      className="group"
+                    >
+                      <ProductCard product={p} />
+                    </motion.article>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </section>
       <div className="h-32" />
