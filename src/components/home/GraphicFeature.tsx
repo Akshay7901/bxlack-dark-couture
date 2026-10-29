@@ -38,14 +38,14 @@ export function GraphicFeature() {
       </div>
 
       {/* Mobile: below the shirt graphic, overlapping only the floor strip at the
-          bottom of the photo. Desktop: narrow block in the empty lower-left area;
+          bottom of the photo. Desktop: narrow block, vertically centred on the left;
           the 26vw cap keeps it clear of the sleeve on tablet widths. */}
       <motion.div
         variants={textBlock}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.4 }}
-        className="relative -mt-6 flex flex-col items-center px-6 pb-12 text-center md:absolute md:bottom-[8%] md:left-8 md:mt-0 md:w-[min(380px,26vw)] md:items-start md:p-0 md:text-left lg:left-14"
+        className="relative -mt-6 flex flex-col items-center px-6 pb-12 text-center md:absolute md:inset-y-0 md:left-8 md:mt-0 md:justify-center md:w-[min(380px,26vw)] md:items-start md:p-0 md:text-left lg:left-14"
       >
         <motion.p
           variants={line}
