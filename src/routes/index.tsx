@@ -5,6 +5,7 @@ import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { GraphicFeature } from "@/components/home/GraphicFeature";
 import { HeritageFeature } from "@/components/home/HeritageFeature";
 import { CampaignFeature } from "@/components/home/CampaignFeature";
+import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
@@ -26,6 +27,7 @@ function Index() {
       <GraphicFeature />
       <HeritageFeature />
       <CampaignFeature />
+      <InstagramFeed />
     </AppShell>
   );
 }

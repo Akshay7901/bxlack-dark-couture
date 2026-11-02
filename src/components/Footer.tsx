@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Newsletter } from "@/components/Newsletter";
 import { useCategories } from "@/lib/categories";
+import { INSTAGRAM_URL } from "@/lib/instagram";
 import logo from "@/assets/bxlack-logo.webp";
 
 const SERVICES = [
@@ -13,7 +14,7 @@ const SERVICES = [
 ];
 
 const SOCIAL = [
-  { label: "Instagram", href: "https://instagram.com", Icon: Instagram },
+  { label: "Instagram", href: INSTAGRAM_URL, Icon: Instagram },
   { label: "Facebook", href: "https://facebook.com", Icon: Facebook },
   { label: "X", href: "https://x.com", Icon: Twitter },
 ];
