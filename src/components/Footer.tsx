@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Newsletter } from "@/components/Newsletter";
 import { useCategories } from "@/lib/categories";
-import { INSTAGRAM_URL } from "@/lib/instagram";
+import { instagramUrl, useInstagramSettings, DEFAULT_INSTAGRAM_SETTINGS } from "@/lib/instagram";
 import logo from "@/assets/bxlack-logo.webp";
 
 const SERVICES = [
@@ -14,7 +14,7 @@ const SERVICES = [
 ];
 
 const SOCIAL = [
-  { label: "Instagram", href: INSTAGRAM_URL, Icon: Instagram },
+  { label: "Instagram", href: instagramUrl(DEFAULT_INSTAGRAM_SETTINGS.handle), Icon: Instagram },
   { label: "Facebook", href: "https://facebook.com", Icon: Facebook },
   { label: "X", href: "https://x.com", Icon: Twitter },
 ];
@@ -24,6 +24,10 @@ const linkClass =
 
 export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
   const { categories } = useCategories();
+  const { data: instagram } = useInstagramSettings();
+  const social = SOCIAL.map((s) =>
+    s.label === "Instagram" && instagram ? { ...s, href: instagramUrl(instagram.handle) } : s,
+  );
   const SHOP = [
     { label: "All Drops", type: "All" },
     ...categories.map((c) => ({ label: c.label, type: c.key })),
@@ -71,7 +75,7 @@ export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mid-grey/70">Follow</p>
             <ul className="mt-5 flex items-center gap-3">
-              {SOCIAL.map(({ label, href, Icon }) => (
+              {social.map(({ label, href, Icon }) => (
                 <li key={label}>
                   <a
                     href={href}

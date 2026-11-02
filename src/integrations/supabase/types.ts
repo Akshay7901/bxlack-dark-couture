@@ -369,6 +369,12 @@ export type Database = {
           },
         ];
       };
+      store_settings: {
+        Row: { key: string; value: Json; updated_at: string };
+        Insert: { key: string; value?: Json; updated_at?: string };
+        Update: { key?: string; value?: Json; updated_at?: string };
+        Relationships: [];
+      };
       site_pages: {
         Row: { slug: string; content: Json; updated_at: string };
         Insert: { slug: string; content: Json; updated_at?: string };

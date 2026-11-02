@@ -1,10 +1,105 @@
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
-export const INSTAGRAM_HANDLE = "bxlack.official";
-export const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}/`;
+/**
+ * Homepage Instagram section. Posts come from a behold.so JSON feed; what's
+ * shown (on/off, heading, handle, post count, hidden posts) is edited in
+ * Studio → Store → Instagram and stored in store_settings under "instagram".
+ */
+export type InstagramSettings = {
+  enabled: boolean;
+  heading: string;
+  handle: string;
+  followText: string;
+  feedUrl: string;
+  maxPosts: number;
+  /** Post ids the admin chose not to show. */
+  hiddenPosts: string[];
+};
 
-/** Public JSON feed from behold.so (connected to @bxlack.official). */
-const BEHOLD_FEED_URL = "https://feeds.behold.so/1EMrOc8yNyygDDvdZxXn";
+export const POST_COUNT_OPTIONS = [4, 8, 12] as const;
+
+export const DEFAULT_INSTAGRAM_SETTINGS: InstagramSettings = {
+  enabled: true,
+  heading: "On Instagram",
+  handle: "bxlack.official",
+  followText: "Follow the darkness",
+  feedUrl: "https://feeds.behold.so/1EMrOc8yNyygDDvdZxXn",
+  maxPosts: 8,
+  hiddenPosts: [],
+};
+
+export const instagramUrl = (handle: string) => `https://www.instagram.com/${handle.replace(/^@/, "")}/`;
+
+const SETTINGS_KEY = "instagram";
+
+/** Thrown to the admin when the store_settings migration hasn't been run yet. */
+export class SettingsTableMissing extends Error {}
+
+function isMissingTable(error: { code?: string; message?: string }) {
+  const message = error.message ?? "";
+  return (
+    error.code === "42P01" ||
+    error.code === "PGRST205" ||
+    (/store_settings/.test(message) && /not find|does not exist/.test(message))
+  );
+}
+
+/** Saved values over the defaults, ignoring anything malformed. */
+function resolveSettings(saved: unknown): InstagramSettings {
+  const d = DEFAULT_INSTAGRAM_SETTINGS;
+  if (!saved || typeof saved !== "object") return d;
+  const s = saved as Partial<Record<keyof InstagramSettings, unknown>>;
+  const text = (v: unknown, fallback: string) => (typeof v === "string" && v.trim() ? v.trim() : fallback);
+  return {
+    enabled: typeof s.enabled === "boolean" ? s.enabled : d.enabled,
+    heading: text(s.heading, d.heading),
+    handle: text(s.handle, d.handle).replace(/^@/, ""),
+    followText: text(s.followText, d.followText),
+    feedUrl: text(s.feedUrl, d.feedUrl),
+    maxPosts: POST_COUNT_OPTIONS.includes(s.maxPosts as 4) ? (s.maxPosts as number) : d.maxPosts,
+    hiddenPosts: Array.isArray(s.hiddenPosts) ? s.hiddenPosts.filter((id) => typeof id === "string") : [],
+  };
+}
+
+/** Admin: surfaces a missing table instead of hiding it. */
+export async function fetchInstagramSettingsStrict(): Promise<InstagramSettings> {
+  const { data, error } = await supabase.from("store_settings").select("value").eq("key", SETTINGS_KEY).maybeSingle();
+  if (error) {
+    if (isMissingTable(error)) throw new SettingsTableMissing(error.message);
+    throw error;
+  }
+  return resolveSettings(data?.value);
+}
+
+/** Storefront: the defaults when nothing is saved or the table doesn't exist yet. */
+async function fetchInstagramSettings(): Promise<InstagramSettings> {
+  try {
+    return await fetchInstagramSettingsStrict();
+  } catch {
+    return DEFAULT_INSTAGRAM_SETTINGS;
+  }
+}
+
+export async function saveInstagramSettings(settings: InstagramSettings) {
+  const { error } = await supabase
+    .from("store_settings")
+    .upsert({ key: SETTINGS_KEY, value: settings as unknown as Json });
+  if (error) {
+    if (isMissingTable(error)) throw new SettingsTableMissing(error.message);
+    throw error;
+  }
+}
+
+export function useInstagramSettings() {
+  return useQuery({
+    queryKey: ["instagram-settings"],
+    queryFn: fetchInstagramSettings,
+    staleTime: 5 * 60_000,
+    placeholderData: DEFAULT_INSTAGRAM_SETTINGS,
+  });
+}
 
 type BeholdSize = { width: number; height: number; mediaUrl: string };
 
@@ -16,6 +111,7 @@ type BeholdPost = {
   thumbnailUrl?: string;
   prunedCaption?: string;
   caption?: string;
+  timestamp?: string;
   visibility?: string;
   sizes?: Partial<Record<"small" | "medium" | "large" | "full", BeholdSize>>;
 };
@@ -26,31 +122,56 @@ export type InstagramPost = {
   image: string;
   caption: string;
   type: BeholdPost["mediaType"];
+  timestamp: string | null;
 };
 
-async function fetchInstagramPosts(): Promise<InstagramPost[]> {
-  const res = await fetch(BEHOLD_FEED_URL);
-  if (!res.ok) throw new Error(`Instagram feed ${res.status}`);
-  const data = (await res.json()) as { posts?: BeholdPost[] };
-  return (data.posts ?? [])
-    .filter((p) => p.visibility !== "hidden")
-    .map((p) => ({
-      id: p.id,
-      url: p.permalink,
-      // Behold's resized copies are stable; Instagram's own CDN links expire.
-      image: p.sizes?.medium?.mediaUrl ?? p.thumbnailUrl ?? p.mediaUrl ?? "",
-      caption: (p.prunedCaption ?? p.caption ?? "").trim(),
-      type: p.mediaType,
-    }))
-    .filter((p) => p.image);
+export type InstagramFeed = { username: string | null; posts: InstagramPost[] };
+
+export async function fetchInstagramFeed(feedUrl: string): Promise<InstagramFeed> {
+  const res = await fetch(feedUrl);
+  if (!res.ok) throw new Error(`The feed answered ${res.status}`);
+  const data = (await res.json()) as { username?: string; posts?: BeholdPost[] };
+  if (!Array.isArray(data.posts)) throw new Error("That link isn't a Behold JSON feed");
+  return {
+    username: data.username ?? null,
+    posts: data.posts
+      .filter((p) => p.visibility !== "hidden")
+      .map((p) => ({
+        id: p.id,
+        url: p.permalink,
+        // Behold's resized copies are stable; Instagram's own CDN links expire.
+        image: p.sizes?.medium?.mediaUrl ?? p.thumbnailUrl ?? p.mediaUrl ?? "",
+        caption: (p.prunedCaption ?? p.caption ?? "").trim(),
+        type: p.mediaType,
+        timestamp: p.timestamp ?? null,
+      }))
+      .filter((p) => p.image),
+  };
 }
 
-/** Latest posts, fetched in the browser. Errors resolve to "no posts" so the section just hides. */
-export function useInstagramPosts() {
+export function useInstagramFeed(feedUrl: string | null) {
   return useQuery({
-    queryKey: ["instagram"],
-    queryFn: fetchInstagramPosts,
+    queryKey: ["instagram-feed", feedUrl],
+    queryFn: () => fetchInstagramFeed(feedUrl!),
+    enabled: !!feedUrl,
     staleTime: 30 * 60_000,
     retry: 1,
   });
+}
+
+/** What the homepage shows: settings plus the posts left after hiding and trimming. */
+export function useInstagramSection() {
+  const settingsQuery = useInstagramSettings();
+  const settings = settingsQuery.data ?? DEFAULT_INSTAGRAM_SETTINGS;
+  // Wait for the saved settings so a changed feed URL isn't fetched twice.
+  const ready = !settingsQuery.isPlaceholderData && settings.enabled;
+  const feed = useInstagramFeed(ready ? settings.feedUrl : null);
+  const hidden = new Set(settings.hiddenPosts);
+  const posts = (feed.data?.posts ?? []).filter((p) => !hidden.has(p.id)).slice(0, settings.maxPosts);
+  return {
+    settings,
+    posts,
+    isPending: settingsQuery.isPlaceholderData || (ready && feed.isPending),
+    hiddenSection: !settingsQuery.isPlaceholderData && !settings.enabled,
+  };
 }
