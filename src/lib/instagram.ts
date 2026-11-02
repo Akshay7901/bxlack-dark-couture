@@ -4,11 +4,29 @@ import type { Json } from "@/integrations/supabase/types";
 
 /**
  * Homepage Instagram section. Posts come from a behold.so JSON feed; what's
- * shown (on/off, heading, handle, post count, hidden posts) is edited in
+ * shown (on/off, layout, heading, handle, post count, hidden posts) is edited in
  * Studio → Store → Instagram and stored in store_settings under "instagram".
  */
+export type InstagramLayout = "grid" | "slider" | "mosaic" | "marquee" | "strip";
+
+/** Homepage designs to choose from. Below minPosts a layout falls back to the grid. */
+export const INSTAGRAM_LAYOUTS: { key: InstagramLayout; label: string; description: string; minPosts: number }[] = [
+  { key: "grid", label: "Grid", description: "Square tiles in rows of four", minPosts: 1 },
+  { key: "slider", label: "Slider", description: "Swipeable portrait cards with captions", minPosts: 1 },
+  { key: "mosaic", label: "Editorial mosaic", description: "Latest post large, the rest beside it", minPosts: 5 },
+  { key: "marquee", label: "Marquee", description: "Endless auto-scrolling strip, pauses on hover", minPosts: 4 },
+  { key: "strip", label: "Full-width strip", description: "One edge-to-edge row with a follow card on top", minPosts: 3 },
+];
+
+/** The layout the homepage actually uses for this many posts. */
+export function effectiveLayout(layout: InstagramLayout, postCount: number): InstagramLayout {
+  const min = INSTAGRAM_LAYOUTS.find((l) => l.key === layout)?.minPosts ?? 1;
+  return postCount >= min ? layout : "grid";
+}
+
 export type InstagramSettings = {
   enabled: boolean;
+  layout: InstagramLayout;
   heading: string;
   handle: string;
   followText: string;
@@ -22,6 +40,7 @@ export const POST_COUNT_OPTIONS = [4, 8, 12] as const;
 
 export const DEFAULT_INSTAGRAM_SETTINGS: InstagramSettings = {
   enabled: true,
+  layout: "grid",
   heading: "On Instagram",
   handle: "bxlack.official",
   followText: "Follow the darkness",
@@ -54,6 +73,7 @@ function resolveSettings(saved: unknown): InstagramSettings {
   const text = (v: unknown, fallback: string) => (typeof v === "string" && v.trim() ? v.trim() : fallback);
   return {
     enabled: typeof s.enabled === "boolean" ? s.enabled : d.enabled,
+    layout: INSTAGRAM_LAYOUTS.some((l) => l.key === s.layout) ? (s.layout as InstagramLayout) : d.layout,
     heading: text(s.heading, d.heading),
     handle: text(s.handle, d.handle).replace(/^@/, ""),
     followText: text(s.followText, d.followText),

@@ -5,12 +5,14 @@ import { Copy, ExternalLink, Eye, EyeOff, Loader2, Play, RefreshCw } from "lucid
 import { Badge } from "@/components/admin/Badge";
 import {
   DEFAULT_INSTAGRAM_SETTINGS,
+  INSTAGRAM_LAYOUTS,
   POST_COUNT_OPTIONS,
   SettingsTableMissing,
   fetchInstagramSettingsStrict,
   instagramUrl,
   saveInstagramSettings,
   useInstagramFeed,
+  type InstagramLayout,
   type InstagramSettings,
 } from "@/lib/instagram";
 
@@ -138,6 +140,42 @@ export function AdminInstagram() {
                 }`}
               />
             </button>
+          </div>
+
+          {/* Design */}
+          <div>
+            <p className="text-[14px] font-semibold text-neutral-900">Design</p>
+            <p className="mt-1 text-[12px] text-neutral-500">How the posts are laid out on the homepage.</p>
+            <div role="radiogroup" aria-label="Instagram section design" className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {INSTAGRAM_LAYOUTS.map((l) => {
+                const selected = form.layout === l.key;
+                const short = feed.data && onHomepage.size < l.minPosts;
+                return (
+                  <button
+                    key={l.key}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => set("layout", l.key)}
+                    className={`flex flex-col border p-3 text-left transition-colors ${
+                      selected ? "border-black ring-1 ring-black" : "border-black/12 hover:border-black/40"
+                    }`}
+                  >
+                    <LayoutPreview layout={l.key} />
+                    <span className="mt-3 flex items-center justify-between gap-2 text-[13px] font-semibold text-neutral-900">
+                      {l.label}
+                      {selected ? <Badge tone="success">Selected</Badge> : null}
+                    </span>
+                    <span className="mt-1 text-[12px] leading-snug text-neutral-500">{l.description}</span>
+                    {short ? (
+                      <span className="mt-2 text-[11px] leading-snug text-amber-700">
+                        Needs {l.minPosts}+ posts (you have {onHomepage.size}). Shows as Grid until then.
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Text and source */}
@@ -355,6 +393,7 @@ function normalize(s: InstagramSettings): InstagramSettings {
   const d = DEFAULT_INSTAGRAM_SETTINGS;
   return {
     enabled: s.enabled,
+    layout: s.layout,
     heading: s.heading.trim() || d.heading,
     handle: s.handle.trim().replace(/^@/, ""),
     followText: s.followText.trim() || d.followText,
@@ -362,4 +401,60 @@ function normalize(s: InstagramSettings): InstagramSettings {
     maxPosts: s.maxPosts,
     hiddenPosts: [...new Set(s.hiddenPosts)].sort(),
   };
+}
+
+/** Tiny schematic of each design for the picker. */
+function LayoutPreview({ layout }: { layout: InstagramLayout }) {
+  const tile = "bg-neutral-800";
+  return (
+    <div aria-hidden className="flex aspect-[16/9] w-full flex-col justify-center overflow-hidden bg-neutral-950 p-2.5">
+      {layout === "grid" ? (
+        <div className="grid grid-cols-4 gap-1">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className={`aspect-square ${tile}`} />
+          ))}
+        </div>
+      ) : layout === "slider" ? (
+        <div className="flex gap-1">
+          {Array.from({ length: 5 }, (_, i) => (
+            <div key={i} className="w-[27%] shrink-0">
+              <div className={`aspect-[4/5] ${tile}`} />
+              <div className="mt-1 h-0.5 w-3/4 bg-neutral-700" />
+              <div className="mt-0.5 h-0.5 w-1/2 bg-neutral-700" />
+            </div>
+          ))}
+        </div>
+      ) : layout === "mosaic" ? (
+        <div className="grid grid-cols-4 grid-rows-2 gap-1">
+          <div className={`col-span-2 row-span-2 ${tile} bg-neutral-700`} />
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className={`aspect-square ${tile}`} />
+          ))}
+        </div>
+      ) : layout === "marquee" ? (
+        <div className="flex flex-col items-center gap-2">
+          <div className="-mx-6 flex gap-1 [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
+            {Array.from({ length: 7 }, (_, i) => (
+              <div key={i} className={`h-9 w-9 shrink-0 ${tile}`} />
+            ))}
+          </div>
+          <div className="h-2 w-14 bg-white" />
+        </div>
+      ) : (
+        <div className="relative -mx-2.5">
+          <div className="grid grid-cols-6">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={i} className={`aspect-square ${i % 2 ? "bg-neutral-800" : "bg-neutral-700"}`} />
+            ))}
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1 bg-neutral-900/90 px-3 py-1.5">
+              <div className="h-1 w-10 bg-neutral-300" />
+              <div className="h-1.5 w-8 bg-white" />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
