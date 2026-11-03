@@ -178,10 +178,10 @@ export const notifyReturnUpdated = (returnId: string) =>
     if (r && id) await send(id, r.customerEmail, (c) => returnUpdateEmail(r, c));
   });
 
-export const notifyContactMessage = (c: EmailContact) =>
+export const notifyContactMessage = (c: EmailContact, { acknowledge = true } = {}) =>
   safely(() =>
     Promise.all([
-      send("contact-received", c.email, (copy) => contactReceivedEmail(copy)),
+      acknowledge ? send("contact-received", c.email, (copy) => contactReceivedEmail(copy)) : null,
       send("admin-new-message", adminRecipients(), (copy) => adminNewMessageEmail(c, copy)),
     ]),
   );

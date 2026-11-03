@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { InfoPage } from "@/components/InfoPage";
+import { TURNSTILE_SITE_KEY, Turnstile } from "@/components/Turnstile";
 import { submitContactMessage } from "@/lib/contact.functions";
 import { seo } from "@/lib/seo";
 import { loadPage } from "@/lib/pages/pages";
@@ -26,6 +27,9 @@ function ContactPage() {
   const page = Route.useLoaderData();
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [captcha, setCaptcha] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
+  const waitingForCaptcha = !!TURNSTILE_SITE_KEY && !captcha;
 
   return (
     <InfoPage
@@ -65,11 +69,14 @@ function ContactPage() {
                       email: String(data.get("email") ?? "").trim(),
                       order_number: String(data.get("order") ?? "").trim() || null,
                       message: String(data.get("message") ?? "").trim(),
+                      captcha,
                     },
                   });
                   setSent(true);
                 } catch (err) {
                   toast.error(err instanceof Error ? err.message : "Could not send message");
+                  // A token works once; get a fresh one for the next try.
+                  setCaptchaReset((n) => n + 1);
                 } finally {
                   setBusy(false);
                 }
@@ -82,12 +89,13 @@ function ContactPage() {
               </div>
               <input name="order" placeholder="Order number (optional)" className={inputClass} aria-label="Order number" />
               <textarea required name="message" rows={5} placeholder="Message" className={`${inputClass} resize-none`} aria-label="Message" />
+              <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
               <button
                 type="submit"
-                disabled={busy}
+                disabled={busy || waitingForCaptcha}
                 className="border border-light-grey/25 px-10 py-4 font-mono text-[10px] uppercase tracking-[0.3em] text-white transition-colors hover:bg-white hover:text-noir disabled:opacity-50"
               >
-                {busy ? "Sending…" : "Send message"}
+                {busy ? "Sending…" : waitingForCaptcha ? "Verifying…" : "Send message"}
               </button>
             </form>
           )}

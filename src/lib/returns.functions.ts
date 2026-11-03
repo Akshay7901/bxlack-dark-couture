@@ -28,7 +28,7 @@ const createSchema = z.object({
   // Customer must agree to send back the original packing tube (or accept the
   // tube charge); requests without this agreement are refused.
   tubeAcknowledged: z.literal(true, {
-    errorMap: () => ({ message: "Please confirm the packing tube terms to continue." }),
+    error: "Please confirm the packing tube terms to continue.",
   }),
 });
 
