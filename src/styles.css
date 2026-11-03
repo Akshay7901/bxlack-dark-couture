@@ -265,6 +265,26 @@
   -webkit-font-smoothing: antialiased;
 }
 .admin-ui ::selection { background: #303030; color: #fff; }
+/* Live storefront previews inside the studio (e.g. the homepage hero): undo
+   the studio skin so the storefront's own utilities apply again. The
+   `:is(*, #_)` gives the reset id-level specificity so it beats every
+   .admin-ui rule; revert-layer falls back to the Tailwind utility values. */
+.admin-ui .store-preview {
+  font-family: var(--font-sans);
+  color: var(--color-foreground);
+}
+.admin-ui .store-preview :is(*, #_) {
+  font-family: revert-layer;
+  font-size: revert-layer;
+  line-height: revert-layer;
+  letter-spacing: revert-layer;
+  text-transform: revert-layer;
+  color: revert-layer;
+  background: revert-layer;
+  border-color: revert-layer;
+  border-radius: revert-layer;
+  box-shadow: revert-layer;
+}
 /* Default border colour lives in the base layer so explicit border utilities still win. */
 @layer base {
   .admin-ui * { border-color: var(--a-border); }

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import type { Json } from "@/integrations/supabase/types";
+import { SettingsTableMissing, fetchStoreSetting, saveStoreSetting, textOr } from "@/lib/storeSettings";
+
+export { SettingsTableMissing };
 
 /**
  * Homepage Instagram section. Posts come from a behold.so JSON feed; what's
@@ -53,24 +54,12 @@ export const instagramUrl = (handle: string) => `https://www.instagram.com/${han
 
 const SETTINGS_KEY = "instagram";
 
-/** Thrown to the admin when the store_settings migration hasn't been run yet. */
-export class SettingsTableMissing extends Error {}
-
-function isMissingTable(error: { code?: string; message?: string }) {
-  const message = error.message ?? "";
-  return (
-    error.code === "42P01" ||
-    error.code === "PGRST205" ||
-    (/store_settings/.test(message) && /not find|does not exist/.test(message))
-  );
-}
-
 /** Saved values over the defaults, ignoring anything malformed. */
 function resolveSettings(saved: unknown): InstagramSettings {
   const d = DEFAULT_INSTAGRAM_SETTINGS;
   if (!saved || typeof saved !== "object") return d;
   const s = saved as Partial<Record<keyof InstagramSettings, unknown>>;
-  const text = (v: unknown, fallback: string) => (typeof v === "string" && v.trim() ? v.trim() : fallback);
+  const text = textOr;
   return {
     enabled: typeof s.enabled === "boolean" ? s.enabled : d.enabled,
     layout: INSTAGRAM_LAYOUTS.some((l) => l.key === s.layout) ? (s.layout as InstagramLayout) : d.layout,
@@ -85,12 +74,7 @@ function resolveSettings(saved: unknown): InstagramSettings {
 
 /** Admin: surfaces a missing table instead of hiding it. */
 export async function fetchInstagramSettingsStrict(): Promise<InstagramSettings> {
-  const { data, error } = await supabase.from("store_settings").select("value").eq("key", SETTINGS_KEY).maybeSingle();
-  if (error) {
-    if (isMissingTable(error)) throw new SettingsTableMissing(error.message);
-    throw error;
-  }
-  return resolveSettings(data?.value);
+  return resolveSettings(await fetchStoreSetting(SETTINGS_KEY));
 }
 
 /** Storefront: the defaults when nothing is saved or the table doesn't exist yet. */
@@ -103,13 +87,7 @@ async function fetchInstagramSettings(): Promise<InstagramSettings> {
 }
 
 export async function saveInstagramSettings(settings: InstagramSettings) {
-  const { error } = await supabase
-    .from("store_settings")
-    .upsert({ key: SETTINGS_KEY, value: settings as unknown as Json });
-  if (error) {
-    if (isMissingTable(error)) throw new SettingsTableMissing(error.message);
-    throw error;
-  }
+  await saveStoreSetting(SETTINGS_KEY, settings);
 }
 
 export function useInstagramSettings() {
