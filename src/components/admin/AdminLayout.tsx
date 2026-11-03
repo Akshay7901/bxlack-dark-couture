@@ -5,7 +5,6 @@ import {
   FileText,
   Home,
   Instagram,
-  Lightbulb,
   Mail,
   Menu,
   MessageCircle,
@@ -36,7 +35,6 @@ export type NavKey =
   | "pages"
   | "emails"
   | "whatsapp"
-  | "hero"
   | "instagram"
   | "launch"
   | "team";
@@ -87,7 +85,6 @@ const NAV_PERMISSION: Record<NavKey, Permission | "admin"> = {
   pages: "content",
   emails: "content",
   whatsapp: "content",
-  hero: "content",
   instagram: "content",
   launch: "content",
   team: "admin",
@@ -111,7 +108,6 @@ const NAV_ORDER: NavKey[] = [
   "pages",
   "emails",
   "whatsapp",
-  "hero",
   "instagram",
   "launch",
   "team",
@@ -137,7 +133,6 @@ const STORE_NAV: NavItem[] = [
   { key: "pages", label: "Pages", icon: FileText },
   { key: "emails", label: "Email templates", icon: Mail },
   { key: "whatsapp", label: "WhatsApp", icon: MessageCircle },
-  { key: "hero", label: "Homepage hero", icon: Lightbulb },
   { key: "instagram", label: "Instagram", icon: Instagram },
   { key: "launch", label: "Launch", icon: Rocket },
 ];
