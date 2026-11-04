@@ -87,6 +87,9 @@ export const previewDiscount = createServerFn({ method: "POST" })
     return { code: data.code.toUpperCase(), amount: Number(amount ?? 0), subtotal };
   });
 
+/** Orders one account may place per hour; stops a script from holding stock with fake orders. */
+const MAX_ORDERS_PER_HOUR = 5;
+
 /**
  * Creates an order from the bag: redeems the discount code, reserves stock,
  * then writes the order. Any step failing undoes the steps before it, so a
@@ -97,6 +100,14 @@ export const placeOrder = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => checkoutSchema.parse(input))
   .handler(async ({ data, context }): Promise<{ orderId: string; orderNumber: number }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count: recent } = await supabaseAdmin
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", context.userId)
+      .gte("created_at", new Date(Date.now() - 60 * 60_000).toISOString());
+    if ((recent ?? 0) >= MAX_ORDERS_PER_HOUR) {
+      throw new Error("You've placed several orders in the last hour. Please wait a little, or contact us if you need help.");
+    }
     const { items, subtotal } = await priceLines(supabaseAdmin, data.lines);
     const code = data.discountCode?.trim().toUpperCase() || null;
 

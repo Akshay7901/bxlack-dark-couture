@@ -165,7 +165,8 @@ export async function fetchInstagramFeed(feedUrl: string): Promise<InstagramFeed
         type: p.mediaType,
         timestamp: p.timestamp ?? null,
       }))
-      .filter((p) => p.image),
+      // Only real Instagram links and https images, whatever the feed returns.
+      .filter((p) => p.image && /^https:\/\//.test(p.image) && /^https:\/\/(www\.)?instagram\.com\//.test(p.url)),
   };
 }
 
