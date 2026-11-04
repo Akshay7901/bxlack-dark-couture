@@ -227,10 +227,10 @@ export const TEMPLATE_DEFS: TemplateDef[] = [
     variables: [],
     supabase: true,
     defaults: {
-      subject: "Your BXLACK confirmation code",
+      subject: "Confirm your BXLACK account",
       heading: "Confirm your email",
-      intro: "Enter this code on the BXLACK website to confirm your email and finish creating your account. If you didn't create an account, you can ignore this email.",
-      button: "Confirm with a link",
+      intro: "Tap the button below to confirm this address belongs to you and finish setting up your BXLACK account. If you didn't create an account, you can ignore this email.",
+      button: "Verify email",
       footer: security,
     },
   },

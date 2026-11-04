@@ -10,7 +10,6 @@ import {
   unknownVariables,
   type TemplateCopy,
 } from "@/lib/email/copy";
-import { withSampleCode } from "@/lib/email/templates";
 
 export type TemplateSetting = { enabled: boolean; copy: Partial<TemplateCopy>; updatedAt: string };
 
@@ -120,8 +119,8 @@ export const sendTestEmail = createServerFn({ method: "POST" })
     const preview = emailCatalog(images).find((e) => e.id === data.id)!;
     const email = preview.render(copy);
     // Supabase fills this link in real sends; point it somewhere harmless for the test.
-    const html = withSampleCode(email.html.replaceAll("{{ .ConfirmationURL }}", `${SITE_URL}/account`));
-    const text = withSampleCode(email.text.replaceAll("{{ .ConfirmationURL }}", `${SITE_URL}/account`));
+    const html = email.html.replaceAll("{{ .ConfirmationURL }}", `${SITE_URL}/account`);
+    const text = email.text.replaceAll("{{ .ConfirmationURL }}", `${SITE_URL}/account`);
     const subject = `[Test] ${email.subject}`;
 
     const result = await sendEmail(data.to, { subject, html, text });
