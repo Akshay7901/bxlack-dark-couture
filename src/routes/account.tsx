@@ -122,6 +122,11 @@ function AccountPage() {
     setNotice(null);
     try {
       if (mode === "signup") {
+        // Required in the form too; this also catches a name of only spaces.
+        if (!fullName.trim()) {
+          setMessage("Please enter your name.");
+          return;
+        }
         const pendingProfile = Object.fromEntries(
           Object.entries({ full_name: fullName, phone, instagram })
             .map(([k, v]) => [k, v.trim()])
@@ -292,10 +297,12 @@ function AccountPage() {
                   {mode === "signup" ? (
                     <label className="block">
                       <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">
-                        Name (optional)
+                        Name
                       </span>
                       <input
                         type="text"
+                        required
+                        autoComplete="name"
                         maxLength={100}
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
