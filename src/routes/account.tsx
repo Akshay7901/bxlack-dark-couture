@@ -64,7 +64,11 @@ function friendlyAuthError(err: unknown): string {
   if (/email not confirmed/i.test(text)) return "Please confirm your email first: open the link we sent you.";
   if (/invalid login credentials/i.test(text)) return "Incorrect email or password.";
   if (/already registered|already exists/i.test(text)) return "An account with this email already exists. Sign in instead.";
-  if (/rate limit/i.test(text)) return "Too many attempts. Please wait a minute and try again.";
+  // Supabase's hourly email allowance for the whole store (sign-up confirmations, resets).
+  if (/email rate limit/i.test(text)) {
+    return "We can't send account emails right now. Please try again later, or contact us and we'll help.";
+  }
+  if (/rate limit/i.test(text)) return "Too many attempts. Please wait a few minutes and try again.";
   return text;
 }
 
