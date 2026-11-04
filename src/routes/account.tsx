@@ -54,6 +54,20 @@ export const Route = createFileRoute("/account")({
 
 type Mode = "signin" | "signup";
 
+/** Supabase auth errors in plain words. */
+function friendlyAuthError(err: unknown): string {
+  const text = err instanceof Error ? err.message : "Something went wrong.";
+  const wait = text.match(/after (\d+) seconds?/i);
+  if (wait) {
+    return `We've just sent an email to this address. Check your inbox (and spam) for the link from BXLACK, or try again in ${wait[1]} seconds.`;
+  }
+  if (/email not confirmed/i.test(text)) return "Please confirm your email first: open the link we sent you.";
+  if (/invalid login credentials/i.test(text)) return "Incorrect email or password.";
+  if (/already registered|already exists/i.test(text)) return "An account with this email already exists. Sign in instead.";
+  if (/rate limit/i.test(text)) return "Too many attempts. Please wait a minute and try again.";
+  return text;
+}
+
 function AccountPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -68,11 +82,34 @@ function AccountPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Set when sign-in fails because the email isn't confirmed yet.
+  const [needsConfirm, setNeedsConfirm] = useState(false);
 
   useEffect(() => {
     setMessage(null);
     setNotice(null);
+    setNeedsConfirm(false);
   }, [mode]);
+
+  // Name / phone / Instagram given at sign-up are kept on the account until
+  // the first signed-in visit (with email confirmation there is no session at
+  // sign-up time), then saved to the profile here.
+  useEffect(() => {
+    const pending = user?.user_metadata?.pending_profile as
+      | Partial<{ full_name: string; phone: string; instagram: string }>
+      | null
+      | undefined;
+    if (!user || !pending || typeof pending !== "object") return;
+    void (async () => {
+      try {
+        await upsertProfile(user.id, pending);
+        await supabase.auth.updateUser({ data: { pending_profile: null } });
+        void qc.invalidateQueries({ queryKey: ["profile", user.id] });
+      } catch {
+        // Not worth blocking on; it's retried next visit and can be edited in Profile.
+      }
+    })();
+  }, [user, qc]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,43 +118,56 @@ function AccountPage() {
     setNotice(null);
     try {
       if (mode === "signup") {
+        const pendingProfile = Object.fromEntries(
+          Object.entries({ full_name: fullName, phone, instagram })
+            .map(([k, v]) => [k, v.trim()])
+            .filter(([, v]) => v),
+        );
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: `${window.location.origin}/account`,
+            data: Object.keys(pendingProfile).length ? { pending_profile: pendingProfile } : {},
+          },
         });
         if (error) throw error;
-        if (!data.session) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-          if (signInError) throw signInError;
+        // An existing account comes back as a user with no identities (Supabase
+        // doesn't reveal it directly).
+        if (data.user && data.user.identities?.length === 0) {
+          setMessage("An account with this email already exists. Sign in instead, or use Forgot password.");
+          return;
         }
-        const trimmedFullName = fullName.trim();
-        const trimmedPhone = phone.trim();
-        const trimmedInstagram = instagram.trim();
-        if ((trimmedFullName || trimmedPhone || trimmedInstagram) && data.user) {
-          try {
-            await upsertProfile(data.user.id, {
-              ...(trimmedFullName ? { full_name: trimmedFullName } : {}),
-              ...(trimmedPhone ? { phone: trimmedPhone } : {}),
-              ...(trimmedInstagram ? { instagram: trimmedInstagram } : {}),
-            });
-          } catch {
-            // Account creation already succeeded — a failed profile save
-            // isn't worth blocking on; it can still be added later from
-            // Profile.
-          }
+        if (!data.session) {
+          // Email confirmation is on: the account exists and a link is on its way.
+          setPassword("");
+          setNotice(`Account created. We've emailed a confirmation link to ${email}. Open it to activate your account and you'll be signed in.`);
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          if (/email not confirmed/i.test(error.message)) setNeedsConfirm(true);
+          throw error;
+        }
       }
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Something went wrong.");
+      setMessage(friendlyAuthError(err));
     } finally {
       setBusy(false);
+    }
+  };
+
+  const resendConfirmation = async () => {
+    setMessage(null);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/account` },
+    });
+    if (error) setMessage(friendlyAuthError(error));
+    else {
+      setNeedsConfirm(false);
+      setNotice(`Confirmation link sent again to ${email}. Check your inbox and spam folder.`);
     }
   };
 
@@ -129,7 +179,7 @@ function AccountPage() {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    setMessage(error ? error.message : null);
+    setMessage(error ? friendlyAuthError(error) : null);
     if (!error) setNotice("Password reset link sent. Check your inbox.");
   };
 
@@ -353,6 +403,15 @@ function AccountPage() {
                     <AlertCircle size={13} className="mt-0.5 shrink-0" />
                     {message}
                   </p>
+                ) : null}
+                {needsConfirm ? (
+                  <button
+                    type="button"
+                    onClick={() => void resendConfirmation()}
+                    className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white underline underline-offset-4 hover:text-white/70"
+                  >
+                    Resend confirmation email
+                  </button>
                 ) : null}
 
                 {mode === "signup" ? (
