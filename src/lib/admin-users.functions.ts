@@ -91,6 +91,7 @@ export const listCustomers = createServerFn({ method: "GET" })
     const orderCounts = new Map<string, number>();
     const spent = new Map<string, number>();
     for (const o of ordersRes.data ?? []) {
+      if (!o.user_id) continue; // customer account deleted; the order is kept
       orderCounts.set(o.user_id, (orderCounts.get(o.user_id) ?? 0) + 1);
       if (o.status !== "cancelled") {
         spent.set(o.user_id, (spent.get(o.user_id) ?? 0) + Number(o.total));
@@ -249,4 +250,59 @@ export const removeStaffMember = createServerFn({ method: "POST" })
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
     await supabaseAdmin.from("staff_members").delete().eq("user_id", data.userId);
     return { ok: true };
+  });
+/**
+ * Deletes a customer's account: their login, profile and saved addresses.
+ * Their orders and return requests are kept (detached from the account) for
+ * your records. Admin only; studio accounts and your own can't be deleted here.
+ */
+export const deleteCustomer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertCallerIsAdmin(context.supabase, context.userId);
+    if (data.userId === context.userId) throw new Error("You can't delete your own account.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [roleRes, staffRes] = await Promise.all([
+      supabaseAdmin.from("user_roles").select("id").eq("user_id", data.userId).maybeSingle(),
+      supabaseAdmin.from("staff_members").select("user_id").eq("user_id", data.userId).maybeSingle(),
+    ]);
+    if (roleRes.data || staffRes.data) {
+      throw new Error("This is a studio account. Remove their access under Settings → Staff & permissions first.");
+    }
+
+    // Detach orders and returns first so they survive the delete. If the
+    // keep-orders migration hasn't been run, user_id is still required and
+    // this fails, stopping before anything is lost.
+    const keepOrdersHint = "Can't delete yet: run apply-keep-orders.sql in Supabase so this customer's orders are kept.";
+    const { data: orderRows, error: orderError } = await supabaseAdmin
+      .from("orders")
+      .update({ user_id: null })
+      .eq("user_id", data.userId)
+      .select("id");
+    if (orderError) throw new Error(keepOrdersHint);
+    const { data: returnRows, error: returnError } = await supabaseAdmin
+      .from("return_requests")
+      .update({ user_id: null })
+      .eq("user_id", data.userId)
+      .select("id");
+
+    const reattach = async () => {
+      const orderIds = (orderRows ?? []).map((r) => r.id);
+      const returnIds = (returnRows ?? []).map((r) => r.id);
+      if (orderIds.length) await supabaseAdmin.from("orders").update({ user_id: data.userId }).in("id", orderIds);
+      if (returnIds.length) await supabaseAdmin.from("return_requests").update({ user_id: data.userId }).in("id", returnIds);
+    };
+    if (returnError) {
+      await reattach();
+      throw new Error(keepOrdersHint);
+    }
+
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (error) {
+      await reattach();
+      throw new Error(error.message || "Could not delete the account");
+    }
+    return { keptOrders: orderRows?.length ?? 0 };
   });

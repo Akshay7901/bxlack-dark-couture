@@ -175,7 +175,7 @@ export const listReturnRequestsForAdmin = createServerFn({ method: "GET" })
         adminNote: r.admin_note,
         items: (r.items ?? []) as unknown as ReturnRequestItem[],
         createdAt: r.created_at,
-        email: emails.get(r.user_id) ?? "unknown",
+        email: r.user_id ? (emails.get(r.user_id) ?? "unknown") : "Deleted customer",
         fullName: o?.full_name ?? null,
         phone: o?.phone ?? null,
         address: o

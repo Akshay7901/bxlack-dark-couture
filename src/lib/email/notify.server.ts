@@ -72,7 +72,8 @@ async function loadOrder(orderId: string): Promise<EmailOrder | null> {
     .eq("id", orderId)
     .maybeSingle();
   if (!o) return null;
-  const email = await emailForUser(o.user_id);
+  // No account any more (customer deleted): nobody to email.
+  const email = o.user_id ? await emailForUser(o.user_id) : null;
   if (!email) return null;
   // Product images live in the public bucket, so a plain public URL works in email.
   const imageUrl = (path: string | null) =>
@@ -114,7 +115,7 @@ async function loadReturn(returnId: string): Promise<EmailReturn | null> {
     .eq("id", returnId)
     .maybeSingle();
   if (!r) return null;
-  const email = await emailForUser(r.user_id);
+  const email = r.user_id ? await emailForUser(r.user_id) : null;
   if (!email) return null;
   return {
     orderNumber: r.orders?.order_number ?? 0,

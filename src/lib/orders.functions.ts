@@ -16,7 +16,8 @@ export type AdminOrderItem = {
 export type AdminOrder = {
   id: string;
   orderNumber: number;
-  userId: string;
+  /** null when the customer's account was deleted (the order is kept). */
+  userId: string | null;
   status: string;
   total: number;
   subtotal: number;
@@ -78,7 +79,7 @@ export const listOrdersForAdmin = createServerFn({ method: "GET" })
       courier: o.courier,
       trackingNumber: o.tracking_number,
       note: o.order_notes?.note ?? "",
-      email: emails.get(o.user_id) ?? "unknown",
+      email: o.user_id ? (emails.get(o.user_id) ?? "unknown") : "Deleted customer",
       fullName: o.full_name,
       phone: o.phone,
       addressLine1: o.address_line1,

@@ -242,7 +242,9 @@ function AdminDashboard({
         {active === "orders" ? <AdminOrders key={orderSearch} initialQuery={orderSearch} /> : null}
         {active === "returns" ? <AdminReturns key="returns" type="return" /> : null}
         {active === "exchanges" ? <AdminReturns key="exchanges" type="exchange" /> : null}
-        {active === "customers" ? <AdminCustomers /> : null}
+        {active === "customers" ? (
+          <AdminCustomers canDelete={access.role === "admin"} currentUserId={userId} />
+        ) : null}
         {active === "discounts" ? <AdminDiscounts /> : null}
         {active === "pages" ? <AdminPages /> : null}
         {active === "emails" ? <AdminEmails /> : null}

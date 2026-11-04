@@ -280,7 +280,7 @@ export type Database = {
       orders: {
         Row: {
           id: string;
-          user_id: string;
+          user_id: string | null;
           status: string;
           total: number;
           created_at: string;
@@ -305,7 +305,7 @@ export type Database = {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          user_id?: string | null;
           status?: string;
           total?: number;
           created_at?: string;
@@ -330,7 +330,7 @@ export type Database = {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          user_id?: string | null;
           status?: string;
           total?: number;
           created_at?: string;
@@ -510,7 +510,7 @@ export type Database = {
         Row: {
           id: string;
           order_id: string;
-          user_id: string;
+          user_id: string | null;
           type: string;
           items: Json;
           reason: string;
@@ -523,7 +523,7 @@ export type Database = {
         Insert: {
           id?: string;
           order_id: string;
-          user_id: string;
+          user_id?: string | null;
           type: string;
           items: Json;
           reason: string;
@@ -536,7 +536,7 @@ export type Database = {
         Update: {
           id?: string;
           order_id?: string;
-          user_id?: string;
+          user_id?: string | null;
           type?: string;
           items?: Json;
           reason?: string;

@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Search, User } from "lucide-react";
-import { listCustomers } from "@/lib/admin-users.functions";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Search, Trash2, User } from "lucide-react";
+import { deleteCustomer, listCustomers } from "@/lib/admin-users.functions";
+import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { listOrdersForAdmin } from "@/lib/orders.functions";
 import { WhatsAppMenu } from "@/components/admin/WhatsAppMenu";
 import { statusClass } from "@/components/admin/AdminOrders";
@@ -47,9 +49,26 @@ function CustomerOrders({ userId, phone, name }: { userId: string; phone: string
   );
 }
 
-export function AdminCustomers() {
+/** canDelete: admins only (the server checks too). */
+export function AdminCustomers({ canDelete = false, currentUserId }: { canDelete?: boolean; currentUserId?: string }) {
+  const qc = useQueryClient();
+  const { confirm, dialog } = useConfirm("light");
   const [query, setQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const remove = useMutation({
+    mutationFn: (userId: string) => deleteCustomer({ data: { userId } }),
+    onSuccess: (r) => {
+      toast.success(
+        r.keptOrders
+          ? `Customer deleted. Their ${r.keptOrders} ${r.keptOrders === 1 ? "order is" : "orders are"} kept.`
+          : "Customer deleted",
+      );
+      setExpandedId(null);
+      void qc.invalidateQueries({ queryKey: ["admin-customers"] });
+      void qc.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const { data: customers = [], isLoading, error } = useQuery({
     queryKey: ["admin-customers"],
     queryFn: () => listCustomers(),
@@ -65,6 +84,7 @@ export function AdminCustomers() {
 
   return (
     <section>
+      {dialog}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 className="font-display text-xl uppercase tracking-[-0.01em] text-neutral-900">
@@ -138,7 +158,35 @@ export function AdminCustomers() {
                 </p>
               </div>
             </button>
-            {expandedId === c.userId ? <CustomerOrders userId={c.userId} phone={c.phone} name={c.fullName} /> : null}
+            {expandedId === c.userId ? (
+              <>
+                <CustomerOrders userId={c.userId} phone={c.phone} name={c.fullName} />
+                {canDelete && !c.isAdmin && c.userId !== currentUserId ? (
+                  <div className="flex justify-end border-t border-black/10 px-4 py-3">
+                    <button
+                      type="button"
+                      disabled={remove.isPending}
+                      onClick={() =>
+                        confirm({
+                          title: "Delete customer",
+                          message: `${c.email} will be deleted: their login, profile and saved addresses. ${
+                            c.orderCount
+                              ? `Their ${c.orderCount} ${c.orderCount === 1 ? "order stays" : "orders stay"} in Orders for your records.`
+                              : "They have no orders."
+                          } This can't be undone.`,
+                          confirmLabel: "Delete customer",
+                          destructive: true,
+                          onConfirm: () => remove.mutate(c.userId),
+                        })
+                      }
+                      className="flex items-center gap-1.5 border border-black/15 px-3 py-1.5 text-[13px] text-red-600 disabled:opacity-50"
+                    >
+                      <Trash2 size={14} /> Delete customer
+                    </button>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
             </div>
           ))
         )}
