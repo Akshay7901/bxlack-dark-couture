@@ -2,7 +2,13 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, ShieldCheck, User } from "lucide-react";
-import { listStaff, removeStaffMember, saveStaffMember, type StaffMember } from "@/lib/admin-users.functions";
+import {
+  listStaff,
+  removeStaffMember,
+  resetStaffTwoStep,
+  saveStaffMember,
+  type StaffMember,
+} from "@/lib/admin-users.functions";
 import { PERMISSIONS, PERMISSION_KEYS, type Permission, type StudioRole } from "@/lib/permissions";
 import { useConfirm } from "@/components/admin/ConfirmDialog";
 import { Badge } from "@/components/admin/Badge";
@@ -50,6 +56,15 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
     mutationFn: (userId: string) => removeStaffMember({ data: { userId } }),
     onSuccess: () => {
       toast.success("Access removed");
+      qc.invalidateQueries({ queryKey: ["admin-staff"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const resetTwoStep = useMutation({
+    mutationFn: (userId: string) => resetStaffTwoStep({ data: { userId } }),
+    onSuccess: () => {
+      toast.success("Two-step verification reset. They'll set it up again at their next sign-in.");
       qc.invalidateQueries({ queryKey: ["admin-staff"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -108,6 +123,21 @@ export function AdminTeam({ currentUserId }: { currentUserId: string }) {
                   permissions: m.role === "admin" ? ["orders"] : m.permissions,
                 })
               }
+              onResetTwoStep={
+                m.twoStep
+                  ? () =>
+                      confirm({
+                        title: "Reset two-step verification",
+                        message:
+                          m.userId === currentUserId
+                            ? "This removes all your authenticator apps. You'll be asked to set up a new one straight away."
+                            : `Use this if ${m.email} lost or replaced their phone. Their authenticator apps are removed and they set up a new one at their next sign-in.`,
+                        confirmLabel: "Reset",
+                        destructive: true,
+                        onConfirm: () => resetTwoStep.mutate(m.userId),
+                      })
+                  : undefined
+              }
               onRemove={
                 m.userId === currentUserId || (m.role === "admin" && admins <= 1)
                   ? undefined
@@ -132,11 +162,13 @@ function MemberRow({
   member: m,
   isSelf,
   onEdit,
+  onResetTwoStep,
   onRemove,
 }: {
   member: StaffMember;
   isSelf: boolean;
   onEdit: () => void;
+  onResetTwoStep?: () => void;
   onRemove?: () => void;
 }) {
   const labels = PERMISSIONS.filter((p) => m.permissions.includes(p.key)).map((p) => p.label);
@@ -149,6 +181,7 @@ function MemberRow({
         <p className="flex flex-wrap items-center gap-2 text-[14px] text-neutral-900">
           {m.email}
           <Badge tone={m.role === "admin" ? "info" : "neutral"}>{m.role === "admin" ? "Admin" : "Staff"}</Badge>
+          {m.twoStep ? <Badge tone="success">2-step on</Badge> : <Badge tone="attention">2-step not set up</Badge>}
           {isSelf ? <span className="text-[12px] text-neutral-500">(you)</span> : null}
         </p>
         <p className="mt-1 text-[12px] text-neutral-500">
@@ -166,6 +199,15 @@ function MemberRow({
         >
           Edit access
         </button>
+        {onResetTwoStep ? (
+          <button
+            type="button"
+            onClick={onResetTwoStep}
+            className="border border-black/25 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-700"
+          >
+            Reset 2-step
+          </button>
+        ) : null}
         {onRemove ? (
           <button
             type="button"

@@ -28,17 +28,42 @@ export async function getStudioAccess(supabase: SupabaseClient<Database>, userId
   return { role: null, permissions: [] };
 }
 
-/** Throws unless the signed-in caller has the admin role. */
-export async function assertCallerIsAdmin(supabase: SupabaseClient<Database>, userId: string) {
-  const access = await getStudioAccess(supabase, userId);
-  if (access.role !== "admin") throw new Error("Forbidden");
+/** What requireSupabaseAuth puts on a server function's context. */
+export type StudioCaller = {
+  supabase: SupabaseClient<Database>;
+  userId: string;
+  claims?: { aal?: unknown } | null;
+};
+
+/**
+ * Studio accounts must pass two-step verification. Set STUDIO_MFA_OPTIONAL=true
+ * in Vercel only as an emergency switch (e.g. the last admin lost their
+ * authenticator), then remove it once their two-step verification is reset.
+ */
+export const studioMfaRequired = () => process.env.STUDIO_MFA_OPTIONAL !== "true";
+
+export const MFA_REQUIRED_MESSAGE =
+  "Two-step verification is required. Sign in again and enter the code from your authenticator app.";
+
+function assertMfa(caller: StudioCaller) {
+  if (studioMfaRequired() && caller.claims?.aal !== "aal2") throw new Error(MFA_REQUIRED_MESSAGE);
 }
 
-/** Throws unless the caller is an admin, or staff holding this permission. */
-export async function assertCan(supabase: SupabaseClient<Database>, userId: string, permission: Permission) {
-  const access = await getStudioAccess(supabase, userId);
-  if (access.role === "admin" || access.permissions.includes(permission)) return access;
-  throw new Error("You don't have access to this section. Ask an admin to grant it.");
+/** Throws unless the signed-in caller has the admin role (and a two-step verified session). */
+export async function assertCallerIsAdmin(caller: StudioCaller) {
+  const access = await getStudioAccess(caller.supabase, caller.userId);
+  if (access.role !== "admin") throw new Error("Forbidden");
+  assertMfa(caller);
+}
+
+/** Throws unless the caller is an admin, or staff holding this permission (with a two-step verified session). */
+export async function assertCan(caller: StudioCaller, permission: Permission) {
+  const access = await getStudioAccess(caller.supabase, caller.userId);
+  if (access.role !== "admin" && !access.permissions.includes(permission)) {
+    throw new Error("You don't have access to this section. Ask an admin to grant it.");
+  }
+  assertMfa(caller);
+  return access;
 }
 
 /** Every auth user, paging through the admin API (it caps each page). */

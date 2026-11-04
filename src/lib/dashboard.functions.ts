@@ -26,7 +26,7 @@ const DAY = 86_400_000;
 export const getDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DashboardStats> => {
-    await assertCan(context.supabase, context.userId, "home");
+    await assertCan(context, "home");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const now = Date.now();

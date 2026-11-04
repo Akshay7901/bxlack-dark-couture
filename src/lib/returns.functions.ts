@@ -147,7 +147,7 @@ export type AdminReturnRequest = {
 export const listReturnRequestsForAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminReturnRequest[]> => {
-    await assertCan(context.supabase, context.userId, "returns");
+    await assertCan(context, "returns");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: requests, error } = await supabaseAdmin
@@ -198,7 +198,7 @@ export const updateReturnRequest = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertCan(context.supabase, context.userId, "returns");
+    await assertCan(context, "returns");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: before } = await supabaseAdmin
