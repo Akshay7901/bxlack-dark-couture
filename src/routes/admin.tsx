@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Reorder } from "framer-motion";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -70,6 +70,13 @@ export const Route = createFileRoute("/admin")({
       noindex: true,
     }),
   ssr: false,
+  // Signed-out visitors go straight to sign-in before any studio screen
+  // loads. (Access itself is enforced on the server and by database rules.)
+  beforeLoad: async () => {
+    if (typeof window === "undefined") return;
+    const { data } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+    if (!data.session) throw redirect({ to: "/auth", replace: true });
+  },
   component: AdminPage,
 });
 

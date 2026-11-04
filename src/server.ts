@@ -55,10 +55,21 @@ const SECURITY_HEADERS: Record<string, string> = {
   "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
 };
 
-function withSecurityHeaders(response: Response): Response {
+// Studio and sign-in pages: never indexed, never stored by browsers or proxies.
+const PRIVATE_PAGE_HEADERS: Record<string, string> = {
+  "X-Robots-Tag": "noindex, nofollow",
+  "Cache-Control": "private, no-store",
+};
+const isPrivatePage = (pathname: string) => /^\/(admin|auth)(\/|$)/.test(pathname);
+
+function withSecurityHeaders(response: Response, request?: Request): Response {
+  const privatePage = request ? isPrivatePage(new URL(request.url).pathname) : false;
   const apply = (headers: Headers) => {
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
       if (!headers.has(name)) headers.set(name, value);
+    }
+    if (privatePage) {
+      for (const [name, value] of Object.entries(PRIVATE_PAGE_HEADERS)) headers.set(name, value);
     }
   };
   try {
@@ -77,7 +88,7 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
+      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response), request);
     } catch (error) {
       console.error(error);
       return withSecurityHeaders(
