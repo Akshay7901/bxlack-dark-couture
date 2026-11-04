@@ -8,7 +8,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, supabaseStudio } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getMyStudioAccess } from "@/lib/admin-users.functions";
 import type { StudioAccess } from "@/lib/permissions";
@@ -74,7 +74,8 @@ export const Route = createFileRoute("/admin")({
   // loads. (Access itself is enforced on the server and by database rules.)
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
-    const { data } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+    // The studio session explicitly: during navigation the URL may still be the previous page.
+    const { data } = await supabaseStudio.auth.getSession().catch(() => ({ data: { session: null } }));
     if (!data.session) throw redirect({ to: "/auth", replace: true });
   },
   component: AdminPage,

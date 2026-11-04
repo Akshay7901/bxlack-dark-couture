@@ -27,7 +27,7 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 
-function createSupabaseClient() {
+function createSupabaseClient(storageKey?: string) {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
   const SUPABASE_URL = import.meta.env['VITE_SUPABASE_URL'] || process.env['SUPABASE_URL'];
@@ -51,18 +51,46 @@ function createSupabaseClient() {
       storage: typeof window !== 'undefined' ? localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
+      ...(storageKey ? { storageKey } : {}),
     }
   });
 }
 
-let _supabase: ReturnType<typeof createSupabaseClient> | undefined;
+type Client = ReturnType<typeof createSupabaseClient>;
+
+/**
+ * Two separate sign-ins in the same browser:
+ *  - the store (customer accounts) keeps Supabase's default session, and
+ *  - the studio (/admin and its /auth sign-in page) keeps its own session
+ *    under STUDIO_STORAGE_KEY.
+ * Signing in or out of one never signs you in or out of the other, even with
+ * the same email.
+ */
+const STUDIO_STORAGE_KEY = "bxlack-studio-auth";
+
+export const isStudioPath = (pathname: string) => /^\/(admin|auth)(\/|$)/.test(pathname);
+
+let _store: Client | undefined;
+let _studio: Client | undefined;
+const storeClient = () => (_store ??= createSupabaseClient());
+const studioClient = () => (_studio ??= createSupabaseClient(STUDIO_STORAGE_KEY));
+
+function delegate(pick: () => Client): Client {
+  return new Proxy({} as Client, {
+    get(_, prop) {
+      const target = pick();
+      const value = Reflect.get(target, prop, target);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
-export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>, {
-  get(_, prop, receiver) {
-    if (!_supabase) _supabase = createSupabaseClient();
-    return Reflect.get(_supabase, prop, receiver);
-  },
-});
+// It uses the studio session on studio pages and the store session everywhere else.
+export const supabase = delegate(() =>
+  typeof window !== "undefined" && isStudioPath(window.location.pathname) ? studioClient() : storeClient(),
+);
 
+/** Always the studio session (for code that runs mid-navigation, e.g. route guards). */
+export const supabaseStudio = delegate(studioClient);
