@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Columns3, Monitor, Smartphone, Tablet } from "lucide-react";
 import { fetchProducts } from "@/lib/catalog";
 import { emailCatalog, preheaderOf, type EmailPreview } from "@/lib/email/catalog";
+import { withSampleCode } from "@/lib/email/templates";
 import {
   COPY_FIELDS,
   COPY_FIELD_LABELS,
@@ -489,12 +490,12 @@ function TemplateWorkspace({
       {device === "all" ? (
         <div className="grid gap-4 md:grid-cols-[1fr_1.4fr_2fr]">
           {DEVICES.map((d) => (
-            <DeviceFrame key={d.key} label={`${d.label} · ${d.width}px`} width={d.width} kind={d.key} html={email.html} />
+            <DeviceFrame key={d.key} label={`${d.label} · ${d.width}px`} width={d.width} kind={d.key} html={withSampleCode(email.html)} />
           ))}
         </div>
       ) : (
         DEVICES.filter((d) => d.key === device).map((d) => (
-          <DeviceFrame key={d.key} label={`${d.label} · ${d.width}px`} width={d.width} kind={d.key} html={email.html} />
+          <DeviceFrame key={d.key} label={`${d.label} · ${d.width}px`} width={d.width} kind={d.key} html={withSampleCode(email.html)} />
         ))
       )}
     </div>

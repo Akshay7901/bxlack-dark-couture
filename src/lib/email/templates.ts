@@ -450,18 +450,34 @@ export function contactReceivedEmail(overrides?: Overrides): Email {
 
 // ---------------------------------------------------------------------------
 // Supabase Auth templates — pasted into Supabase → Authentication → Email
-// Templates. Supabase substitutes {{ .ConfirmationURL }} when sending.
+// Templates. Supabase substitutes {{ .ConfirmationURL }} and {{ .Token }}
+// (the one-time code) when sending.
 // ---------------------------------------------------------------------------
 
 const CONFIRMATION_URL = "{{ .ConfirmationURL }}";
+const OTP_TOKEN = "{{ .Token }}";
+
+/** Shown in previews and test sends in place of the real code. */
+export const withSampleCode = (s: string) => s.replaceAll(OTP_TOKEN, "482916");
 
 export function authConfirmSignupEmail(overrides?: Overrides): Email {
   const w = wording("confirm-signup", overrides, {});
-  const body = [heading(w.headingHtml, w.introHtml), button(w.button, CONFIRMATION_URL)].join("");
+  const code = block(
+    `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:${C.panel};border:1px solid ${C.border};border-radius:4px;padding:22px 30px;">${eyebrow("Your code")}<br><span style="font-family:'SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:38px;font-weight:700;letter-spacing:10px;line-height:1.5;color:${C.text};">${OTP_TOKEN}</span></td></tr></table>`,
+  );
+  const body = [
+    heading(w.headingHtml, w.introHtml),
+    code,
+    paragraph("This code expires in 1 hour and can only be used once.", 14),
+    paragraph(
+      `Closed the page? <a href="${CONFIRMATION_URL}" style="color:${C.text};">${esc(w.button)}</a> instead.`,
+      14,
+    ),
+  ].join("");
   return {
     subject: w.subject,
-    html: layout({ preheader: "Confirm your email to finish setting up.", tag: "Verification", body, footerNote: w.footerHtml }),
-    text: `${w.headingText}\n\n${w.introText}\n\n${CONFIRMATION_URL}`,
+    html: layout({ preheader: `Your BXLACK code: ${OTP_TOKEN}`, tag: "Verification", body, footerNote: w.footerHtml }),
+    text: `${w.headingText}\n\n${w.introText}\n\nYour code: ${OTP_TOKEN}\n\nThis code expires in 1 hour.\n\nOr confirm with this link: ${CONFIRMATION_URL}`,
   };
 }
 

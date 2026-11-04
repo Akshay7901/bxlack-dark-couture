@@ -59,9 +59,9 @@ function friendlyAuthError(err: unknown): string {
   const text = err instanceof Error ? err.message : "Something went wrong.";
   const wait = text.match(/after (\d+) seconds?/i);
   if (wait) {
-    return `We've just sent an email to this address. Check your inbox (and spam) for the link from BXLACK, or try again in ${wait[1]} seconds.`;
+    return `We've just sent an email to this address. Check your inbox (and spam) for the code from BXLACK, or try again in ${wait[1]} seconds.`;
   }
-  if (/email not confirmed/i.test(text)) return "Please confirm your email first: open the link we sent you.";
+  if (/email not confirmed/i.test(text)) return "Please confirm your email first with the code we sent you.";
   if (/invalid login credentials/i.test(text)) return "Incorrect email or password.";
   if (/already registered|already exists/i.test(text)) return "An account with this email already exists. Sign in instead.";
   if (/rate limit/i.test(text)) return "Too many attempts. Please wait a minute and try again.";
@@ -82,14 +82,30 @@ function AccountPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  // Set when sign-in fails because the email isn't confirmed yet.
-  const [needsConfirm, setNeedsConfirm] = useState(false);
+  // Email waiting for its 6-digit confirmation code (after sign-up, or when
+  // signing in to an account that was never confirmed).
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
     setMessage(null);
     setNotice(null);
-    setNeedsConfirm(false);
+    setVerifyEmail(null);
   }, [mode]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
+  const startVerify = (address: string) => {
+    setVerifyEmail(address);
+    setCode("");
+    setPassword("");
+    setCooldown(30);
+  };
 
   // Name / phone / Instagram given at sign-up are kept on the account until
   // the first signed-in visit (with email confirmation there is no session at
@@ -139,14 +155,23 @@ function AccountPage() {
           return;
         }
         if (!data.session) {
-          // Email confirmation is on: the account exists and a link is on its way.
-          setPassword("");
-          setNotice(`Account created. We've emailed a confirmation link to ${email}. Open it to activate your account and you'll be signed in.`);
+          // Email confirmation is on: the account exists and a code is on its way.
+          startVerify(email);
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-          if (/email not confirmed/i.test(error.message)) setNeedsConfirm(true);
+          if (/email not confirmed/i.test(error.message)) {
+            // Never confirmed: send a fresh code and ask for it here.
+            const { error: resendError } = await supabase.auth.resend({
+              type: "signup",
+              email,
+              options: { emailRedirectTo: `${window.location.origin}/account` },
+            });
+            startVerify(email);
+            if (resendError) setMessage(friendlyAuthError(resendError));
+            return;
+          }
           throw error;
         }
       }
@@ -157,17 +182,40 @@ function AccountPage() {
     }
   };
 
-  const resendConfirmation = async () => {
+  /** Confirms the email with the 6-digit code; on success the account is signed in. */
+  const verifySignupCode = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!verifyEmail || code.length < 6) return;
+    setBusy(true);
+    setMessage(null);
+    setNotice(null);
+    const { error } = await supabase.auth.verifyOtp({ email: verifyEmail, token: code, type: "email" });
+    setBusy(false);
+    if (error) {
+      setCode("");
+      setMessage(
+        /expired|invalid|not found/i.test(error.message)
+          ? "That code is wrong or has expired. Use the code from the newest email, or send a new one."
+          : friendlyAuthError(error),
+      );
+      return;
+    }
+    // Signed in now; the page switches to the account dashboard.
+    setVerifyEmail(null);
+  };
+
+  const resendCode = async () => {
+    if (!verifyEmail || cooldown > 0) return;
     setMessage(null);
     const { error } = await supabase.auth.resend({
       type: "signup",
-      email,
+      email: verifyEmail,
       options: { emailRedirectTo: `${window.location.origin}/account` },
     });
     if (error) setMessage(friendlyAuthError(error));
     else {
-      setNeedsConfirm(false);
-      setNotice(`Confirmation link sent again to ${email}. Check your inbox and spam folder.`);
+      setCooldown(30);
+      setNotice(`New code sent to ${verifyEmail}.`);
     }
   };
 
@@ -284,6 +332,62 @@ function AccountPage() {
                     : "Join the list to save pieces and get first access to SS26."}
                 </p>
 
+                {verifyEmail ? (
+                  <form onSubmit={verifySignupCode} className="mt-7 space-y-4">
+                    <div className="border border-white/15 px-4 py-4">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">Check your email</p>
+                      <p className="mt-2 text-[13px] leading-relaxed text-white/70">
+                        We sent a 6-digit code to <span className="text-white">{verifyEmail}</span>. Enter it below to
+                        confirm your email and finish creating your account.
+                      </p>
+                    </div>
+                    <label className="block">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">Code</span>
+                      <input
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        autoFocus
+                        placeholder="000000"
+                        aria-label="Confirmation code"
+                        className="mt-2 w-full border border-white/15 bg-transparent px-3 py-3 text-center font-mono text-[24px] tracking-[0.5em] text-white outline-none transition-colors placeholder:text-white/15 focus:border-white/60"
+                      />
+                    </label>
+                    <button
+                      type="submit"
+                      disabled={busy || code.length < 6}
+                      className="flex w-full items-center justify-center gap-2 border border-white bg-white py-[13px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
+                    >
+                      {busy ? <Loader2 size={14} className="animate-spin" /> : null}
+                      {busy ? "Checking…" : "Confirm & continue"}
+                    </button>
+                    <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em]">
+                      <button
+                        type="button"
+                        onClick={() => void resendCode()}
+                        disabled={cooldown > 0}
+                        className="text-white/60 underline underline-offset-4 hover:text-white disabled:no-underline disabled:opacity-50"
+                      >
+                        {cooldown > 0 ? `Resend code in ${cooldown}s` : "Resend code"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setVerifyEmail(null);
+                          setMessage(null);
+                          setNotice(null);
+                        }}
+                        className="text-white/40 underline underline-offset-4 hover:text-white"
+                      >
+                        Change email
+                      </button>
+                    </div>
+                    <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/30">
+                      Can't see it? Check spam or promotions. The code expires in 1 hour.
+                    </p>
+                  </form>
+                ) : (
                 <form onSubmit={submit} className="mt-7 space-y-4">
                   {mode === "signup" ? (
                     <label className="block">
@@ -391,6 +495,7 @@ function AccountPage() {
                     {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
                   </button>
                 </form>
+                )}
 
                 {notice ? (
                   <p className="mt-4 flex items-start gap-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-white/70">
@@ -404,17 +509,7 @@ function AccountPage() {
                     {message}
                   </p>
                 ) : null}
-                {needsConfirm ? (
-                  <button
-                    type="button"
-                    onClick={() => void resendConfirmation()}
-                    className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white underline underline-offset-4 hover:text-white/70"
-                  >
-                    Resend confirmation email
-                  </button>
-                ) : null}
-
-                {mode === "signup" ? (
+                {mode === "signup" && !verifyEmail ? (
                   <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-white/35">
                     Already have an account?{" "}
                     <button
