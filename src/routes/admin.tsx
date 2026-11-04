@@ -50,6 +50,7 @@ import { AdminEmails } from "@/components/admin/AdminEmails";
 import { AdminPages } from "@/components/admin/AdminPages";
 import { AdminWhatsApp } from "@/components/admin/AdminWhatsApp";
 import { AdminInstagram } from "@/components/admin/AdminInstagram";
+import { SessionTimeout, rememberTimeout } from "@/components/admin/SessionTimeout";
 import { StudioOverview } from "@/components/admin/StudioOverview";
 import { AdminLayout, firstAllowed, navAllowed, type NavKey } from "@/components/admin/AdminLayout";
 import {
@@ -142,7 +143,14 @@ function AdminPage() {
     );
   }
 
-  return <AdminDashboard email={user.email ?? ""} userId={user.id} access={access} />;
+  return (
+    <AdminDashboard
+      email={user.email ?? ""}
+      userId={user.id}
+      access={access}
+      signedInAt={user.last_sign_in_at}
+    />
+  );
 }
 
 /** Full-page frame for the loading and not-authorised states. */
@@ -169,7 +177,17 @@ function SectionHeading({ title, description }: { title: string; description?: s
   );
 }
 
-function AdminDashboard({ email, userId, access }: { email: string; userId: string; access: StudioAccess }) {
+function AdminDashboard({
+  email,
+  userId,
+  access,
+  signedInAt,
+}: {
+  email: string;
+  userId: string;
+  access: StudioAccess;
+  signedInAt?: string;
+}) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const allowed = (key: NavKey) => navAllowed(key, access);
@@ -178,44 +196,55 @@ function AdminDashboard({ email, userId, access }: { email: string; userId: stri
     if (allowed(key)) setActiveRaw(key);
   };
   const [orderSearch, setOrderSearch] = useState("");
+  const signOut = async () => {
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
 
   return (
-    <AdminLayout
-      access={access}
-      active={active}
-      onNavigate={(key) => {
-        setActive(key);
-        if (key !== "orders") setOrderSearch("");
-      }}
-      onSearch={(q) => {
-        if (!allowed("orders")) return;
-        setOrderSearch(q);
-        setActive("orders");
-      }}
-      email={email}
-      onSignOut={async () => {
-        await qc.cancelQueries();
-        qc.clear();
-        await supabase.auth.signOut();
-        navigate({ to: "/auth", replace: true });
-      }}
-    >
-      {active === "overview" ? <StudioOverview onNavigate={setActive} /> : null}
-      {active === "products" ? <ProductsSection /> : null}
-      {active === "categories" ? <AdminCategories /> : null}
-      {active === "orders" ? <AdminOrders key={orderSearch} initialQuery={orderSearch} /> : null}
-      {active === "returns" ? <AdminReturns key="returns" type="return" /> : null}
-      {active === "exchanges" ? <AdminReturns key="exchanges" type="exchange" /> : null}
-      {active === "customers" ? <AdminCustomers /> : null}
-      {active === "discounts" ? <AdminDiscounts /> : null}
-      {active === "pages" ? <AdminPages /> : null}
-      {active === "emails" ? <AdminEmails /> : null}
-      {active === "whatsapp" ? <AdminWhatsApp /> : null}
-      {active === "instagram" ? <AdminInstagram /> : null}
-      {active === "messages" ? <MessagesSection /> : null}
-      {active === "launch" ? <LaunchSection /> : null}
-      {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
-    </AdminLayout>
+    <>
+      <SessionTimeout
+        signedInAt={signedInAt}
+        onSignOut={() => void signOut()}
+        onTimeout={(reason) => {
+          rememberTimeout(reason);
+          void signOut();
+        }}
+      />
+      <AdminLayout
+        access={access}
+        active={active}
+        onNavigate={(key) => {
+          setActive(key);
+          if (key !== "orders") setOrderSearch("");
+        }}
+        onSearch={(q) => {
+          if (!allowed("orders")) return;
+          setOrderSearch(q);
+          setActive("orders");
+        }}
+        email={email}
+        onSignOut={() => void signOut()}
+      >
+        {active === "overview" ? <StudioOverview onNavigate={setActive} /> : null}
+        {active === "products" ? <ProductsSection /> : null}
+        {active === "categories" ? <AdminCategories /> : null}
+        {active === "orders" ? <AdminOrders key={orderSearch} initialQuery={orderSearch} /> : null}
+        {active === "returns" ? <AdminReturns key="returns" type="return" /> : null}
+        {active === "exchanges" ? <AdminReturns key="exchanges" type="exchange" /> : null}
+        {active === "customers" ? <AdminCustomers /> : null}
+        {active === "discounts" ? <AdminDiscounts /> : null}
+        {active === "pages" ? <AdminPages /> : null}
+        {active === "emails" ? <AdminEmails /> : null}
+        {active === "whatsapp" ? <AdminWhatsApp /> : null}
+        {active === "instagram" ? <AdminInstagram /> : null}
+        {active === "messages" ? <MessagesSection /> : null}
+        {active === "launch" ? <LaunchSection /> : null}
+        {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
+      </AdminLayout>
+    </>
   );
 }
 

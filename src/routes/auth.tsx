@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { bootstrapFirstAdmin, hasAnyAdmin } from "@/lib/admin-users.functions";
 import { seo } from "@/lib/seo";
+import { takeTimeoutMessage } from "@/components/admin/SessionTimeout";
 
 export const Route = createFileRoute("/auth")({
   head: () =>
@@ -23,7 +24,8 @@ function AuthPage() {
   const { user, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  // Explains a studio timeout, if that is how we got here.
+  const [message, setMessage] = useState<string | null>(() => takeTimeoutMessage());
   const [busy, setBusy] = useState(false);
 
   const { data: adminState, refetch } = useQuery({
