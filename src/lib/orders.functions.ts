@@ -47,7 +47,7 @@ export type AdminOrder = {
 export const listOrdersForAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminOrder[]> => {
-    await assertCan(context, "orders");
+    await assertCan(context.supabase, context.userId, "orders");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: orders, error: ordersError } = await supabaseAdmin
@@ -107,7 +107,7 @@ export const setOrderStatus = createServerFn({ method: "POST" })
     z.object({ orderId: z.string().uuid(), status: z.enum(ORDER_STATUSES) }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertCan(context, "orders");
+    await assertCan(context.supabase, context.userId, "orders");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: before } = await supabaseAdmin
@@ -143,7 +143,7 @@ export const updateOrderFulfillment = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertCan(context, "orders");
+    await assertCan(context.supabase, context.userId, "orders");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { error } = await supabaseAdmin

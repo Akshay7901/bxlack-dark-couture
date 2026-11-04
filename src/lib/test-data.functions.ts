@@ -218,7 +218,7 @@ const ORDERS: TestOrder[] = [
 export const seedTestData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertCallerIsAdmin(context);
+    await assertCallerIsAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Orders must belong to a real account; prefer a non-admin one.
@@ -305,7 +305,7 @@ export const seedTestData = createServerFn({ method: "POST" })
 export const clearTestData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertCallerIsAdmin(context);
+    await assertCallerIsAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { error: ordersError } = await supabaseAdmin.from("orders").delete().like("full_name", `${TAG}%`);

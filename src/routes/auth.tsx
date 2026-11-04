@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ArrowLeft, CheckCircle2, Clock, Eye, EyeOff, Loader2, Lock, Smartphone } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, Clock, Eye, EyeOff, Loader2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { bootstrapFirstAdmin, hasAnyAdmin } from "@/lib/admin-users.functions";
 import { seo } from "@/lib/seo";
 import { IDLE_MINUTES, clearTimeoutMessage, readTimeoutMessage } from "@/components/admin/SessionTimeout";
-import { CodeField } from "@/components/admin/TwoStep";
-import { getAssurance, verifySignIn } from "@/lib/mfa";
 import logo from "@/assets/bxlack-logo.webp";
 
 export const Route = createFileRoute("/auth")({
@@ -22,7 +20,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type Mode = "signin" | "forgot" | "verify";
+type Mode = "signin" | "forgot";
 type Notice = { tone: "error" | "info" | "success"; text: string };
 
 const labelClass = "block text-[13px] font-medium text-[#303030]";
@@ -43,7 +41,6 @@ function AuthPage() {
     return text ? { tone: "info", text } : null;
   });
   const [busy, setBusy] = useState(false);
-  const [code, setCode] = useState("");
   useEffect(clearTimeoutMessage, []);
 
   const { data: adminState, refetch } = useQuery({
@@ -52,47 +49,9 @@ function AuthPage() {
   });
   const needsBootstrap = adminState?.hasAdmin === false;
 
-  // Signed in (just now, or already): accounts with an authenticator enter
-  // their code here; everyone else continues to the studio.
   useEffect(() => {
-    if (loading || !user || mode === "verify") return;
-    let cancelled = false;
-    getAssurance()
-      .then((a) => {
-        if (cancelled) return;
-        if (a.enrolled && !a.verified) {
-          setMode("verify");
-          setNotice(null);
-        } else navigate({ to: "/admin", replace: true });
-      })
-      .catch(() => {
-        if (!cancelled) void navigate({ to: "/admin", replace: true });
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [loading, user, mode, navigate]);
-
-  const verify = async (value = code) => {
-    if (value.length !== 6) return;
-    setBusy(true);
-    setNotice(null);
-    try {
-      await verifySignIn(value);
-      navigate({ to: "/admin", replace: true });
-    } catch (err) {
-      setNotice({ tone: "error", text: err instanceof Error ? err.message : "That code didn't work." });
-      setCode("");
-      setBusy(false);
-    }
-  };
-
-  const signInAsSomeoneElse = async () => {
-    await supabase.auth.signOut();
-    setCode("");
-    setPassword("");
-    switchMode("signin");
-  };
+    if (!loading && user) navigate({ to: "/admin", replace: true });
+  }, [loading, user, navigate]);
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +64,7 @@ function AuthPage() {
       }
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      // The effect above takes it from here (code step, or on to the studio).
+      navigate({ to: "/admin", replace: true });
     } catch (err) {
       const text = err instanceof Error ? err.message : "Something went wrong.";
       setNotice({
@@ -154,19 +113,11 @@ function AuthPage() {
           <img src={logo} alt="BXLACK" width={480} height={266} className="h-9 w-auto invert" />
 
           <h1 className="mt-7 text-[20px] font-semibold leading-tight text-[#303030]">
-            {mode === "verify"
-              ? "Two-step verification"
-              : mode === "forgot"
-                ? "Reset your password"
-                : needsBootstrap
-                  ? "Create the owner account"
-                  : "Log in"}
+            {mode === "forgot" ? "Reset your password" : needsBootstrap ? "Create the owner account" : "Log in"}
           </h1>
           <p className="mt-1 text-[13px] text-[#616161]">
-            {mode === "verify"
-              ? "Enter the 6-digit code from your authenticator app."
-              : mode === "forgot"
-                ? "Enter your studio email and we'll send you a reset link."
+            {mode === "forgot"
+              ? "Enter your studio email and we'll send you a reset link."
               : needsBootstrap
                 ? "No admin exists yet. This account will own the studio; the form closes once it's created."
                 : "Continue to BXLACK Studio"}
@@ -174,42 +125,7 @@ function AuthPage() {
 
           {notice ? <NoticeBox notice={notice} /> : null}
 
-          {mode === "verify" ? (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                void verify();
-              }}
-              className="mt-6 space-y-4"
-            >
-              <div className="flex items-center gap-3 rounded-lg bg-[#f7f7f7] px-3.5 py-3 text-[13px] text-[#616161]">
-                <Smartphone size={18} className="shrink-0 text-[#303030]" />
-                Open Google Authenticator (or the app you set up) and find BXLACK Studio.
-              </div>
-              <label className="block">
-                <span className={labelClass}>Code</span>
-                <div className="mt-1.5">
-                  <CodeField value={code} onChange={setCode} onComplete={(c) => void verify(c)} disabled={busy} />
-                </div>
-              </label>
-              <button
-                type="submit"
-                disabled={busy || code.length !== 6}
-                className="flex w-full items-center justify-center gap-2 border border-black bg-black py-2.5 text-[14px] font-medium text-white disabled:opacity-60"
-              >
-                {busy ? <Loader2 size={16} className="animate-spin" /> : null}
-                {busy ? "Verifying…" : "Verify"}
-              </button>
-              <button
-                type="button"
-                onClick={() => void signInAsSomeoneElse()}
-                className="flex w-full items-center justify-center gap-1.5 text-[13px] text-[#005bd3] hover:underline"
-              >
-                <ArrowLeft size={14} /> Use a different account
-              </button>
-              <p className="text-center text-[12px] text-[#8a8a8a]">Lost your phone? Ask a store admin to reset it.</p>
-            </form>
-          ) : mode === "signin" ? (
+          {mode === "signin" ? (
             <form onSubmit={signIn} className="mt-6 space-y-4">
               <label className="block">
                 <span className={labelClass}>Email</span>

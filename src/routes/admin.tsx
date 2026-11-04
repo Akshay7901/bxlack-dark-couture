@@ -51,7 +51,6 @@ import { AdminPages } from "@/components/admin/AdminPages";
 import { AdminWhatsApp } from "@/components/admin/AdminWhatsApp";
 import { AdminInstagram } from "@/components/admin/AdminInstagram";
 import { SessionTimeout, rememberTimeout } from "@/components/admin/SessionTimeout";
-import { SecuritySection, TwoStepSetupGate, useAssurance } from "@/components/admin/TwoStep";
 import { StudioOverview } from "@/components/admin/StudioOverview";
 import { AdminLayout, firstAllowed, navAllowed, type NavKey } from "@/components/admin/AdminLayout";
 import {
@@ -112,31 +111,12 @@ function AdminPage() {
     enabled: !!user,
     staleTime: 60_000,
   });
-  // Two-step verification: studio accounts need an authenticator, and each
-  // session must enter its code (the server and database enforce this too).
-  const {
-    data: assurance,
-    isLoading: assuranceLoading,
-    refetch: refetchAssurance,
-  } = useAssurance(!!user && !!access?.role);
-  const needsCode = !!assurance && assurance.enrolled && !assurance.verified;
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
   }, [loading, user, navigate]);
-  useEffect(() => {
-    // Password-only session for an account with an authenticator: back to the code step.
-    if (needsCode) navigate({ to: "/auth", replace: true });
-  }, [needsCode, navigate]);
 
-  const signOut = async () => {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  };
-
-  if (loading || (user && accessLoading) || (access?.role && assuranceLoading) || needsCode) {
+  if (loading || (user && accessLoading)) {
     return (
       <Shell>
         <p className="font-mono text-[12px] uppercase tracking-[0.3em] text-neutral-500">
@@ -156,7 +136,12 @@ function AdminPage() {
           under Settings → Staff & permissions.
         </p>
         <button
-          onClick={() => void signOut()}
+          onClick={async () => {
+            await qc.cancelQueries();
+            qc.clear();
+            await supabase.auth.signOut();
+            navigate({ to: "/auth", replace: true });
+          }}
           className="mt-6 border border-black/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-700 hover:border-black hover:text-black"
         >
           Sign out
@@ -165,25 +150,11 @@ function AdminPage() {
     );
   }
 
-  if (access.mfaRequired && assurance && !assurance.enrolled) {
-    return (
-      <TwoStepSetupGate
-        email={user.email ?? ""}
-        onSignOut={() => void signOut()}
-        onDone={() => {
-          toast.success("Two-step verification is on");
-          void refetchAssurance();
-        }}
-      />
-    );
-  }
-
   return (
     <AdminDashboard
       email={user.email ?? ""}
       userId={user.id}
       access={access}
-      mfaRequired={access.mfaRequired}
       signedInAt={user.last_sign_in_at}
     />
   );
@@ -217,13 +188,11 @@ function AdminDashboard({
   email,
   userId,
   access,
-  mfaRequired,
   signedInAt,
 }: {
   email: string;
   userId: string;
   access: StudioAccess;
-  mfaRequired: boolean;
   signedInAt?: string;
 }) {
   const navigate = useNavigate();
@@ -281,7 +250,6 @@ function AdminDashboard({
         {active === "messages" ? <MessagesSection /> : null}
         {active === "launch" ? <LaunchSection /> : null}
         {active === "team" ? <AdminTeam currentUserId={userId} /> : null}
-        {active === "security" ? <SecuritySection mfaRequired={mfaRequired} /> : null}
       </AdminLayout>
     </>
   );

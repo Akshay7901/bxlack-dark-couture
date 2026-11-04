@@ -17,7 +17,7 @@ export type TemplateSetting = { enabled: boolean; copy: Partial<TemplateCopy>; u
 export const listEmailTemplateSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<Record<string, TemplateSetting>> => {
-    await assertCan(context, "content");
+    await assertCan(context.supabase, context.userId, "content");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin.from("email_templates").select("*");
     if (error) throw new Error("Could not load email templates. Has the email_templates migration been run?");
@@ -51,7 +51,7 @@ export const saveEmailTemplate = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertCan(context, "content");
+    await assertCan(context.supabase, context.userId, "content");
     const def = templateDef(data.id);
 
     // Only the variables this template fills are allowed — this also keeps
@@ -93,7 +93,7 @@ export const sendTestEmail = createServerFn({ method: "POST" })
     z.object({ id: z.enum(TEMPLATE_IDS), to: z.string().trim().email().max(255) }).parse(input),
   )
   .handler(async ({ data, context }): Promise<{ ok: boolean; error?: string; subject: string }> => {
-    await assertCan(context, "content");
+    await assertCan(context.supabase, context.userId, "content");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { sendEmail } = await import("@/lib/email/send.server");
     const { emailCatalog } = await import("@/lib/email/catalog");
@@ -131,7 +131,7 @@ export const resetEmailTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.enum(TEMPLATE_IDS) }).parse(input))
   .handler(async ({ data, context }) => {
-    await assertCan(context, "content");
+    await assertCan(context.supabase, context.userId, "content");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("email_templates").delete().eq("id", data.id);
     if (error) throw new Error("Could not reset the template");

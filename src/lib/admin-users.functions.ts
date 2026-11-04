@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertCallerIsAdmin, assertCan, getStudioAccess, listAllUsers, studioMfaRequired } from "@/lib/admin-guard";
+import { assertCallerIsAdmin, assertCan, getStudioAccess, listAllUsers } from "@/lib/admin-guard";
 import { PERMISSION_KEYS, type Permission, type StudioAccess, type StudioRole } from "@/lib/permissions";
 
 const credentialsSchema = z.object({
@@ -50,16 +50,10 @@ export const bootstrapFirstAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** The signed-in user's studio role and permissions (drives the sidebar), and
- * whether studio accounts must use two-step verification. */
+/** The signed-in user's studio role and permissions (drives the sidebar). */
 export const getMyStudioAccess = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(
-    async ({ context }): Promise<StudioAccess & { mfaRequired: boolean }> => ({
-      ...(await getStudioAccess(context.supabase, context.userId)),
-      mfaRequired: studioMfaRequired(),
-    }),
-  );
+  .handler(async ({ context }): Promise<StudioAccess> => getStudioAccess(context.supabase, context.userId));
 
 export type AdminCustomer = {
   userId: string;
@@ -80,7 +74,7 @@ export type AdminCustomer = {
 export const listCustomers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminCustomer[]> => {
-    await assertCan(context, "customers");
+    await assertCan(context.supabase, context.userId, "customers");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const users = await listAllUsers(supabaseAdmin);
 
@@ -134,8 +128,6 @@ export type StaffMember = {
   permissions: Permission[];
   addedAt: string;
   lastSignInAt: string | null;
-  /** Has a verified authenticator app (two-step verification). */
-  twoStep: boolean;
 };
 
 const cleanPermissions = (list: string[] | null | undefined) =>
@@ -144,7 +136,7 @@ const cleanPermissions = (list: string[] | null | undefined) =>
 export const listStaff = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<StaffMember[]> => {
-    await assertCallerIsAdmin(context);
+    await assertCallerIsAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [rolesRes, staffRes] = await Promise.all([
@@ -163,7 +155,6 @@ export const listStaff = createServerFn({ method: "GET" })
       permissions,
       addedAt,
       lastSignInAt: users.get(userId)?.last_sign_in_at ?? null,
-      twoStep: (users.get(userId)?.factors ?? []).some((f) => f.status === "verified"),
     });
 
     return [
@@ -195,7 +186,7 @@ export const saveStaffMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => saveStaffSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertCallerIsAdmin(context);
+    await assertCallerIsAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     let userId = data.userId;
@@ -247,7 +238,7 @@ export const removeStaffMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    await assertCallerIsAdmin(context);
+    await assertCallerIsAdmin(context.supabase, context.userId);
     if (data.userId === context.userId) throw new Error("You can't remove your own access.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -258,23 +249,4 @@ export const removeStaffMember = createServerFn({ method: "POST" })
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
     await supabaseAdmin.from("staff_members").delete().eq("user_id", data.userId);
     return { ok: true };
-  });
-/** Removes every authenticator from a studio account (lost or replaced phone).
- * They set up a new one the next time they sign in. Admin only. */
-export const resetStaffTwoStep = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    await assertCallerIsAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: list, error } = await supabaseAdmin.auth.admin.mfa.listFactors({ userId: data.userId });
-    if (error) throw new Error("Could not load their authenticators");
-    for (const factor of list.factors) {
-      const { error: deleteError } = await supabaseAdmin.auth.admin.mfa.deleteFactor({
-        id: factor.id,
-        userId: data.userId,
-      });
-      if (deleteError) throw new Error("Could not reset two-step verification");
-    }
-    return { removed: list.factors.length };
   });

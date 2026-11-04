@@ -13,7 +13,6 @@ import {
   Rocket,
   Search,
   Settings,
-  ShieldCheck,
   Shirt,
   Tag,
   UserRound,
@@ -38,8 +37,7 @@ export type NavKey =
   | "whatsapp"
   | "instagram"
   | "launch"
-  | "team"
-  | "security";
+  | "team";
 
 type NavItem = {
   key: NavKey;
@@ -73,8 +71,8 @@ const MAIN_NAV: NavItem[] = [
   { key: "messages", label: "Messages", icon: MessageSquare, count: (s) => s.unreadMessages },
 ];
 
-/** Which permission opens each section; "admin" = admins only; "any" = every studio account. */
-const NAV_PERMISSION: Record<NavKey, Permission | "admin" | "any"> = {
+/** Which permission opens each section; "admin" = admins only. */
+const NAV_PERMISSION: Record<NavKey, Permission | "admin"> = {
   overview: "home",
   orders: "orders",
   returns: "returns",
@@ -90,12 +88,10 @@ const NAV_PERMISSION: Record<NavKey, Permission | "admin" | "any"> = {
   instagram: "content",
   launch: "content",
   team: "admin",
-  security: "any",
 };
 
 export function navAllowed(key: NavKey, access: StudioAccess | null | undefined): boolean {
   const needed = NAV_PERMISSION[key];
-  if (needed === "any") return !!access?.role;
   return needed === "admin" ? access?.role === "admin" : can(access, needed);
 }
 
@@ -115,7 +111,6 @@ const NAV_ORDER: NavKey[] = [
   "instagram",
   "launch",
   "team",
-  "security",
 ];
 
 /** The section a person lands on: Home if they have it, else their first allowed section. */
@@ -186,17 +181,15 @@ export function AdminLayout({
         </div>
       ) : null}
       <div className="mt-auto">
-        <NavList
-          items={[
-            ...(navAllowed("team", access) ? [{ key: "team" as const, label: "Settings", icon: Settings }] : []),
-            { key: "security", label: "Security", icon: ShieldCheck },
-          ]}
-          active={active}
-          stats={stats}
-          onSelect={go}
-        />
-        {navAllowed("team", access) ? null : (
-          <p className="mt-2 px-3 text-[12px] text-[#616161]">Staff account</p>
+        {navAllowed("team", access) ? (
+          <NavList
+            items={[{ key: "team", label: "Settings", icon: Settings }]}
+            active={active}
+            stats={stats}
+            onSelect={go}
+          />
+        ) : (
+          <p className="px-3 text-[12px] text-[#616161]">Staff account</p>
         )}
       </div>
     </nav>
