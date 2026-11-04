@@ -33,7 +33,15 @@ function ResetPasswordPage() {
       setMessage(error.message);
       return;
     }
-    navigate({ to: "/account", replace: true });
+    // Studio staff who asked from the studio sign-in page go back to the studio.
+    let next: string | null = null;
+    try {
+      next = localStorage.getItem("bxlack:reset-next");
+      localStorage.removeItem("bxlack:reset-next");
+    } catch {
+      // ignore
+    }
+    navigate({ to: next === "/admin" ? "/admin" : "/account", replace: true });
   };
 
   return (

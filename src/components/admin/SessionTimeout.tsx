@@ -175,12 +175,20 @@ export function rememberTimeout(reason: TimeoutReason) {
   }
 }
 
-/** Reads (and clears) a recent timeout message for the sign-in page. */
-export function takeTimeoutMessage(): string | null {
+/** Clears the timeout message once the sign-in page has shown it. */
+export function clearTimeoutMessage() {
+  try {
+    localStorage.removeItem(REASON_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+/** A recent timeout message for the sign-in page (read-only; see clearTimeoutMessage). */
+export function readTimeoutMessage(): string | null {
   try {
     const raw = localStorage.getItem(REASON_KEY);
     if (!raw) return null;
-    localStorage.removeItem(REASON_KEY);
     const { reason, at } = JSON.parse(raw) as { reason: TimeoutReason; at: number };
     if (Date.now() - at > 10 * 60_000) return null;
     return reason === "expired"
