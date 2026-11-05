@@ -66,6 +66,7 @@ export function FeatureSection({
         className="relative flex flex-col items-center px-6 pb-12 pt-6 text-center md:absolute md:inset-y-0 md:left-8 md:w-[min(380px,26vw)] md:justify-center md:items-start md:p-0 md:text-left lg:left-14"
       >
         <motion.h2
+          id={title.join("-").toLowerCase().replace(/[^a-z0-9]+/g, "-")}
           variants={line}
           className="font-display text-[clamp(1.75rem,3.5vw,3rem)] font-semibold uppercase leading-[1] tracking-[0.12em] text-white"
         >

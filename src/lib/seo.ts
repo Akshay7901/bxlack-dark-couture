@@ -65,6 +65,13 @@ export const organizationJsonLd = () =>
     description:
       "BXLACK is an Indian luxury streetwear label making numbered, small-batch all-black T-shirts, shirts and jeans.",
     sameAs: ["https://www.instagram.com/bxlack.official/"],
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      url: `${SITE_URL}/contact`,
+      areaServed: "IN",
+      availableLanguage: ["English", "Hindi"],
+    },
   });
 
 export const websiteJsonLd = () =>
@@ -74,5 +81,7 @@ export const websiteJsonLd = () =>
     name: SITE_NAME,
     url: SITE_URL,
     inLanguage: "en-IN",
+    description:
+      "Online store of BXLACK, an Indian luxury streetwear label: numbered, small-batch all-black T-shirts, shirts and jeans.",
     publisher: { "@id": `${SITE_URL}/#organization` },
   });

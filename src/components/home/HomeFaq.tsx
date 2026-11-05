@@ -8,7 +8,7 @@ export type HomeFaqItem = { q: string; a: string };
 /** Always first: a plain answer to "what is this brand?" for people and answer engines. */
 export const BRAND_FAQ: HomeFaqItem = {
   q: "What is BXLACK?",
-  a: "BXLACK is an Indian luxury streetwear label making numbered, small-batch, all-black clothing: oversized T-shirts, shirts and jeans. Every piece is produced in a limited run and never restocked.",
+  a: "BXLACK is an Indian luxury streetwear label making numbered, small-batch, all-black clothing: oversized T-shirts, shirts and jeans. Every piece is produced in a limited run, carries its own number and is never restocked, so each drop belongs to the few who want to stand apart rather than blend in.",
 };
 
 /**
@@ -51,7 +51,7 @@ export function HomeFaq({ items }: { items: HomeFaqItem[] }) {
                 transition={{ delay: i * 0.05, duration: 0.6, ease: [0.7, 0, 0.2, 1] }}
                 className="border-b border-light-grey/10"
               >
-                <h3>
+                <h3 id={f.q.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}>
                   <button
                     type="button"
                     onClick={() => setOpen(isOpen ? null : i)}
@@ -75,7 +75,12 @@ export function HomeFaq({ items }: { items: HomeFaqItem[] }) {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="max-w-2xl pb-6 text-[15px] leading-relaxed text-light-grey/70">{f.a}</p>
+                    <p
+                      data-speakable={i === 0 ? "" : undefined}
+                      className="max-w-2xl pb-6 text-[15px] leading-relaxed text-light-grey/70"
+                    >
+                      {f.a}
+                    </p>
                   </div>
                 </div>
               </motion.div>

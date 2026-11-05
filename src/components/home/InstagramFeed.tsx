@@ -204,7 +204,7 @@ function StripLayout({ posts: all, settings }: LayoutProps) {
           transition={{ duration: 0.8, ease: EASE }}
           className="glass pointer-events-auto flex flex-col items-center gap-3 px-6 py-5 text-center sm:gap-4 sm:px-12 sm:py-8"
         >
-          <h2 className="font-display text-base font-medium uppercase tracking-[0.2em] sm:text-2xl">{settings.heading}</h2>
+          <h2 id="instagram" className="font-display text-base font-medium uppercase tracking-[0.2em] sm:text-2xl">{settings.heading}</h2>
           <FollowButton settings={settings} />
         </motion.div>
       </div>
@@ -228,7 +228,7 @@ function Shell({
   const heading = (
     <div className={`mb-8 flex items-end gap-4 sm:mb-12 md:mb-16 ${actions ? "justify-between" : "justify-center"}`}>
       <div className={`flex flex-col gap-3 ${actions ? "items-start text-left" : "items-center text-center"}`}>
-        <h2 className="font-display text-xl font-medium uppercase tracking-[0.2em] sm:text-2xl">{settings.heading}</h2>
+        <h2 id="instagram" className="font-display text-xl font-medium uppercase tracking-[0.2em] sm:text-2xl">{settings.heading}</h2>
         <a
           href={instagramUrl(settings.handle)}
           target="_blank"

@@ -122,7 +122,8 @@ async function compressImage(file: File, maxDimension = 1600, quality = 0.85): P
   }
 
   const bitmap = await createImageBitmap(file);
-  if (bitmap.width <= maxDimension && bitmap.height <= maxDimension && file.size < 300_000) {
+  // Small WebP files are already fine; PNG/JPEG still get converted to WebP below.
+  if (file.type === "image/webp" && bitmap.width <= maxDimension && bitmap.height <= maxDimension && file.size < 300_000) {
     bitmap.close();
     return file;
   }

@@ -78,7 +78,7 @@ export function Hero() {
   return (
     <section ref={ref} className="hero-vh relative w-full overflow-hidden bg-noir">
       {/* The page's one H1: the hero is all image, so it's for search engines and screen readers. */}
-      <h1 className="sr-only">BXLACK: luxury all-black streetwear. Numbered, small-batch T-shirts, shirts and jeans.</h1>
+      <h1 id="bxlack" className="sr-only">BXLACK: luxury all-black streetwear. Numbered, small-batch T-shirts, shirts and jeans.</h1>
       <motion.div
         ref={imgWrap}
         style={{ scale, y }}

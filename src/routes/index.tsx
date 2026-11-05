@@ -8,7 +8,7 @@ import { CampaignFeature } from "@/components/home/CampaignFeature";
 import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { BRAND_FAQ, HomeFaq } from "@/components/home/HomeFaq";
 import { loadPage } from "@/lib/pages/pages";
-import { jsonLd, seo } from "@/lib/seo";
+import { SITE_URL, jsonLd, seo } from "@/lib/seo";
 
 /** How many questions from the FAQ page to show after "What is BXLACK?". */
 const HOME_FAQ_COUNT = 4;
@@ -27,6 +27,15 @@ export const Route = createFileRoute("/")({
       path: "/",
     }),
     scripts: [
+      // Marks the headline and the "What is BXLACK?" answer as read-aloud summaries.
+      jsonLd({
+        "@type": "WebPage",
+        name: "BXLACK — Luxury Black Streetwear",
+        url: `${SITE_URL}/`,
+        isPartOf: { "@id": `${SITE_URL}/#website` },
+        about: { "@id": `${SITE_URL}/#organization` },
+        speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", "[data-speakable]"] },
+      }),
       jsonLd({
         "@type": "FAQPage",
         mainEntity: (loaderData?.faqs ?? [BRAND_FAQ]).map((f) => ({

@@ -47,7 +47,7 @@ export function Newsletter() {
             <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-mid-grey">Newsletter</p>
           </div>
 
-          <h3 className="mt-6 font-display text-[15vw] leading-[0.88] tracking-[-0.03em] text-white sm:text-6xl md:text-7xl">
+          <h3 id="newsletter" className="mt-6 font-display text-[15vw] leading-[0.88] tracking-[-0.03em] text-white sm:text-6xl md:text-7xl">
             Enter the <em className="font-editorial italic text-light-grey">void.</em>
           </h3>
 
