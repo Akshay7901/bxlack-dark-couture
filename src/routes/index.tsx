@@ -38,6 +38,7 @@ export const Route = createFileRoute("/")({
       }),
       jsonLd({
         "@type": "FAQPage",
+        description: "Common questions about BXLACK: what the brand is, drops, restocks, fit and delivery.",
         mainEntity: (loaderData?.faqs ?? [BRAND_FAQ]).map((f) => ({
           "@type": "Question",
           name: f.q,

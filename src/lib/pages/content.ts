@@ -185,14 +185,16 @@ export const DEFAULT_PAGES: PageContentMap = {
     italic: "asked.",
     intro: "Everything on drops, sizing, delivery and care. If your question is not here, write to clients@bxlack.com.",
     faqs: [
-      { q: "When does the next drop release?", a: "Drops are announced by email first. Join the list in the footer and you will receive the exact release time 24 hours ahead of the public." },
-      { q: "Are pieces restocked?", a: "No. Every run is numbered and finite. Once a size is gone it does not return." },
-      { q: "How do your pieces fit?", a: "Cut oversized with a dropped shoulder. If you prefer a closer line, size down. Full measurements are on the size guide." },
-      { q: "How long does delivery take?", a: "1–2 working days to dispatch, then 3–5 days domestically and 4–12 days internationally depending on destination." },
-      { q: "Can I return or exchange a piece?", a: "Yes, within 14 days of delivery, unworn and with the numbered tag attached. Size exchanges are free within Europe." },
-      { q: "Which payment methods do you accept?", a: "Major cards, wallets and local methods supported by our payment provider at checkout. Card details are never stored by BXLACK." },
-      { q: "Do you ship internationally?", a: "Yes, worldwide. Orders outside the EU may attract import duties collected by the carrier on delivery." },
-      { q: "How should I care for my piece?", a: "Cold wash inside out, no bleach, hang to dry, iron on reverse. Never tumble dry embroidered or printed pieces." },
+      // Answers are kept to 40–60 words: long enough to stand alone when quoted
+      // by search and AI answers, short enough to read at a glance.
+      { q: "When does the next drop release?", a: "A BXLACK drop is a limited release of new numbered pieces. Every drop is announced to our email list first, so join the list at the bottom of any page to hear the release time before the public. Drops are also previewed on Instagram at @bxlack.official in the days before launch." },
+      { q: "Are pieces restocked?", a: "No. Every BXLACK piece is made in a numbered, finite run, which means each one carries its own number and that run is never repeated. Once a size sells out it does not come back, so if a piece speaks to you, it is best to order it rather than wait for a restock." },
+      { q: "How do your pieces fit?", a: "BXLACK T-shirts and shirts are cut oversized, which means a relaxed body and a dropped shoulder. Take your usual size for the intended loose look, or size down for a closer fit. Exact chest, length, shoulder and inseam measurements for every size, including jeans, are listed on our size guide." },
+      { q: "How long does delivery take?", a: "Prepaid orders are packed by hand and dispatched within 48 hours of confirmation, with a tracking link sent by email and WhatsApp. Standard delivery within India is free on prepaid orders and usually arrives in 7–8 business days. Need it sooner? Express delivery is available at checkout for a flat ₹99." },
+      { q: "Can I return or exchange a piece?", a: "Yes. Returns and exchanges are accepted within 7 days of delivery, as long as the piece is unworn, has its brand tag and plastic seal attached, and goes back in its BXLACK packing tube. A flat ₹100 logistics charge is deducted from refunds. Start a return or exchange from your account." },
+      { q: "Which payment methods do you accept?", a: "At the moment, BXLACK orders are paid by cash on delivery: you pay the courier when your parcel reaches your door, with no card needed at checkout. When online payment is added, it will appear as an option at checkout. BXLACK never stores your card or bank details." },
+      { q: "Do you ship internationally?", a: "Yes. BXLACK ships outside India, with shipping charged at actual cost and calculated at checkout for your destination. Customs duties or import taxes on arrival are set by your local authorities and paid by the recipient. Please choose sizes carefully, because returns and exchanges are not available on international orders." },
+      { q: "How should I care for my piece?", a: "Wash cold and inside out with no bleach, hang to dry, and iron on the reverse. Never tumble dry printed or embroidered pieces, because heat cracks prints and loosens threads. Cared for this way, deep black stays deep and every numbered BXLACK piece keeps its shape and finish for years." },
     ],
   },
 

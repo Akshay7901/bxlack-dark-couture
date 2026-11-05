@@ -79,6 +79,10 @@ export function Hero() {
     <section ref={ref} className="hero-vh relative w-full overflow-hidden bg-noir">
       {/* The page's one H1: the hero is all image, so it's for search engines and screen readers. */}
       <h1 id="bxlack" className="sr-only">BXLACK: luxury all-black streetwear. Numbered, small-batch T-shirts, shirts and jeans.</h1>
+      <p className="sr-only">
+        BXLACK is an Indian luxury streetwear label. Shop numbered, small-batch all-black T-shirts, shirts and jeans,
+        made in limited runs and never restocked.
+      </p>
       <motion.div
         ref={imgWrap}
         style={{ scale, y }}
@@ -134,14 +138,14 @@ export function Hero() {
         style={{ opacity }}
         className="absolute bottom-10 left-6 z-10 md:bottom-14 md:left-10"
       >
-        <motion.p
+        <motion.span
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: ctaDelay, duration: 1.3, ease: EASE_OUT }}
-          className="font-mono text-[11px] uppercase tracking-[0.35em] text-white/90"
+          className="block font-mono text-[11px] uppercase tracking-[0.35em] text-white/90"
         >
           SS2026 OUT NOW
-        </motion.p>
+        </motion.span>
         <MotionLink
           to="/new-drop"
           data-cursor="Shop"
