@@ -43,11 +43,19 @@ export function AppShell({
   }, []);
   return (
     <div className="store grain relative min-h-screen bg-noir text-white">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:font-mono focus:text-[11px] focus:uppercase focus:tracking-[0.2em] focus:text-black"
+      >
+        Skip to content
+      </a>
       <Header onCart={() => setCart(true)} />
       <CartDrawer open={cart} onClose={() => setCart(false)} />
       {/* Page transitions are a View Transitions crossfade (see router.tsx and
           styles.css). Browsers without that API get this fade-up on arrival instead. */}
       <motion.main
+        id="main-content"
+        tabIndex={-1}
         key={pathname}
         initial={animateIn && !supportsViewTransitions() ? { opacity: 0, y: 14 } : false}
         animate={{ opacity: 1, y: 0 }}

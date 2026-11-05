@@ -94,7 +94,17 @@ export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
         </div>
 
         <div className="mt-10 border-t border-light-grey/10 pt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-mid-grey/70 sm:text-[10px] sm:tracking-[0.25em]">
-          <span>© 2026 BXLACK. All rights reserved.</span>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>© 2026 BXLACK. All rights reserved.</span>
+            <span className="flex gap-5">
+              <Link to="/privacy" className="transition-colors hover:text-white">
+                Privacy
+              </Link>
+              <Link to="/terms" className="transition-colors hover:text-white">
+                Terms
+              </Link>
+            </span>
+          </div>
         </div>
       </div>
     </footer>

@@ -297,6 +297,8 @@ function PostTile({
       <img
         src={p.image}
         alt=""
+        width={700}
+        height={700}
         loading="lazy"
         decoding="async"
         className="h-full w-full object-cover grayscale-[15%] transition-transform duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-105"

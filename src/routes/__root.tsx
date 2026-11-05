@@ -15,7 +15,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader } from "@/components/Loader";
 import { LaunchGate } from "@/components/LaunchGate";
-import { seo } from "@/lib/seo";
+import { organizationJsonLd, seo, websiteJsonLd } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -110,6 +110,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.png?v=2", type: "image/png", sizes: "96x96" },
       { rel: "icon", href: "/icon-512.png?v=2", type: "image/png", sizes: "512x512" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=2", sizes: "180x180" },
+      { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -121,6 +122,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap",
       },
     ],
+    scripts: [organizationJsonLd(), websiteJsonLd()],
   }),
   shellComponent: RootShell,
   component: RootComponent,

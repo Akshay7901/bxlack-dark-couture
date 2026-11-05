@@ -54,6 +54,8 @@ export function ShopByCategory() {
                       <img
                         src={image}
                         alt={c.label}
+                        width={800}
+                        height={1000}
                         className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-105"
                         loading="lazy"
                       />

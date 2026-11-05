@@ -9,7 +9,7 @@ import {
   fetchProducts,
   toCardProduct,
 } from "@/lib/catalog";
-import { seo } from "@/lib/seo";
+import { SITE_URL, jsonLd, seo } from "@/lib/seo";
 import { SilkBackdrop } from "@/components/SilkBackdrop";
 import { Plus, Minus, Heart } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist";
@@ -35,7 +35,11 @@ export const Route = createFileRoute("/product/$id")({
       });
     }
     const summary = product.description?.replace(/\s+/g, " ").trim();
-    return seo({
+    const url = `${SITE_URL}/product/${product.slug}`;
+    const images = [product.imageUrl, product.backImageUrl, product.cardImageUrl, ...product.galleryUrls].filter(
+      (u): u is string => !!u,
+    );
+    const meta = seo({
       title: `${product.name} — BXLACK`,
       description: summary
         ? summary.length > 160
@@ -46,6 +50,44 @@ export const Route = createFileRoute("/product/$id")({
       image: product.imageUrl ?? product.cardImageUrl,
       type: "product",
     });
+    return {
+      ...meta,
+      scripts: [
+        // Lets Google show the product with its price in search and shopping results.
+        jsonLd({
+          "@type": "Product",
+          name: product.name,
+          sku: product.slug,
+          url,
+          ...(images.length ? { image: [...new Set(images)] } : {}),
+          ...(summary ? { description: summary } : {}),
+          category: product.category,
+          brand: { "@type": "Brand", name: "BXLACK" },
+          offers: {
+            "@type": "Offer",
+            url,
+            priceCurrency: "INR",
+            price: product.price,
+            availability: "https://schema.org/InStock",
+            itemCondition: "https://schema.org/NewCondition",
+            seller: { "@id": `${SITE_URL}/#organization` },
+          },
+        }),
+        jsonLd({
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Shop",
+              item: `${SITE_URL}/shop?type=${encodeURIComponent(product.category)}`,
+            },
+            { "@type": "ListItem", position: 3, name: product.name, item: url },
+          ],
+        }),
+      ],
+    };
   },
   component: ProductPage,
 });

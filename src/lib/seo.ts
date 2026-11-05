@@ -43,3 +43,36 @@ export function seo({ title, description, path, image, type = "website", noindex
     links: url && !noindex ? [{ rel: "canonical", href: url }] : [],
   };
 }
+
+/** A JSON-LD <script> for a route's `head().scripts`. "<" is escaped so text
+ * from the catalogue can never close the script tag. */
+export function jsonLd(data: Record<string, unknown>) {
+  return {
+    type: "application/ld+json",
+    children: JSON.stringify({ "@context": "https://schema.org", ...data }).replace(/</g, "\u003c"),
+  };
+}
+
+/** Who BXLACK is: on every page so search engines and AI tools know the brand. */
+export const organizationJsonLd = () =>
+  jsonLd({
+    "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/icon-512.png`,
+    slogan: "Born To Stand Apart",
+    description:
+      "BXLACK is an Indian luxury streetwear label making numbered, small-batch all-black T-shirts, shirts and jeans.",
+    sameAs: ["https://www.instagram.com/bxlack.official/"],
+  });
+
+export const websiteJsonLd = () =>
+  jsonLd({
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    name: SITE_NAME,
+    url: SITE_URL,
+    inLanguage: "en-IN",
+    publisher: { "@id": `${SITE_URL}/#organization` },
+  });

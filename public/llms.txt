@@ -1,0 +1,24 @@
+# BXLACK
+
+> BXLACK is an Indian luxury streetwear label. It makes numbered, small-batch, all-black clothing: oversized T-shirts, shirts and jeans. Tagline: "Born To Stand Apart". Brand idea: "Absence of noise."
+
+Prices are in Indian rupees (INR). Orders ship from India, with cash on delivery available for Indian addresses. Each piece is produced in a limited, numbered run.
+
+## Shop
+- [All drops](https://bxlack-dark-couture.vercel.app/shop): every product currently available
+- [T-shirts](https://bxlack-dark-couture.vercel.app/shop?type=Tshirt)
+- [Shirts](https://bxlack-dark-couture.vercel.app/shop?type=Shirt)
+- [Jeans](https://bxlack-dark-couture.vercel.app/shop?type=Jeans)
+- [New drop](https://bxlack-dark-couture.vercel.app/new-drop): the latest release
+
+## Help
+- [Size guide](https://bxlack-dark-couture.vercel.app/size-guide): measurements for tops and jeans
+- [Shipping](https://bxlack-dark-couture.vercel.app/shipping): delivery times and costs
+- [Returns & exchanges](https://bxlack-dark-couture.vercel.app/returns)
+- [FAQ](https://bxlack-dark-couture.vercel.app/faq)
+- [Contact](https://bxlack-dark-couture.vercel.app/contact)
+
+## About
+- [About BXLACK](https://bxlack-dark-couture.vercel.app/about)
+- [Instagram](https://www.instagram.com/bxlack.official/)
+- [Sitemap](https://bxlack-dark-couture.vercel.app/sitemap.xml)

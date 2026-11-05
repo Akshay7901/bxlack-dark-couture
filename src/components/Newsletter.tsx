@@ -67,6 +67,8 @@ export function Newsletter() {
               <span className="font-mono text-[10px] tracking-[0.3em] text-mid-grey/60">01</span>
               <input
                 id="nl-email"
+                name="email"
+                autoComplete="email"
                 type="email"
                 required
                 value={email}
