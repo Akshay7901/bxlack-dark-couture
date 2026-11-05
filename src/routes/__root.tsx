@@ -95,7 +95,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@BXLACK" },
       // Site-wide defaults; each route's own seo() tags override these.
       ...seo({
-        title: "BXLACK — Born To Stand Apart",
+        title: "BXLACK — Luxury Black Streetwear | T-Shirts, Shirts & Jeans",
         description:
           "BXLACK is editorial luxury streetwear for those who refuse to blend in. Shop numbered, small-batch T-shirts, shirts and jeans.",
       }).meta,

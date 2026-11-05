@@ -5,8 +5,8 @@ export const SITE_NAME = "BXLACK";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 type SeoInput = {
-  /** Descriptive page title, e.g. "Shop — BXLACK". Used for link previews
-   * (Open Graph / Twitter); the browser tab always just says "BXLACK". */
+  /** Page title, e.g. "Floral Camp Shirt — BXLACK": the browser tab, search
+   * results and link previews. Keep "BXLACK" in it. */
   title: string;
   /** Aim for 120–160 characters; this is the snippet shown in search results. */
   description: string;
@@ -26,7 +26,7 @@ export function seo({ title, description, path, image, type = "website", noindex
 
   return {
     meta: [
-      { title: SITE_NAME },
+      { title },
       { name: "description", content: description },
       { property: "og:site_name", content: SITE_NAME },
       { property: "og:title", content: title },
