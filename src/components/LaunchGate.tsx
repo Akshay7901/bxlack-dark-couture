@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   motion,
@@ -18,6 +18,7 @@ const UNLOCK_KEY = "bxlack:launch-unlocked";
 export function LaunchGate({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const router = useRouter();
   const { data: settings, isPending, isError } = useQuery({
     queryKey: ["site-settings"],
     queryFn: fetchSiteSettings,
@@ -26,6 +27,13 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
   const isAdmin = useIsAdmin(user?.id);
   const [unlocked, setUnlocked] = useState(false);
   const [mounted, setMounted] = useState(false);
+  // After a correct code: heading to the homepage behind the closed gate.
+  const [goingHome, setGoingHome] = useState(false);
+  const revealDone = useRef<(() => void) | null>(null);
+  // The page the router is actually showing (not just loading), once it has settled.
+  const settledPath = useRouterState({
+    select: (s) => (s.status === "idle" ? (s.resolvedLocation?.pathname ?? null) : null),
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -40,6 +48,30 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
   const resolved = mounted && (!isPending || isError);
   const comingSoonEnabled = isError ? true : Boolean(settings?.coming_soon_enabled);
   const showGate = resolved && comingSoonEnabled && !bypass && !isAdmin && !unlocked;
+
+  // Load the homepage in the background while the gate is up, so unlocking
+  // can go straight there.
+  useEffect(() => {
+    if (showGate) void router.preloadRoute({ to: "/" }).catch(() => {});
+  }, [showGate, router]);
+
+  // Open the gate only once the homepage is really in place, so the page that
+  // was underneath (e.g. /account) never flashes. Safety net: open after 8s.
+  useEffect(() => {
+    if (!goingHome) return;
+    const open = () => {
+      setUnlocked(true);
+      setGoingHome(false);
+      revealDone.current?.();
+      revealDone.current = null;
+    };
+    if (settledPath === "/") {
+      const frame = requestAnimationFrame(open);
+      return () => cancelAnimationFrame(frame);
+    }
+    const fallback = setTimeout(open, 8000);
+    return () => clearTimeout(fallback);
+  }, [goingHome, settledPath]);
 
   useEffect(() => {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -92,9 +124,13 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
       onUnlocked={() => {
         (document.activeElement as HTMLElement | null)?.blur();
         localStorage.setItem(UNLOCK_KEY, "1");
-        setUnlocked(true);
-        // Everyone lands on the homepage after unlocking.
-        navigate({ to: "/", replace: true });
+        // Everyone lands on the homepage; the effect above opens the gate once
+        // it is showing. The returned promise keeps the button busy until then.
+        return new Promise<void>((resolve) => {
+          revealDone.current = resolve;
+          setGoingHome(true);
+          void navigate({ to: "/", replace: true }).catch(() => {});
+        });
       }}
     />
   );
@@ -143,7 +179,8 @@ function GatePage({
 }: {
   subheading: string;
   launchAt: string | null;
-  onUnlocked: () => void;
+  /** Resolves once the homepage is ready behind the gate. */
+  onUnlocked: () => Promise<void>;
 }) {
   const remaining = useCountdown(launchAt);
 
@@ -163,7 +200,7 @@ function GatePage({
     setPasswordError(null);
     try {
       const ok = await verifyLaunchPassword(password);
-      if (ok) onUnlocked();
+      if (ok) await onUnlocked();
       else setPasswordError("Incorrect password.");
     } catch {
       setPasswordError("Something went wrong. Try again.");
