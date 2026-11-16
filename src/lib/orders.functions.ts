@@ -31,6 +31,8 @@ export type AdminOrder = {
   trackingNumber: string | null;
   note: string;
   email: string;
+  /** Placed without an account (guest checkout). */
+  guest: boolean;
   fullName: string | null;
   phone: string | null;
   addressLine1: string | null;
@@ -62,6 +64,13 @@ export const listOrdersForAdmin = createServerFn({ method: "GET" })
 
     const users = await listAllUsers(supabaseAdmin);
     const emails = new Map(users.map((u) => [u.id, u.email ?? "unknown"]));
+    // Orders without an account: guest checkouts keep their email on the order.
+    const accountless = orders.filter((o) => !o.user_id).map((o) => o.id);
+    const guestEmails = new Map<string, string>();
+    if (accountless.length) {
+      const { data: rows } = await supabaseAdmin.from("orders").select("id, email").in("id", accountless);
+      for (const r of rows ?? []) if (r.email) guestEmails.set(r.id, r.email);
+    }
 
     return orders.map((o) => ({
       id: o.id,
@@ -79,7 +88,8 @@ export const listOrdersForAdmin = createServerFn({ method: "GET" })
       courier: o.courier,
       trackingNumber: o.tracking_number,
       note: o.order_notes?.note ?? "",
-      email: o.user_id ? (emails.get(o.user_id) ?? "unknown") : "Deleted customer",
+      email: o.user_id ? (emails.get(o.user_id) ?? "unknown") : (guestEmails.get(o.id) ?? "Deleted customer"),
+      guest: !o.user_id && guestEmails.has(o.id),
       fullName: o.full_name,
       phone: o.phone,
       addressLine1: o.address_line1,

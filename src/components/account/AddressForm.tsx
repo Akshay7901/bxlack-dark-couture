@@ -11,11 +11,18 @@ export function AddressForm({
   saving,
   onCancel,
   onSave,
+  submitLabel,
+  requirePhone = false,
 }: {
-  address: Address | null;
+  /** A saved address to edit, or details to prefill (e.g. a guest's last order). */
+  address: Address | AddressInput | null;
   saving: boolean;
-  onCancel: () => void;
+  /** Omit to hide the Cancel button. */
+  onCancel?: () => void;
   onSave: (input: AddressInput) => void;
+  submitLabel?: string;
+  /** Guests paying cash on delivery must give a number for the courier. */
+  requirePhone?: boolean;
 }) {
   const [form, setForm] = useState<AddressInput>({
     full_name: address?.full_name ?? "",
@@ -49,8 +56,11 @@ export function AddressForm({
         />
       </label>
       <label className="block">
-        <span className={labelClass}>Phone</span>
+        <span className={labelClass}>{requirePhone ? "Phone (for the courier)" : "Phone"}</span>
         <input
+          required={requirePhone}
+          type="tel"
+          autoComplete="tel"
           value={form.phone ?? ""}
           onChange={(e) => set("phone", e.target.value)}
           className={inputClass}
@@ -116,15 +126,17 @@ export function AddressForm({
           className="flex items-center gap-2 border border-white bg-white px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white disabled:opacity-50"
         >
           {saving ? <Loader2 size={13} className="animate-spin" /> : null}
-          {address ? "Save changes" : "Add address"}
+          {submitLabel ?? (address && "id" in address ? "Save changes" : "Add address")}
         </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40 hover:text-white"
-        >
-          Cancel
-        </button>
+        {onCancel ? (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40 hover:text-white"
+          >
+            Cancel
+          </button>
+        ) : null}
       </div>
     </form>
   );

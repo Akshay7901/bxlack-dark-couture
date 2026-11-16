@@ -62,6 +62,12 @@ async function emailForUser(userId: string): Promise<string | null> {
   return data?.user?.email ?? null;
 }
 
+/** The email a guest gave at checkout (only guest orders have one). */
+async function guestEmailFor(orderId: string): Promise<string | null> {
+  const { data } = await (await admin()).from("orders").select("email").eq("id", orderId).maybeSingle();
+  return data?.email ?? null;
+}
+
 async function loadOrder(orderId: string): Promise<EmailOrder | null> {
   const db = await admin();
   const { data: o } = await db
@@ -72,8 +78,9 @@ async function loadOrder(orderId: string): Promise<EmailOrder | null> {
     .eq("id", orderId)
     .maybeSingle();
   if (!o) return null;
-  // No account any more (customer deleted): nobody to email.
-  const email = o.user_id ? await emailForUser(o.user_id) : null;
+  // Account orders email the account; guest orders the email given at
+  // checkout (none if a customer account was deleted).
+  const email = o.user_id ? await emailForUser(o.user_id) : await guestEmailFor(orderId);
   if (!email) return null;
   // Product images live in the public bucket, so a plain public URL works in email.
   const imageUrl = (path: string | null) =>

@@ -169,7 +169,7 @@ export function AdminOrders({ initialQuery = "" }: { initialQuery?: string }) {
               <div className="min-w-0 flex-1">
                 <ListRow
                   title={`#${o.orderNumber} · ${o.fullName || o.email}`}
-                  subtitle={new Date(o.createdAt).toLocaleString()}
+                  subtitle={`${new Date(o.createdAt).toLocaleString()}${o.guest ? " · Guest checkout" : ""}`}
                   meta={
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[11px] text-neutral-600">{inr(o.total)}</span>
@@ -373,7 +373,10 @@ function OrderDetail({
       <div className="mt-6 grid gap-5 border border-black/12 p-5 sm:grid-cols-2">
         <div>
           <span className={labelClass}>Customer</span>
-          <p className="mt-2 font-sans text-[13px] text-neutral-900">{order.fullName || "Not provided"}</p>
+          <p className="mt-2 flex items-center gap-2 font-sans text-[13px] text-neutral-900">
+            {order.fullName || "Not provided"}
+            {order.guest ? <Badge tone="neutral">Guest</Badge> : null}
+          </p>
           <p className="mt-1 font-mono text-[11px] text-neutral-600">{order.email}</p>
           <p className="mt-1 font-mono text-[11px] text-neutral-600">{order.phone || "No phone on file"}</p>
         </div>

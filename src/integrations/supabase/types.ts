@@ -279,6 +279,7 @@ export type Database = {
       };
       orders: {
         Row: {
+          email: string | null;
           id: string;
           user_id: string | null;
           status: string;
@@ -304,6 +305,7 @@ export type Database = {
           stock_deducted: boolean;
         };
         Insert: {
+          email?: string | null;
           id?: string;
           user_id?: string | null;
           status?: string;
@@ -329,6 +331,7 @@ export type Database = {
           stock_deducted?: boolean;
         };
         Update: {
+          email?: string | null;
           id?: string;
           user_id?: string | null;
           status?: string;

@@ -10,9 +10,13 @@ import { useCart } from "@/lib/cart";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { fetchAddresses, createAddress, type Address, type AddressInput } from "@/lib/account";
 import { AddressForm } from "@/components/account/AddressForm";
-import { placeOrder, previewDiscount } from "@/lib/checkout.functions";
+import { placeGuestOrder, placeOrder, previewDiscount } from "@/lib/checkout.functions";
+import { TURNSTILE_SITE_KEY, Turnstile } from "@/components/Turnstile";
 import { seo } from "@/lib/seo";
 import { enter, STAGGER } from "@/lib/motion";
+
+/** Where a guest's email and address are remembered on this browser. */
+const GUEST_KEY = "bxlack:guest-checkout";
 
 export const Route = createFileRoute("/checkout")({
   head: () =>
@@ -47,6 +51,31 @@ function CheckoutPage() {
   const [codeInput, setCodeInput] = useState("");
   const [applying, setApplying] = useState(false);
   const [discount, setDiscount] = useState<{ code: string; amount: number } | null>(null);
+  // Guest checkout (no account): contact email, address and bot check.
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestAddress, setGuestAddress] = useState<AddressInput | null>(null);
+  const [editingGuestAddress, setEditingGuestAddress] = useState(true);
+  const [captcha, setCaptcha] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
+  // Shown after a guest places an order (their bag is empty by then).
+  const [placed, setPlaced] = useState<{ orderNumber: number; email: string } | null>(null);
+
+  // Prefill a returning guest's details from this browser.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(GUEST_KEY) ?? "null") as {
+        email?: string;
+        address?: AddressInput;
+      } | null;
+      if (saved?.email) setGuestEmail(saved.email);
+      if (saved?.address) {
+        setGuestAddress(saved.address);
+        setEditingGuestAddress(false);
+      }
+    } catch {
+      // nothing saved, or storage blocked
+    }
+  }, []);
 
   const all = (data ?? []).map(toCardProduct);
   const items = lines
@@ -78,22 +107,8 @@ function CheckoutPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <AppShell hideNewsletter>
-        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-5 px-6 text-center">
-          <h1 className="font-display text-3xl uppercase tracking-[-0.02em]">
-            Sign in to check out
-          </h1>
-          <Link
-            to="/account"
-            className="border border-white/25 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.28em] text-white/70 hover:border-white hover:text-white"
-          >
-            Sign in
-          </Link>
-        </div>
-      </AppShell>
-    );
+  if (placed) {
+    return <GuestOrderPlaced orderNumber={placed.orderNumber} email={placed.email} />;
   }
 
   if (lines.length === 0) {
@@ -114,6 +129,7 @@ function CheckoutPage() {
   }
 
   const saveNewAddress = async (input: AddressInput) => {
+    if (!user) return;
     setSavingAddress(true);
     try {
       await createAddress(user.id, input);
@@ -145,7 +161,48 @@ function CheckoutPage() {
     }
   };
 
+  const guestEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail.trim());
+  const guestReady =
+    guestEmailValid && !!guestAddress && !editingGuestAddress && (!TURNSTILE_SITE_KEY || !!captcha);
+
+  const submitGuest = async () => {
+    if (!guestEmailValid) return toast.error("Enter your email so we can send your order confirmation");
+    if (!guestAddress || editingGuestAddress) return toast.error("Add your shipping address first");
+    setPlacing(true);
+    try {
+      const email = guestEmail.trim().toLowerCase();
+      const { orderNumber } = await placeGuestOrder({
+        data: {
+          email,
+          address: {
+            ...guestAddress,
+            phone: guestAddress.phone?.trim() ?? "",
+            line2: guestAddress.line2 || null,
+            state: guestAddress.state || null,
+          },
+          lines: cartLines,
+          discountCode: discount?.code ?? null,
+          captcha,
+        },
+      });
+      try {
+        localStorage.setItem(GUEST_KEY, JSON.stringify({ email, address: guestAddress }));
+      } catch {
+        // storage blocked: details just won't be prefilled next time
+      }
+      clear();
+      setPlaced({ orderNumber, email });
+      window.scrollTo(0, 0);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not place order");
+      setCaptchaReset((n) => n + 1);
+    } finally {
+      setPlacing(false);
+    }
+  };
+
   const submit = async () => {
+    if (!user) return submitGuest();
     if (!selected) return toast.error("Add a shipping address first");
     setPlacing(true);
     try {
@@ -185,6 +242,22 @@ function CheckoutPage() {
         </h1>
 
         <div className="grid gap-12 py-10 lg:grid-cols-[1fr_360px] lg:gap-16">
+          {!user ? (
+            <GuestDetails
+              email={guestEmail}
+              onEmail={setGuestEmail}
+              emailValid={guestEmailValid}
+              address={guestAddress}
+              editing={editingGuestAddress}
+              onEdit={() => setEditingGuestAddress(true)}
+              onSave={(a) => {
+                setGuestAddress(a);
+                setEditingGuestAddress(false);
+              }}
+              onCaptcha={setCaptcha}
+              captchaReset={captchaReset}
+            />
+          ) : (
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/45">
               Shipping address
@@ -226,6 +299,7 @@ function CheckoutPage() {
               </div>
             )}
           </div>
+          )}
 
           <aside className="h-fit border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm lg:sticky lg:top-28">
             <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-white/45">
@@ -306,7 +380,7 @@ function CheckoutPage() {
             </div>
             <button
               onClick={submit}
-              disabled={placing || !selected || items.length === 0}
+              disabled={placing || items.length === 0 || (user ? !selected : !guestReady)}
               className="mt-6 w-full border border-white bg-white py-[14px] font-mono text-[11px] uppercase tracking-[0.32em] text-black transition-colors hover:bg-transparent hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
             >
               {placing ? "Placing order…" : "Place Order"}
@@ -347,5 +421,142 @@ function AddressOption({
         <p className="mt-1 font-mono text-[11px] text-white/40">{address.phone}</p>
       ) : null}
     </button>
+  );
+}
+
+const guestLabel = "font-mono text-[10px] uppercase tracking-[0.32em] text-white/45";
+
+/** Contact + shipping details for checking out without an account. */
+function GuestDetails({
+  email,
+  onEmail,
+  emailValid,
+  address,
+  editing,
+  onEdit,
+  onSave,
+  onCaptcha,
+  captchaReset,
+}: {
+  email: string;
+  onEmail: (v: string) => void;
+  emailValid: boolean;
+  address: AddressInput | null;
+  editing: boolean;
+  onEdit: () => void;
+  onSave: (a: AddressInput) => void;
+  onCaptcha: (token: string | null) => void;
+  captchaReset: number;
+}) {
+  return (
+    <div className="space-y-10">
+      <p className="border border-white/10 bg-white/[0.02] px-4 py-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.22em] text-white/50">
+        Checking out as a guest · Have an account?{" "}
+        <Link to="/account" className="text-white underline underline-offset-4 hover:text-white/70">
+          Sign in
+        </Link>
+      </p>
+
+      <div>
+        <p className={guestLabel}>Contact</p>
+        <label className="mt-4 block">
+          <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/40">Email</span>
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => onEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="mt-2 w-full border border-white/15 bg-black/40 px-3 py-2.5 font-mono text-base text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/60 sm:text-[12px]"
+          />
+          <span
+            className={`mt-1.5 block font-mono text-[9px] uppercase tracking-[0.18em] ${
+              email && !emailValid ? "text-red-300/90" : "text-white/30"
+            }`}
+          >
+            {email && !emailValid ? "Enter a valid email" : "Your order confirmation is sent here"}
+          </span>
+        </label>
+      </div>
+
+      <div>
+        <p className={guestLabel}>Shipping address</p>
+        <div className="mt-4">
+          {address && !editing ? (
+            <div className="border border-white bg-white/[0.04] p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-sans text-[13px] text-white/90">{address.full_name}</p>
+                  <p className="mt-1 max-w-md font-editorial text-[13px] leading-relaxed text-white/60">
+                    {address.line1}
+                    {address.line2 ? `, ${address.line2}` : ""}, {address.city}
+                    {address.state ? `, ${address.state}` : ""} {address.postal_code}, {address.country}
+                  </p>
+                  {address.phone ? <p className="mt-1 font-mono text-[11px] text-white/40">{address.phone}</p> : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={onEdit}
+                  className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/50 underline underline-offset-4 hover:text-white"
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          ) : (
+            <AddressForm
+              address={address}
+              saving={false}
+              requirePhone
+              submitLabel="Use this address"
+              onCancel={address ? () => onSave(address) : undefined}
+              onSave={onSave}
+            />
+          )}
+        </div>
+      </div>
+
+      {TURNSTILE_SITE_KEY ? <Turnstile onToken={onCaptcha} resetKey={captchaReset} /> : null}
+    </div>
+  );
+}
+
+/** Thank-you screen after a guest order (the bag is already cleared). */
+function GuestOrderPlaced({ orderNumber, email }: { orderNumber: number; email: string }) {
+  return (
+    <AppShell hideNewsletter>
+      <SilkBackdrop />
+      <section className="relative mx-auto flex min-h-[80vh] max-w-[640px] flex-col items-center justify-center px-5 pt-24 text-center">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={enter}>
+          <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-white/45">Order confirmed</p>
+          <h1 className="mt-4 font-display text-[34px] uppercase leading-none tracking-[-0.01em] text-white md:text-[46px]">
+            Order #{orderNumber}
+          </h1>
+          <p className="mx-auto mt-6 max-w-md font-editorial text-[15px] leading-relaxed text-white/60">
+            Thank you. A confirmation is on its way to <span className="text-white">{email}</span>. Pay cash on delivery
+            when your parcel arrives; we&apos;ll email you when it ships.
+          </p>
+          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <Link
+              to="/shop"
+              search={{ type: "All" }}
+              className="border border-white bg-white px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-black transition-colors hover:bg-transparent hover:text-white"
+            >
+              Continue shopping
+            </Link>
+            <Link
+              to="/account"
+              className="border border-white/25 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/70 transition-colors hover:border-white hover:text-white"
+            >
+              Create an account
+            </Link>
+          </div>
+          <p className="mt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
+            Questions about this order? Contact us with your order number.
+          </p>
+        </motion.div>
+      </section>
+    </AppShell>
   );
 }
