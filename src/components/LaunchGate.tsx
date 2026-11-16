@@ -93,9 +93,8 @@ export function LaunchGate({ children }: { children: React.ReactNode }) {
         (document.activeElement as HTMLElement | null)?.blur();
         localStorage.setItem(UNLOCK_KEY, "1");
         setUnlocked(true);
-        // New/anonymous visitors land on account creation right after unlocking;
-        // an already-signed-in customer just continues to where they were.
-        if (!user) navigate({ to: "/account" });
+        // Everyone lands on the homepage after unlocking.
+        navigate({ to: "/", replace: true });
       }}
     />
   );
