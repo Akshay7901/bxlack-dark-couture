@@ -10,9 +10,9 @@ const SECONDS_PER_CARD = 6;
 
 /**
  * "The Drop": every published product, in the order set in Studio → Products,
- * gliding left to right in an endless loop. The row is the product list
+ * gliding right to left in an endless loop. The row is the product list
  * repeated to fill the screen and rendered twice, so sliding it by exactly
- * half (the existing `animate-marquee` keyframes, played in reverse) loops
+ * half (the existing `animate-marquee` keyframes) loops
  * seamlessly. Hovering, touching or tabbing into it pauses the motion; with
  * "reduce motion" on, it is a plain row to scroll by hand.
  */
@@ -51,7 +51,7 @@ export function ProductSlider({ products }: { products: Product[] }) {
         className="group/drop overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] motion-reduce:overflow-x-auto motion-reduce:[mask-image:none]"
       >
         <div
-          className="flex w-max animate-marquee [animation-direction:reverse] group-hover/drop:[animation-play-state:paused] group-focus-within/drop:[animation-play-state:paused] group-active/drop:[animation-play-state:paused] motion-reduce:animate-none"
+          className="flex w-max animate-marquee group-hover/drop:[animation-play-state:paused] group-focus-within/drop:[animation-play-state:paused] group-active/drop:[animation-play-state:paused] motion-reduce:animate-none"
           style={{ animationDuration: `${loop.length * SECONDS_PER_CARD}s` }}
         >
           {cards.map((p, i) => {
