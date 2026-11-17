@@ -65,8 +65,8 @@ function Index() {
   return (
     <AppShell hideNewsletter={false}>
       <Hero />
-      <ShopByCategory />
       <ProductSlider products={products} />
+      <ShopByCategory />
       <GraphicFeature />
       <HeritageFeature />
       <CampaignFeature />

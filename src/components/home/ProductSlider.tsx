@@ -24,7 +24,7 @@ export function ProductSlider({ products }: { products: Product[] }) {
   const cards = [...loop, ...loop];
 
   return (
-    <section aria-labelledby="the-drop" className="bg-noir pb-8 pt-0 text-foreground sm:pb-10 md:pb-12">
+    <section aria-labelledby="the-drop" className="bg-noir py-8 text-foreground sm:py-10 md:py-12">
       <div className="mx-auto mb-6 flex max-w-[1600px] items-end justify-between gap-6 px-5 sm:mb-8 md:mb-10 sm:px-6 md:px-10">
         <div>
           <h2 id="the-drop" className="font-display text-2xl font-medium uppercase tracking-[0.12em] sm:text-3xl md:text-4xl">
