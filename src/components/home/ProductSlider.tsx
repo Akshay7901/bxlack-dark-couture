@@ -24,11 +24,11 @@ export function ProductSlider({ products }: { products: Product[] }) {
   const cards = [...loop, ...loop];
 
   return (
-    <section aria-labelledby="the-drop" className="bg-noir py-14 text-foreground sm:py-20 md:py-24">
+    // Little top padding: it follows Shop by Category, which already has its own bottom space.
+    <section aria-labelledby="the-drop" className="bg-noir pb-14 pt-2 text-foreground sm:pb-20 sm:pt-4 md:pb-24">
       <div className="mx-auto mb-8 flex max-w-[1600px] items-end justify-between gap-6 px-5 sm:mb-10 sm:px-6 md:px-10">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-mid-grey/70">SS26 · Numbered pieces</p>
-          <h2 id="the-drop" className="mt-3 font-display text-2xl font-medium uppercase tracking-[0.12em] sm:text-3xl md:text-4xl">
+          <h2 id="the-drop" className="font-display text-2xl font-medium uppercase tracking-[0.12em] sm:text-3xl md:text-4xl">
             The Drop
           </h2>
         </div>
