@@ -6,7 +6,14 @@ import type { Product } from "@/lib/products";
  * photo and, when the product has a back view, crossfades to it — a quiet
  * cue that the card is interactive. Transform/opacity only, no layout shift.
  */
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  tabIndex,
+}: {
+  product: Product;
+  /** -1 for decorative repeats (e.g. the homepage loop) that the keyboard should skip. */
+  tabIndex?: number;
+}) {
   const imageMotion =
     "absolute inset-0 h-full w-full object-cover transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]";
   return (
@@ -14,6 +21,7 @@ export function ProductCard({ product }: { product: Product }) {
       <Link
         to="/product/$id"
         params={{ id: product.id }}
+        tabIndex={tabIndex}
         className="block outline-none focus-visible:ring-1 focus-visible:ring-white/60 focus-visible:ring-offset-4 focus-visible:ring-offset-noir"
       >
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#0A0A0A]">
