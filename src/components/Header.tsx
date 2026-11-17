@@ -29,12 +29,26 @@ export function Header({ onCart }: { onCart: () => void }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Set when hover (or a tap's emulated hover) has just opened the menu, so the
+  // click that follows keeps it open instead of toggling it shut again.
+  const openedByHoverRef = useRef(false);
+
   const openDropdown = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (!dropdownOpen) openedByHoverRef.current = true;
     setDropdownOpen(true);
   };
   const closeDropdown = () => {
+    openedByHoverRef.current = false;
     timeoutRef.current = setTimeout(() => setDropdownOpen(false), 150);
+  };
+  const toggleDropdown = () => {
+    if (openedByHoverRef.current) {
+      openedByHoverRef.current = false;
+      setDropdownOpen(true);
+      return;
+    }
+    setDropdownOpen((v) => !v);
   };
 
   return (
@@ -61,11 +75,13 @@ export function Header({ onCart }: { onCart: () => void }) {
           >
             <button
               type="button"
-              onClick={() => setDropdownOpen((v) => !v)}
+              onClick={toggleDropdown}
+              aria-expanded={dropdownOpen}
+              aria-haspopup="true"
               className="group relative flex items-center gap-1 whitespace-nowrap font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-white/70 transition-colors hover:text-white sm:gap-1.5 sm:text-[11px] sm:tracking-[0.2em] md:text-[13px]"
             >
               Collection
-              <ChevronDown size={11} className="shrink-0 transition-transform duration-300 group-hover:rotate-180" />
+              <ChevronDown size={11} className={`shrink-0 transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""}`} />
               <span className="absolute -bottom-1 left-0 h-px w-0 bg-white transition-all duration-500 group-hover:w-full" />
             </button>
 
