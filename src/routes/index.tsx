@@ -7,6 +7,8 @@ import { HeritageFeature } from "@/components/home/HeritageFeature";
 import { CampaignFeature } from "@/components/home/CampaignFeature";
 import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { BRAND_FAQ, HomeFaq } from "@/components/home/HomeFaq";
+import { ProductSlider } from "@/components/home/ProductSlider";
+import { fetchProducts, toCardProduct } from "@/lib/catalog";
 import { loadPage } from "@/lib/pages/pages";
 import { SITE_URL, jsonLd, seo } from "@/lib/seo";
 
@@ -14,10 +16,18 @@ import { SITE_URL, jsonLd, seo } from "@/lib/seo";
 const HOME_FAQ_COUNT = 4;
 
 export const Route = createFileRoute("/")({
-  // The homepage FAQ reuses the FAQ page's questions (editable in Studio → Store → Pages).
+  // The homepage FAQ reuses the FAQ page's questions (editable in Studio → Store → Pages);
+  // "The Drop" shows published products in their Studio order. Both load with the
+  // page so the product links are in the HTML search engines read.
   loader: async () => {
-    const faq = await loadPage("faq");
-    return { faqs: [BRAND_FAQ, ...faq.faqs.slice(0, HOME_FAQ_COUNT)] };
+    const [faq, products] = await Promise.all([
+      loadPage("faq"),
+      fetchProducts().catch(() => []),
+    ]);
+    return {
+      faqs: [BRAND_FAQ, ...faq.faqs.slice(0, HOME_FAQ_COUNT)],
+      products: products.map(toCardProduct),
+    };
   },
   head: ({ loaderData }) => ({
     ...seo({
@@ -51,11 +61,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { faqs } = Route.useLoaderData();
+  const { faqs, products } = Route.useLoaderData();
   return (
     <AppShell hideNewsletter={false}>
       <Hero />
       <ShopByCategory />
+      <ProductSlider products={products} />
       <GraphicFeature />
       <HeritageFeature />
       <CampaignFeature />
