@@ -34,11 +34,11 @@ export function Footer({ hideNewsletter }: { hideNewsletter?: boolean }) {
   ];
 
   return (
-    <footer className="grain relative overflow-hidden border-t border-light-grey/10 bg-noir px-5 pb-10 pt-16 sm:px-6 md:px-10 md:pt-24">
+    <footer className="grain relative overflow-hidden border-t border-light-grey/10 bg-noir px-5 pb-10 pt-10 sm:px-6 md:px-10 md:pt-14">
       <div className="mx-auto max-w-[1600px]">
         {hideNewsletter ? null : <Newsletter />}
 
-        <div className={`grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-2 lg:grid-cols-4 ${hideNewsletter ? "" : "mt-16 md:mt-24"}`}>
+        <div className={`grid grid-cols-2 gap-10 border-t border-light-grey/10 pt-12 sm:grid-cols-2 lg:grid-cols-4 ${hideNewsletter ? "" : "mt-10 md:mt-14"}`}>
           <div className="col-span-2 sm:col-span-1">
             <img src={logo} alt="BXLACK" width={480} height={266} loading="lazy" decoding="async" className="h-10 w-auto object-contain" />
             <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-light-grey/60">

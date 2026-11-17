@@ -29,9 +29,9 @@ export function ShopByCategory() {
   if (categories.length === 0) return null;
 
   return (
-    <section className="bg-noir py-14 text-foreground sm:py-20 md:py-28">
+    <section className="bg-noir py-8 sm:py-10 md:py-12 text-foreground">
       <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">
-        <h2 id="shop-by-category" className="mb-8 text-center font-display text-xl font-medium uppercase tracking-[0.2em] sm:mb-12 sm:text-2xl md:mb-16">
+        <h2 id="shop-by-category" className="mb-6 text-center font-display text-xl font-medium uppercase tracking-[0.2em] sm:mb-8 sm:text-2xl md:mb-10">
           Shop by Category
         </h2>
 

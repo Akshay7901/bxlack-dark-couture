@@ -226,7 +226,7 @@ function Shell({
   children: React.ReactNode;
 }) {
   const heading = (
-    <div className={`mb-8 flex items-end gap-4 sm:mb-12 md:mb-16 ${actions ? "justify-between" : "justify-center"}`}>
+    <div className={`mb-6 flex items-end gap-4 sm:mb-8 md:mb-10 ${actions ? "justify-between" : "justify-center"}`}>
       <div className={`flex flex-col gap-3 ${actions ? "items-start text-left" : "items-center text-center"}`}>
         <h2 id="instagram" className="font-display text-xl font-medium uppercase tracking-[0.2em] sm:text-2xl">{settings.heading}</h2>
         <a
@@ -242,7 +242,7 @@ function Shell({
     </div>
   );
   return (
-    <section className="bg-noir py-14 text-foreground sm:py-20 md:py-28">
+    <section className="bg-noir pb-8 pt-0 text-foreground sm:pb-10 md:py-12">
       {fullBleed ? (
         <>
           <div className="mx-auto max-w-[1600px] px-5 sm:px-6 md:px-10">{heading}</div>

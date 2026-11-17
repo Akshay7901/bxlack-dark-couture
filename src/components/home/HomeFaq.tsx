@@ -20,7 +20,7 @@ export function HomeFaq({ items }: { items: HomeFaqItem[] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section aria-labelledby="home-faq-heading" className="bg-noir py-16 text-foreground sm:py-20 md:py-28">
+    <section aria-labelledby="home-faq-heading" className="bg-noir pb-8 pt-0 text-foreground sm:pb-10 md:pb-12">
       <div className="mx-auto grid max-w-[1600px] gap-10 px-5 sm:px-6 md:grid-cols-12 md:gap-16 md:px-10">
         <div className="md:col-span-4">
           <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-mid-grey/70">Client Services</p>

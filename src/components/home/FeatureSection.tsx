@@ -63,7 +63,7 @@ export function FeatureSection({
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.4 }}
-        className="relative flex flex-col items-center px-6 pb-12 pt-6 text-center md:absolute md:inset-y-0 md:left-8 md:w-[min(380px,26vw)] md:justify-center md:items-start md:p-0 md:text-left lg:left-14"
+        className="relative flex flex-col items-center px-6 pb-8 pt-6 text-center md:absolute md:inset-y-0 md:left-8 md:w-[min(380px,26vw)] md:justify-center md:items-start md:p-0 md:text-left lg:left-14"
       >
         <motion.h2
           id={title.join("-").toLowerCase().replace(/[^a-z0-9]+/g, "-")}
