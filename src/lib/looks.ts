@@ -23,12 +23,15 @@ export type Look = {
  * own product photo. "looks": uploaded outfit photos, each with the products it wears.
  */
 export type LooksSource = "products" | "looks";
+export type LooksTheme = "light" | "dark";
 
 export type LooksSettings = {
   enabled: boolean;
   heading: string;
   subheading: string;
   source: LooksSource;
+  /** Stage background: a light studio floor (dark clothes stand out) or the site's black. */
+  theme: LooksTheme;
   /** Products shown in "products" mode, in carousel order. */
   productIds: string[];
   /**
@@ -47,6 +50,7 @@ export const DEFAULT_LOOKS_SETTINGS: LooksSettings = {
   heading: "Try the Look",
   subheading: "Pick a look to see what it's wearing",
   source: "products",
+  theme: "light",
   productIds: [],
   productPhotos: {},
   looks: [],
@@ -76,6 +80,7 @@ function resolveSettings(saved: unknown): LooksSettings {
     heading: text(s.heading, d.heading),
     subheading: typeof s.subheading === "string" ? s.subheading.trim() : d.subheading,
     source: s.source === "looks" || s.source === "products" ? s.source : d.source,
+    theme: s.theme === "dark" || s.theme === "light" ? s.theme : d.theme,
     productIds: Array.isArray(s.productIds)
       ? [...new Set(s.productIds.filter((p): p is string => typeof p === "string"))].slice(0, MAX_LOOK_PRODUCTS)
       : [],
@@ -135,7 +140,7 @@ export function lookImageUrl(path: string): string {
 
 /** What the homepage renders: each look with its image URL and the published products it wears. */
 export type HomeLook = { id: string; name: string; image: string; products: Product[] };
-export type HomeLooks = { heading: string; subheading: string; looks: HomeLook[] };
+export type HomeLooks = { heading: string; subheading: string; theme: LooksTheme; looks: HomeLook[] };
 
 /**
  * For the homepage loader. Looks without an image or without any published
@@ -163,7 +168,7 @@ export async function loadHomeLooks(products: CatalogProductWithUrls[]): Promise
       })
       .filter((l) => l.image);
     if (looks.length === 0) return null;
-    return { heading: settings.heading, subheading: settings.subheading, looks };
+    return { heading: settings.heading, subheading: settings.subheading, theme: settings.theme, looks };
   }
 
   const urls = publicStorageUrls(settings.looks.map((l) => l.image));
@@ -179,5 +184,5 @@ export async function loadHomeLooks(products: CatalogProductWithUrls[]): Promise
     }))
     .filter((l) => l.image && l.products.length > 0);
   if (looks.length === 0) return null;
-  return { heading: settings.heading, subheading: settings.subheading, looks };
+  return { heading: settings.heading, subheading: settings.subheading, theme: settings.theme, looks };
 }

@@ -166,6 +166,17 @@ export function AdminLooks() {
               />
               <span className={hintClass}>Leave empty to hide it</span>
             </label>
+            <label className="block">
+              <span className={labelClass}>Stage background</span>
+              <select
+                className={`${inputClass} [&>option]:bg-white`}
+                value={form.theme}
+                onChange={(e) => set("theme", e.target.value === "dark" ? "dark" : "light")}
+              >
+                <option value="light">Light studio (best for dark clothes)</option>
+                <option value="dark">Dark (matches the rest of the site)</option>
+              </select>
+            </label>
           </div>
 
           {/* What the carousel shows */}
@@ -670,6 +681,7 @@ function normalize(s: LooksSettings): LooksSettings {
     heading: s.heading.trim() || DEFAULT_LOOKS_SETTINGS.heading,
     subheading: s.subheading.trim(),
     source: s.source,
+    theme: s.theme,
     productIds: [...new Set(s.productIds)],
     // Keep photos only for products still in the carousel, in a stable key order.
     productPhotos: Object.fromEntries(

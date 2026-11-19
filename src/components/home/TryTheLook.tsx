@@ -2,38 +2,111 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, type PanInfo } from "framer-motion";
 import { ArrowLeft, ArrowRight, Pause, Play, Plus } from "lucide-react";
-import type { HomeLook, HomeLooks } from "@/lib/looks";
+import type { HomeLook, HomeLooks, LooksTheme } from "@/lib/looks";
 import { useCart } from "@/lib/cart";
 import { findCategory, useCategories } from "@/lib/categories";
 import { sizesFor } from "@/lib/sizing";
+import { useTrimmedImage } from "@/lib/trimImage";
 import { EASE_OUT } from "@/lib/motion";
 
 const num = (i: number) => String(i + 1).padStart(2, "0");
 /** How long each look stays before the lineup moves on by itself. */
 const AUTOPLAY_MS = 6000;
-/** Looks visible on each side of the centre one (the outermost only peeks in at the edge). */
+/** Looks drawn on each side of the centre one (the outermost fades out at the edge). */
 const SIDE = 3;
-/**
- * How each figure looks by distance from the centre: nearly the same size so
- * they read as one lineup, with blur building up towards the edges.
- */
+/** Share of the stage height a figure stands. */
+const FIGURE_HEIGHT = 0.86;
+/** Rough width of a standing figure relative to its height, for spacing before images load. */
+const FIGURE_ASPECT = 0.38;
+/** Slide timing shared by figures and their motion trails. */
+const SLIDE = { duration: 0.85, ease: EASE_OUT };
+
+/** By distance from the centre: almost the same size, softening towards the edges. */
 const FIGURE = [
   { scale: 1, blur: 0, opacity: 1 },
-  { scale: 0.94, blur: 1.5, opacity: 0.9 },
-  { scale: 0.88, blur: 3.5, opacity: 0.7 },
-  { scale: 0.84, blur: 6, opacity: 0.4 },
+  { scale: 0.97, blur: 1.2, opacity: 1 },
+  { scale: 0.94, blur: 3, opacity: 0.7 },
+  { scale: 0.92, blur: 6, opacity: 0.3 },
 ];
 
+type Theme = {
+  section: string;
+  title: string;
+  sub: string;
+  stageGlow: string;
+  floorShadow: string;
+  cursor: string;
+  control: string;
+  track: string;
+  fill: string;
+  stepActive: string;
+  stepIdle: string;
+  panel: string;
+  rule: string;
+  text: string;
+  muted: string;
+  thumb: string;
+  select: string;
+  plus: string;
+  cta: string;
+};
+
+const THEMES: Record<LooksTheme, Theme> = {
+  light: {
+    section: "bg-[#ecebe8] text-neutral-900",
+    title: "text-neutral-900",
+    sub: "text-neutral-500",
+    stageGlow: "radial-gradient(ellipse 60% 70% at 50% 45%, rgba(255,255,255,0.85), rgba(255,255,255,0) 70%)",
+    floorShadow: "bg-black/35",
+    cursor: "border-black/25 bg-white/40 text-neutral-700",
+    control: "text-neutral-500 hover:text-neutral-900",
+    track: "bg-black/15",
+    fill: "bg-neutral-900",
+    stepActive: "text-neutral-900",
+    stepIdle: "text-neutral-400 group-hover:text-neutral-700",
+    panel: "bg-[#f6f5f3] lg:border-l lg:border-black/10",
+    rule: "border-black/10",
+    text: "text-neutral-900",
+    muted: "text-neutral-500",
+    thumb: "bg-[#ebeae6]",
+    select: "border-black/15 bg-white text-neutral-900 focus:border-black/50",
+    plus: "text-neutral-400 hover:text-neutral-900",
+    cta: "bg-neutral-950 text-white hover:bg-neutral-800",
+  },
+  dark: {
+    section: "bg-noir text-foreground",
+    title: "text-white",
+    sub: "text-mid-grey/80",
+    stageGlow: "radial-gradient(ellipse 50% 45% at 50% 92%, rgba(255,255,255,0.10), transparent 70%)",
+    floorShadow: "bg-black/80",
+    cursor: "border-white/50 text-white",
+    control: "text-white/60 hover:text-white",
+    track: "bg-white/15",
+    fill: "bg-white",
+    stepActive: "text-white",
+    stepIdle: "text-mid-grey/60 group-hover:text-white/80",
+    panel: "border border-light-grey/10 lg:border-y-0 lg:border-r-0",
+    rule: "border-light-grey/10",
+    text: "text-white",
+    muted: "text-mid-grey/70",
+    thumb: "bg-white/[0.04]",
+    select: "border-light-grey/20 bg-noir text-white focus:border-white/60",
+    plus: "text-white/50 hover:text-white",
+    cta: "bg-white text-black hover:bg-white/85",
+  },
+};
+
 /**
- * "Try the Look": a carousel of full-body looks. The current look stands large
- * and sharp in the middle; the previous and next ones wait smaller and blurred
- * on either side. Swipe, drag, the arrows, the numbered steps or the arrow keys
- * move through them, and it advances on its own until someone interacts. The
- * "In this look" panel beside it lists the pieces of the current look, each
- * with a size, plus one button to put the whole look in the bag.
+ * "Try the Look": a lineup of full-body looks standing on a studio floor. The
+ * current look stands sharp in the middle and the rest wait on either side,
+ * softening towards the edges. Swipe, drag, the arrows, the numbered steps or
+ * the arrow keys move through them (with a motion trail as they slide), and it
+ * advances on its own until someone interacts. The "In this look" panel lists
+ * the current look's pieces, each with a size, and adds the whole look to the bag.
  */
 export function TryTheLook({ data }: { data: HomeLooks }) {
   const { looks } = data;
+  const t = THEMES[data.theme] ?? THEMES.light;
   const n = looks.length;
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(0);
@@ -42,30 +115,32 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
   const [inView, setInView] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const [stageW, setStageW] = useState(0);
+  const [stage, setStage] = useState({ w: 0, h: 0 });
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
 
-  // Figures are spaced by a share of the stage width, so the lineup fills it at any size.
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setStageW(e.contentRect.width));
+    const ro = new ResizeObserver(([e]) => setStage({ w: e.contentRect.width, h: e.contentRect.height }));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const step = stageW * (stageW < 640 ? 0.36 : stageW < 1000 ? 0.26 : 0.21);
+  const figH = stage.h * FIGURE_HEIGHT;
+  const figW = figH * FIGURE_ASPECT;
+  const narrow = stage.w < 640;
+  // Spread across the stage, but never so tight that neighbours overlap.
+  const step = Math.max(stage.w * (narrow ? 0.3 : 0.19), figW * (narrow ? 1.25 : 1.3));
+  const centreGap = figW * (narrow ? 0.05 : 0.18);
 
   const go = useCallback((i: number) => setActive(((i % n) + n) % n), [n]);
   const next = useCallback(() => go(active + 1), [go, active]);
-  const prev = useCallback(() => go(active - 1), [go, active]);
   /** Any deliberate move stops autoplay, so the lineup doesn't jump away from what someone is looking at. */
   const userGo = (i: number) => {
     setPlaying(false);
     go(i);
   };
 
-  // Only run the timer while the section is on screen.
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -77,8 +152,8 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
   const autoplay = playing && !hovering && inView && !reduceMotion && n > 1;
   useEffect(() => {
     if (!autoplay) return;
-    const t = setTimeout(next, AUTOPLAY_MS);
-    return () => clearTimeout(t);
+    const timer = setTimeout(next, AUTOPLAY_MS);
+    return () => clearTimeout(timer);
   }, [autoplay, next, active]);
 
   const onDragEnd = (_: unknown, info: PanInfo) => {
@@ -90,27 +165,18 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
   const look = looks[active];
 
   return (
-    <section
-      ref={sectionRef}
-      aria-labelledby="try-the-look"
-      aria-roledescription="carousel"
-      className="bg-noir pb-8 pt-0 text-foreground sm:pb-10 md:pb-12"
-    >
-      <div className="mx-auto grid max-w-[1600px] gap-8 px-5 sm:px-6 md:px-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10">
+    <section ref={sectionRef} aria-labelledby="try-the-look" aria-roledescription="carousel" className={t.section}>
+      <div className="mx-auto grid max-w-[1600px] lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* Left: heading, stage, controls */}
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
-            <h2 id="try-the-look" className="font-display text-2xl font-medium uppercase tracking-[0.12em] sm:text-3xl md:text-4xl">
-              {data.heading}
-            </h2>
-            {data.subheading ? (
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mid-grey/80">{data.subheading}</p>
-            ) : null}
-          </div>
+        <div className="min-w-0 px-5 pb-6 pt-10 sm:px-6 md:px-10 md:pt-12">
+          <h2 id="try-the-look" className={`font-sans text-3xl font-semibold tracking-[-0.02em] sm:text-4xl ${t.title}`}>
+            {data.heading}
+          </h2>
+          {data.subheading ? <p className={`mt-2 text-[13px] ${t.sub}`}>{data.subheading}</p> : null}
 
           <motion.div
             ref={stageRef}
-            className={`relative mt-4 h-[min(118vw,62vh)] touch-pan-y select-none overflow-hidden sm:mt-6 md:h-[clamp(380px,62vh,620px)] ${
+            className={`relative -mx-5 mt-2 h-[min(96vw,460px)] touch-pan-y select-none overflow-hidden sm:-mx-6 sm:h-[min(70vw,500px)] md:mx-0 md:h-[clamp(380px,52vh,540px)] ${
               n > 1 ? "[@media(pointer:fine)]:cursor-none" : ""
             }`}
             onMouseEnter={() => setHovering(true)}
@@ -123,7 +189,7 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
             }}
             drag={n > 1 ? "x" : false}
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.15}
+            dragElastic={0.12}
             dragMomentum={false}
             onDragEnd={onDragEnd}
             tabIndex={0}
@@ -140,60 +206,25 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
             }}
             style={{ outline: "none" }}
           >
-            {/* Spotlight and floor */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0"
-              style={{ background: "radial-gradient(ellipse 45% 40% at 50% 96%, rgba(255,255,255,0.10), transparent 70%)" }}
-            />
-            <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-[3%] h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
+            <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: t.stageGlow }} />
 
-            {stageW > 0
+            {stage.w > 0
               ? looks.map((l, i) => {
                   const d = offsetOf(i, active, n);
                   const abs = Math.abs(d);
-                  const visible = abs <= SIDE;
-                  const fig = FIGURE[Math.min(abs, FIGURE.length - 1)];
-                  const blurTo = `blur(${fig.blur}px)`;
                   return (
-                    // Every figure is centred by flex, then slid sideways by its distance from the active look.
-                    <div key={l.id} className="pointer-events-none absolute inset-x-0 bottom-[3%] top-[3%] flex items-end justify-center">
-                      <motion.button
-                        type="button"
-                        tabIndex={-1}
-                        aria-hidden={d !== 0}
-                        onClick={() => (d === 0 ? undefined : userGo(i))}
-                        initial={false}
-                        animate={{
-                          x: d * step,
-                          scale: fig.scale,
-                          opacity: visible ? fig.opacity : 0,
-                          // Smear mid-slide, then settle at this position's blur.
-                          filter: reduceMotion ? blurTo : [null, `blur(${Math.max(fig.blur, 6)}px)`, blurTo],
-                        }}
-                        transition={
-                          reduceMotion
-                            ? { duration: 0 }
-                            : {
-                                duration: 0.75,
-                                ease: EASE_OUT,
-                                filter: { duration: 0.75, times: [0, 0.35, 1], ease: "easeOut" },
-                              }
-                        }
-                        style={{ zIndex: 10 - abs, pointerEvents: visible && d !== 0 ? "auto" : "none" }}
-                        className="relative aspect-[5/12] h-full max-w-[44%] origin-bottom sm:max-w-[30%] md:max-w-[19%]"
-                      >
-                        <img
-                          src={l.image}
-                          alt={d === 0 ? l.name || `Look ${num(i)}` : ""}
-                          draggable={false}
-                          loading={abs <= 1 ? "eager" : "lazy"}
-                          decoding="async"
-                          className="pointer-events-none h-full w-full object-contain object-bottom"
-                        />
-                        <span aria-hidden className="absolute -bottom-1 left-1/2 h-3 w-3/4 -translate-x-1/2 rounded-[50%] bg-black/80 blur-md" />
-                      </motion.button>
-                    </div>
+                    <Figure
+                      key={l.id}
+                      look={l}
+                      index={i}
+                      d={d}
+                      x={d * step + Math.sign(d) * centreGap}
+                      height={figH}
+                      visible={abs <= SIDE}
+                      reduceMotion={!!reduceMotion}
+                      shadowClass={t.floorShadow}
+                      onSelect={() => userGo(i)}
+                    />
                   );
                 })
               : null}
@@ -201,7 +232,7 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
             {/* "Drag" cursor that follows the mouse over the lineup. */}
             <motion.span
               aria-hidden
-              className="pointer-events-none absolute left-0 top-0 z-20 hidden h-16 w-16 items-center justify-center rounded-full border border-white/50 font-mono text-[9px] uppercase tracking-[0.25em] text-white backdrop-blur-[2px] [@media(pointer:fine)]:flex"
+              className={`pointer-events-none absolute left-0 top-0 z-30 hidden h-16 w-16 items-center justify-center rounded-full border font-mono text-[9px] uppercase tracking-[0.25em] backdrop-blur-[2px] [@media(pointer:fine)]:flex ${t.cursor}`}
               style={{ x: cursorX, y: cursorY, translateX: "-50%", translateY: "-50%" }}
               animate={{ opacity: hovering && n > 1 ? 1 : 0, scale: hovering && n > 1 ? 1 : 0.6 }}
               transition={{ duration: 0.25 }}
@@ -210,18 +241,18 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
             </motion.span>
           </motion.div>
 
-          {/* Controls: prev, numbered steps with progress, pause, next (only when there's somewhere to go) */}
-          <div className={`mt-5 items-center gap-3 sm:gap-5 ${n > 1 ? "flex" : "hidden"}`}>
+          {/* Controls: prev, numbered steps with progress, pause, next */}
+          <div className={`mt-3 items-center gap-3 sm:gap-5 ${n > 1 ? "flex" : "hidden"}`}>
             <button
               type="button"
               onClick={() => userGo(active - 1)}
               aria-label="Previous look"
-              className="flex h-10 w-10 shrink-0 items-center justify-center text-white/60 transition-colors hover:text-white"
+              className={`flex h-10 w-10 shrink-0 items-center justify-center transition-colors ${t.control}`}
             >
               <ArrowLeft size={18} />
             </button>
 
-            <ol className="flex min-w-0 flex-1 gap-2 sm:gap-3">
+            <ol className="flex min-w-0 max-w-[560px] flex-1 gap-2 sm:gap-3">
               {looks.map((l, i) => {
                 const isActive = i === active;
                 return (
@@ -233,11 +264,11 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
                       aria-current={isActive ? "true" : undefined}
                       className="group block w-full py-2 text-left"
                     >
-                      <span className="relative block h-px w-full overflow-hidden bg-white/15">
+                      <span className={`relative block h-px w-full overflow-hidden ${t.track}`}>
                         {isActive ? (
                           <motion.span
                             key={`${active}-${autoplay}`}
-                            className="absolute inset-y-0 left-0 bg-white"
+                            className={`absolute inset-y-0 left-0 ${t.fill}`}
                             initial={{ width: autoplay ? "0%" : "100%" }}
                             animate={{ width: "100%" }}
                             transition={autoplay ? { duration: AUTOPLAY_MS / 1000, ease: "linear" } : { duration: 0 }}
@@ -245,12 +276,12 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
                         ) : null}
                       </span>
                       <span
-                        className={`mt-2 block truncate font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
-                          isActive ? "text-white" : "text-mid-grey/60 group-hover:text-white/80"
+                        className={`mt-2 block truncate font-mono text-[10px] tracking-[0.12em] transition-colors ${
+                          isActive ? t.stepActive : t.stepIdle
                         }`}
                       >
                         {num(i)}
-                        {isActive && l.name ? <span className="max-sm:hidden"> {l.name}</span> : null}
+                        {isActive && l.name ? <span className="max-sm:hidden">&nbsp;&nbsp;{l.name}</span> : null}
                       </span>
                     </button>
                   </li>
@@ -258,21 +289,22 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
               })}
             </ol>
 
-            {n > 1 && !reduceMotion ? (
+            <span className="flex-1 max-lg:hidden" />
+            {!reduceMotion ? (
               <button
                 type="button"
                 onClick={() => setPlaying((p) => !p)}
                 aria-label={playing ? "Pause slideshow" : "Play slideshow"}
-                className="flex h-10 w-10 shrink-0 items-center justify-center text-white/60 transition-colors hover:text-white"
+                className={`flex h-10 w-10 shrink-0 items-center justify-center transition-colors ${t.control}`}
               >
-                {playing ? <Pause size={14} /> : <Play size={14} />}
+                {playing ? <Pause size={13} /> : <Play size={13} />}
               </button>
             ) : null}
             <button
               type="button"
               onClick={() => userGo(active + 1)}
               aria-label="Next look"
-              className="flex h-10 w-10 shrink-0 items-center justify-center text-white/60 transition-colors hover:text-white"
+              className={`flex h-10 w-10 shrink-0 items-center justify-center transition-colors ${t.control}`}
             >
               <ArrowRight size={18} />
             </button>
@@ -280,9 +312,85 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
         </div>
 
         {/* Right: the pieces in the current look */}
-        <InThisLook look={look} index={active} />
+        <InThisLook look={look} index={active} t={t} />
       </div>
     </section>
+  );
+}
+
+/**
+ * One standing look. Two faint copies trail behind it while it slides, which
+ * gives the swipe its motion-blur smear; at rest they sit hidden behind it.
+ */
+function Figure({
+  look,
+  index,
+  d,
+  x,
+  height,
+  visible,
+  reduceMotion,
+  shadowClass,
+  onSelect,
+}: {
+  look: HomeLook;
+  index: number;
+  d: number;
+  x: number;
+  height: number;
+  visible: boolean;
+  reduceMotion: boolean;
+  shadowClass: string;
+  onSelect: () => void;
+}) {
+  const abs = Math.abs(d);
+  const fig = FIGURE[Math.min(abs, FIGURE.length - 1)];
+  const { src, ready } = useTrimmedImage(look.image);
+  const shown = visible && ready;
+  const target = { x, scale: fig.scale, filter: `blur(${fig.blur}px)` };
+  const slide = reduceMotion ? { duration: 0 } : SLIDE;
+
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-[5%] flex items-end justify-center" style={{ zIndex: 10 - abs }}>
+      {!reduceMotion
+        ? [2, 1].map((k) => (
+            <motion.img
+              key={k}
+              src={src}
+              alt=""
+              aria-hidden
+              draggable={false}
+              initial={false}
+              animate={{ ...target, opacity: shown ? 0.22 / k : 0 }}
+              transition={{ ...slide, delay: k * 0.07 }}
+              className="absolute bottom-0 origin-bottom"
+              style={{ height }}
+            />
+          ))
+        : null}
+
+      <motion.button
+        type="button"
+        tabIndex={-1}
+        aria-hidden={d !== 0}
+        onClick={() => (d === 0 ? undefined : onSelect())}
+        initial={false}
+        animate={{ ...target, opacity: shown ? fig.opacity : 0 }}
+        transition={slide}
+        className="relative origin-bottom"
+        style={{ height, pointerEvents: shown && d !== 0 ? "auto" : "none" }}
+      >
+        <img
+          src={src}
+          alt={d === 0 ? look.name || `Look ${num(index)}` : ""}
+          draggable={false}
+          decoding="async"
+          className="pointer-events-none h-full w-auto max-w-none"
+        />
+        {/* Soft contact shadow on the floor. */}
+        <span aria-hidden className={`absolute -bottom-2 left-1/2 -z-10 h-4 w-[90%] -translate-x-1/2 rounded-[50%] blur-[7px] ${shadowClass}`} />
+      </motion.button>
+    </div>
   );
 }
 
@@ -294,7 +402,7 @@ function offsetOf(i: number, active: number, n: number) {
   return d;
 }
 
-function InThisLook({ look, index }: { look: HomeLook; index: number }) {
+function InThisLook({ look, index, t }: { look: HomeLook; index: number; t: Theme }) {
   const { add } = useCart();
   const { categories } = useCategories();
   const sizeOptions = (p: HomeLook["products"][number]) =>
@@ -320,49 +428,60 @@ function InThisLook({ look, index }: { look: HomeLook; index: number }) {
   };
 
   return (
-    <aside aria-label="In this look" className="flex min-w-0 flex-col border border-light-grey/10 lg:mt-14">
-      <div className="flex items-baseline justify-between gap-3 border-b border-light-grey/10 px-5 py-4">
-        <p className="font-display text-[15px] uppercase tracking-[0.12em]">In this look</p>
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-mid-grey/70">
+    <aside aria-label="In this look" className={`flex min-w-0 flex-col ${t.panel}`}>
+      <div className="flex items-baseline justify-between gap-3 px-6 pb-4 pt-10 md:pt-12">
+        <p className={`text-[15px] font-semibold ${t.text}`}>In this look</p>
+        <p className={`font-mono text-[10px] uppercase tracking-[0.25em] ${t.muted}`}>
           {look.products.length} {look.products.length === 1 ? "piece" : "pieces"}
         </p>
       </div>
 
-      <div aria-live="polite" className="min-h-0 flex-1">
+      <div aria-live="polite" className="min-h-0 flex-1 px-6">
         <AnimatePresence mode="wait" initial={false}>
           <motion.ul
             key={look.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE_OUT } }}
-            exit={{ opacity: 0, y: -6, transition: { duration: 0.18 } }}
-            className="divide-y divide-light-grey/10"
+            initial="hidden"
+            animate="show"
+            exit={{ opacity: 0, transition: { duration: 0.18 } }}
+            variants={{ show: { transition: { staggerChildren: 0.07 } } }}
           >
             <li className="sr-only">{label}</li>
             {look.products.map((p, i) => {
               const opts = sizeOptions(p);
               return (
-                <li key={p.id} className="flex items-center gap-4 px-5 py-4">
-                  <Link to="/product/$id" params={{ id: p.id }} className="relative block h-[84px] w-[68px] shrink-0 overflow-hidden bg-white/[0.03]">
+                <motion.li
+                  key={p.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE_OUT } },
+                  }}
+                  className={`flex items-center gap-4 border-t py-4 ${t.rule}`}
+                >
+                  <Link
+                    to="/product/$id"
+                    params={{ id: p.id }}
+                    className={`relative flex h-[76px] w-[76px] shrink-0 items-center justify-center overflow-hidden ${t.thumb}`}
+                  >
                     {p.image ? <img src={p.image} alt="" className="h-full w-full object-cover" /> : null}
-                    <span className="absolute left-1 top-1 font-mono text-[9px] text-white/70">{i + 1}</span>
+                    <span className={`absolute left-1.5 top-1 font-mono text-[9px] ${t.muted}`}>{i + 1}</span>
                   </Link>
                   <div className="min-w-0 flex-1">
+                    <p className={`font-mono text-[9px] uppercase tracking-[0.22em] ${t.muted}`}>{p.category}</p>
                     <Link
                       to="/product/$id"
                       params={{ id: p.id }}
-                      className="block truncate text-[14px] text-white underline-offset-4 hover:underline"
+                      className={`mt-0.5 block truncate text-[14px] underline-offset-4 hover:underline ${t.text}`}
                     >
                       {p.name}
                     </Link>
-                    <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-mid-grey/70">{p.category}</p>
-                    <div className="mt-1.5 flex items-center gap-3">
-                      <span className="font-mono text-[13px] text-white">₹{p.price}</span>
+                    <div className="mt-1 flex items-center gap-3">
+                      <span className={`text-[13px] ${t.text}`}>₹{p.price}</span>
                       {opts.length > 1 ? (
                         <select
                           aria-label={`Size for ${p.name}`}
                           value={sizeOf(p)}
                           onChange={(e) => setSizes((s) => ({ ...s, [p.id]: e.target.value }))}
-                          className="border border-light-grey/20 bg-noir px-1.5 py-0.5 font-mono text-[11px] uppercase text-white outline-none focus:border-white/60"
+                          className={`border px-1.5 py-0.5 font-mono text-[11px] uppercase outline-none ${t.select}`}
                         >
                           {opts.map((s) => (
                             <option key={s} value={s}>
@@ -377,30 +496,30 @@ function InThisLook({ look, index }: { look: HomeLook; index: number }) {
                     type="button"
                     onClick={() => addOne(p)}
                     aria-label={`Add ${p.name} (${sizeOf(p)}) to bag`}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center text-white/50 transition-colors hover:text-white"
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center transition-colors ${t.plus}`}
                   >
                     <Plus size={16} />
                   </button>
-                </li>
+                </motion.li>
               );
             })}
           </motion.ul>
         </AnimatePresence>
       </div>
 
-      <div className="border-t border-light-grey/10 px-5 py-4">
+      <div className={`mx-6 border-t pb-10 pt-4 md:pb-12 ${t.rule}`}>
         {look.products.length > 1 ? (
-          <div className="mb-4 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.22em]">
-            <span className="text-mid-grey/80">Complete the look</span>
-            <span className="text-white">₹{total}</span>
+          <div className="mb-4 flex items-center justify-between">
+            <span className={`text-[12px] ${t.text}`}>Complete the look</span>
+            <span className={`text-[14px] font-semibold ${t.text}`}>₹{total}</span>
           </div>
         ) : null}
         <button
           type="button"
           onClick={addAll}
-          className="flex w-full items-center justify-center gap-3 border border-white bg-white py-3.5 font-mono text-[11px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white"
+          className={`flex w-full items-center justify-center gap-3 py-3.5 text-[13px] font-medium transition-colors ${t.cta}`}
         >
-          {look.products.length > 1 ? "Add full look to bag" : "Add to bag"} <ArrowRight size={14} />
+          {look.products.length > 1 ? "Add full look to bag" : "Add to bag"} <ArrowRight size={15} />
         </button>
       </div>
     </aside>
