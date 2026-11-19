@@ -78,7 +78,7 @@ const THEMES: Record<LooksTheme, Theme> = {
     sub: "text-mid-grey/80",
     // A soft spotlight behind the figures and a lit patch of floor, so black clothes still read on black.
     stageGlow:
-      "radial-gradient(ellipse 34% 62% at 50% 48%, rgba(255,255,255,0.13), transparent 72%), radial-gradient(ellipse 45% 9% at 50% 90%, rgba(255,255,255,0.08), transparent 80%)",
+      "radial-gradient(ellipse 30% 58% at 50% 46%, rgba(255,255,255,0.2), transparent 72%), radial-gradient(ellipse 45% 9% at 50% 90%, rgba(255,255,255,0.1), transparent 80%)",
     floorShadow: "bg-black",
     cursor: "border-white/50 text-white",
     control: "text-white/60 hover:text-white",
@@ -260,6 +260,7 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
                     isFront={i === active}
                     reduceMotion={reduceMotion}
                     shadowClass={t.floorShadow}
+                    lift={data.theme === "dark"}
                     onSelect={() => userGo(i)}
                   />
                 ))
@@ -370,11 +371,14 @@ function Figure({
   isFront,
   reduceMotion,
   shadowClass,
+  lift,
   onSelect,
 }: {
   look: HomeLook;
   index: number;
   n: number;
+  /** Brighten the figures (black stage). */
+  lift: boolean;
   rot: MotionValue<number>;
   vel: MotionValue<number>;
   radius: number;
@@ -405,7 +409,13 @@ function Figure({
   const filter = useTransform([near, vel], ([d, v]: number[]) => {
     const depthBlur = (1 - d) ** 1.5 * 8;
     const motionBlur = reduceMotion ? 0 : Math.min(Math.abs(v) * 1.6, 5);
-    return `blur(${(depthBlur + motionBlur).toFixed(2)}px)`;
+    const blur = `blur(${(depthBlur + motionBlur).toFixed(2)}px)`;
+    if (!lift) return blur;
+    // On the black stage, light the front looks like a studio key light so
+    // black fabric shows its texture and print instead of merging with the background.
+    const brightness = 1 + 0.32 * d;
+    const contrast = 1 + 0.12 * d;
+    return `${blur} brightness(${brightness.toFixed(3)}) contrast(${contrast.toFixed(3)})`;
   });
 
   return (
