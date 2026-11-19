@@ -5,9 +5,9 @@ import { publicStorageUrls, toCardProduct, type CatalogProductWithUrls } from "@
 import type { Product } from "@/lib/products";
 
 /**
- * Homepage "Try the Look": a lineup of full-body looks. Hovering one brings it
- * forward; clicking opens the pieces it's wearing. Edited in Studio → Store →
- * Looks and stored in store_settings under "looks".
+ * Homepage "Try the Look": a swipeable carousel of full-body looks with an
+ * "In this look" panel listing the current look's pieces. Edited in Studio →
+ * Store → Looks and stored in store_settings under "looks".
  */
 export type Look = {
   id: string;
