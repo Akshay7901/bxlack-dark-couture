@@ -18,19 +18,31 @@ export type Look = {
   productIds: string[];
 };
 
+/**
+ * "products": each chosen product is one figure in the carousel, shown with its
+ * own product photo. "looks": uploaded outfit photos, each with the products it wears.
+ */
+export type LooksSource = "products" | "looks";
+
 export type LooksSettings = {
   enabled: boolean;
   heading: string;
   subheading: string;
+  source: LooksSource;
+  /** Products shown in "products" mode, in carousel order. */
+  productIds: string[];
   looks: Look[];
 };
 
 export const MAX_LOOKS = 8;
+export const MAX_LOOK_PRODUCTS = 12;
 
 export const DEFAULT_LOOKS_SETTINGS: LooksSettings = {
   enabled: true,
   heading: "Try the Look",
   subheading: "Pick a look to see what it's wearing",
+  source: "products",
+  productIds: [],
   looks: [],
 };
 
@@ -57,6 +69,10 @@ function resolveSettings(saved: unknown): LooksSettings {
     enabled: typeof s.enabled === "boolean" ? s.enabled : d.enabled,
     heading: text(s.heading, d.heading),
     subheading: typeof s.subheading === "string" ? s.subheading.trim() : d.subheading,
+    source: s.source === "looks" || s.source === "products" ? s.source : d.source,
+    productIds: Array.isArray(s.productIds)
+      ? [...new Set(s.productIds.filter((p): p is string => typeof p === "string"))].slice(0, MAX_LOOK_PRODUCTS)
+      : [],
     looks,
   };
 }
@@ -120,6 +136,20 @@ export async function loadHomeLooks(products: CatalogProductWithUrls[]): Promise
   }
   if (!settings.enabled) return null;
   const byId = new Map(products.map((p) => [p.id, p]));
+
+  if (settings.source === "products") {
+    const looks = settings.productIds
+      .map((id) => byId.get(id))
+      .filter((p): p is CatalogProductWithUrls => !!p)
+      .map((p) => {
+        const card = toCardProduct(p);
+        return { id: p.id, name: p.name, image: card.image, products: [card] };
+      })
+      .filter((l) => l.image);
+    if (looks.length === 0) return null;
+    return { heading: settings.heading, subheading: settings.subheading, looks };
+  }
+
   const urls = publicStorageUrls(settings.looks.map((l) => l.image));
   const looks = settings.looks
     .map((l) => ({

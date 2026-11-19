@@ -389,14 +389,16 @@ function InThisLook({ look, index }: { look: HomeLook; index: number }) {
       </div>
 
       <div className="border-t border-light-grey/10 px-5 py-4">
-        <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.22em]">
-          <span className="text-mid-grey/80">Complete the look</span>
-          <span className="text-white">₹{total}</span>
-        </div>
+        {look.products.length > 1 ? (
+          <div className="mb-4 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.22em]">
+            <span className="text-mid-grey/80">Complete the look</span>
+            <span className="text-white">₹{total}</span>
+          </div>
+        ) : null}
         <button
           type="button"
           onClick={addAll}
-          className="mt-4 flex w-full items-center justify-center gap-3 border border-white bg-white py-3.5 font-mono text-[11px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white"
+          className="flex w-full items-center justify-center gap-3 border border-white bg-white py-3.5 font-mono text-[11px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-transparent hover:text-white"
         >
           {look.products.length > 1 ? "Add full look to bag" : "Add to bag"} <ArrowRight size={14} />
         </button>

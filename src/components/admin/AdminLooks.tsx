@@ -8,6 +8,7 @@ import {
   DEFAULT_LOOKS_SETTINGS,
   LooksTableMissing,
   MAX_LOOKS,
+  MAX_LOOK_PRODUCTS,
   lookImageUrl,
   saveLooksSettings,
   useLooksSettingsAdmin,
@@ -43,7 +44,19 @@ export function AdminLooks() {
 
   const published = new Set(products.filter((p) => p.published).map((p) => p.id));
   const isLive = (l: Look) => !!l.image && l.productIds.some((id) => published.has(id));
-  const liveCount = form.looks.filter(isLive).length;
+  const liveCount =
+    form.source === "products"
+      ? form.productIds.filter((id) => published.has(id)).length
+      : form.looks.filter(isLive).length;
+  const toggleProduct = (id: string) =>
+    set(
+      "productIds",
+      form.productIds.includes(id)
+        ? form.productIds.filter((p) => p !== id)
+        : form.productIds.length < MAX_LOOK_PRODUCTS
+          ? [...form.productIds, id]
+          : form.productIds,
+    );
 
   const dirty = !!saved && JSON.stringify(normalize(form)) !== JSON.stringify(normalize(saved));
   const canSave = !tableMissing && dirty && !saving;
@@ -107,8 +120,10 @@ export function AdminLooks() {
               </p>
               <p className="mt-1 text-[13px] text-neutral-500">
                 {form.enabled && liveCount === 0
-                  ? "Add at least one look with a photo and a published product for the section to appear."
-                  : "Turn off to remove the section without losing your looks."}
+                  ? form.source === "products"
+                    ? "Choose at least one published product below for the section to appear."
+                    : "Add at least one look with a photo and a published product for the section to appear."
+                  : "Turn off to remove the section without losing your choices."}
               </p>
             </div>
             <button
@@ -153,7 +168,102 @@ export function AdminLooks() {
             </label>
           </div>
 
-          {/* Looks */}
+          {/* What the carousel shows */}
+          <div>
+            <p className="text-[14px] font-semibold text-neutral-900">What to show</p>
+            <div role="radiogroup" aria-label="What the carousel shows" className="mt-3 grid gap-3 sm:grid-cols-2">
+              {(
+                [
+                  { key: "products", title: "Products", text: "Pick products. Each one appears in the carousel with its own product photo — no uploads needed." },
+                  { key: "looks", title: "Custom looks", text: "Upload full-body outfit photos and tick the pieces each one is wearing." },
+                ] as const
+              ).map((o) => {
+                const selected = form.source === o.key;
+                return (
+                  <button
+                    key={o.key}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => set("source", o.key)}
+                    className={`border p-4 text-left transition-colors ${
+                      selected ? "border-black ring-1 ring-black" : "border-black/12 hover:border-black/40"
+                    }`}
+                  >
+                    <span className="flex items-center justify-between gap-2 text-[13px] font-semibold text-neutral-900">
+                      {o.title}
+                      {selected ? <Badge tone="success">Selected</Badge> : null}
+                    </span>
+                    <span className="mt-1 block text-[12px] leading-snug text-neutral-500">{o.text}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {form.source === "products" ? (
+            <div>
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-[14px] font-semibold text-neutral-900">
+                    Products in the carousel ({form.productIds.length}/{MAX_LOOK_PRODUCTS})
+                  </p>
+                  <p className="mt-1 text-[12px] text-neutral-500">
+                    Tick the products to show. They appear in the order you tick them — the number shows each one's place.
+                  </p>
+                </div>
+                {form.productIds.length ? (
+                  <button
+                    type="button"
+                    onClick={() => set("productIds", [])}
+                    className="font-mono text-[10px] uppercase tracking-[0.24em] text-neutral-500 hover:text-black"
+                  >
+                    Clear all
+                  </button>
+                ) : null}
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {products.map((p) => {
+                  const pos = form.productIds.indexOf(p.id);
+                  const on = pos >= 0;
+                  const full = !on && form.productIds.length >= MAX_LOOK_PRODUCTS;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      role="checkbox"
+                      aria-checked={on}
+                      disabled={full}
+                      onClick={() => toggleProduct(p.id)}
+                      className={`flex items-center gap-3 border p-2 text-left transition-colors disabled:opacity-40 ${
+                        on ? "border-black bg-black/[0.03]" : "border-black/12 hover:border-black/40"
+                      }`}
+                    >
+                      <span className="block h-16 w-12 shrink-0 overflow-hidden bg-neutral-100">
+                        {p.cardImageUrl || p.imageUrl ? (
+                          <img src={p.cardImageUrl ?? p.imageUrl ?? ""} alt="" className="h-full w-full object-cover" />
+                        ) : null}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[13px] font-semibold text-neutral-900">{p.name}</span>
+                        <span className="block text-[11px] text-neutral-500">
+                          ₹{p.price}
+                          {p.published ? "" : " · Unpublished (won't show)"}
+                        </span>
+                      </span>
+                      <span
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center border text-[11px] font-semibold ${
+                          on ? "border-black bg-black text-white" : "border-black/25"
+                        }`}
+                      >
+                        {on ? pos + 1 : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
           <div>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
@@ -201,6 +311,7 @@ export function AdminLooks() {
               </ol>
             )}
           </div>
+          )}
         </>
       )}
 
@@ -408,6 +519,8 @@ function normalize(s: LooksSettings): LooksSettings {
     enabled: s.enabled,
     heading: s.heading.trim() || DEFAULT_LOOKS_SETTINGS.heading,
     subheading: s.subheading.trim(),
+    source: s.source,
+    productIds: [...new Set(s.productIds)],
     looks: s.looks.map((l) => ({ id: l.id, name: l.name.trim(), image: l.image, productIds: [...new Set(l.productIds)] })),
   };
 }
