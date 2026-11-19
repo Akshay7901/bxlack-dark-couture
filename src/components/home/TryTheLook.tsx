@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AnimatePresence, motion, useReducedMotion, type PanInfo } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, type PanInfo } from "framer-motion";
 import { ArrowLeft, ArrowRight, Pause, Play, Plus } from "lucide-react";
 import type { HomeLook, HomeLooks } from "@/lib/looks";
 import { useCart } from "@/lib/cart";
@@ -11,8 +11,18 @@ import { EASE_OUT } from "@/lib/motion";
 const num = (i: number) => String(i + 1).padStart(2, "0");
 /** How long each look stays before the lineup moves on by itself. */
 const AUTOPLAY_MS = 6000;
-/** Looks visible on each side of the centre one. */
-const SIDE = 2;
+/** Looks visible on each side of the centre one (the outermost only peeks in at the edge). */
+const SIDE = 3;
+/**
+ * How each figure looks by distance from the centre: nearly the same size so
+ * they read as one lineup, with blur building up towards the edges.
+ */
+const FIGURE = [
+  { scale: 1, blur: 0, opacity: 1 },
+  { scale: 0.94, blur: 1.5, opacity: 0.9 },
+  { scale: 0.88, blur: 3.5, opacity: 0.7 },
+  { scale: 0.84, blur: 6, opacity: 0.4 },
+];
 
 /**
  * "Try the Look": a carousel of full-body looks. The current look stands large
@@ -31,6 +41,20 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
   const [hovering, setHovering] = useState(false);
   const [inView, setInView] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stageW, setStageW] = useState(0);
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
+
+  // Figures are spaced by a share of the stage width, so the lineup fills it at any size.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setStageW(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const step = stageW * (stageW < 640 ? 0.36 : stageW < 1000 ? 0.26 : 0.21);
 
   const go = useCallback((i: number) => setActive(((i % n) + n) % n), [n]);
   const next = useCallback(() => go(active + 1), [go, active]);
@@ -85,9 +109,18 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
           </div>
 
           <motion.div
-            className="relative mt-4 h-[min(118vw,62vh)] touch-pan-y select-none overflow-hidden sm:mt-6 md:h-[clamp(380px,62vh,620px)]"
+            ref={stageRef}
+            className={`relative mt-4 h-[min(118vw,62vh)] touch-pan-y select-none overflow-hidden sm:mt-6 md:h-[clamp(380px,62vh,620px)] ${
+              n > 1 ? "[@media(pointer:fine)]:cursor-none" : ""
+            }`}
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
+            onPointerMove={(e) => {
+              if (e.pointerType !== "mouse") return;
+              const r = e.currentTarget.getBoundingClientRect();
+              cursorX.set(e.clientX - r.left);
+              cursorY.set(e.clientY - r.top);
+            }}
             drag={n > 1 ? "x" : false}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.15}
@@ -115,40 +148,66 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
             />
             <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-[3%] h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
 
-            {looks.map((l, i) => {
-              const d = offsetOf(i, active, n);
-              const abs = Math.abs(d);
-              const visible = abs <= SIDE;
-              return (
-                <motion.button
-                  key={l.id}
-                  type="button"
-                  tabIndex={-1}
-                  aria-hidden={d !== 0}
-                  onClick={() => (d === 0 ? undefined : userGo(i))}
-                  initial={false}
-                  animate={{
-                    x: `${d * 72}%`,
-                    scale: d === 0 ? 1 : abs === 1 ? 0.78 : 0.62,
-                    opacity: !visible ? 0 : d === 0 ? 1 : abs === 1 ? 0.55 : 0.22,
-                    filter: d === 0 ? "blur(0px) grayscale(0)" : `blur(${abs * 2.5}px) grayscale(0.6)`,
-                  }}
-                  transition={reduceMotion ? { duration: 0 } : { duration: 0.8, ease: EASE_OUT }}
-                  style={{ zIndex: 10 - abs, pointerEvents: visible && d !== 0 ? "auto" : "none" }}
-                  className="absolute bottom-[3%] left-1/2 -ml-[min(19vw,130px)] h-[94%] w-[min(38vw,260px)] origin-bottom cursor-pointer sm:-ml-[110px] sm:w-[220px] md:-ml-[130px] md:w-[260px]"
-                >
-                  <img
-                    src={l.image}
-                    alt={d === 0 ? l.name || `Look ${num(i)}` : ""}
-                    draggable={false}
-                    loading={abs <= 1 ? "eager" : "lazy"}
-                    decoding="async"
-                    className="pointer-events-none h-full w-full object-contain object-bottom"
-                  />
-                  <span aria-hidden className="absolute -bottom-1 left-1/2 h-3 w-2/3 -translate-x-1/2 rounded-[50%] bg-black/80 blur-md" />
-                </motion.button>
-              );
-            })}
+            {stageW > 0
+              ? looks.map((l, i) => {
+                  const d = offsetOf(i, active, n);
+                  const abs = Math.abs(d);
+                  const visible = abs <= SIDE;
+                  const fig = FIGURE[Math.min(abs, FIGURE.length - 1)];
+                  const blurTo = `blur(${fig.blur}px)`;
+                  return (
+                    // Every figure is centred by flex, then slid sideways by its distance from the active look.
+                    <div key={l.id} className="pointer-events-none absolute inset-x-0 bottom-[3%] top-[3%] flex items-end justify-center">
+                      <motion.button
+                        type="button"
+                        tabIndex={-1}
+                        aria-hidden={d !== 0}
+                        onClick={() => (d === 0 ? undefined : userGo(i))}
+                        initial={false}
+                        animate={{
+                          x: d * step,
+                          scale: fig.scale,
+                          opacity: visible ? fig.opacity : 0,
+                          // Smear mid-slide, then settle at this position's blur.
+                          filter: reduceMotion ? blurTo : [null, `blur(${Math.max(fig.blur, 6)}px)`, blurTo],
+                        }}
+                        transition={
+                          reduceMotion
+                            ? { duration: 0 }
+                            : {
+                                duration: 0.75,
+                                ease: EASE_OUT,
+                                filter: { duration: 0.75, times: [0, 0.35, 1], ease: "easeOut" },
+                              }
+                        }
+                        style={{ zIndex: 10 - abs, pointerEvents: visible && d !== 0 ? "auto" : "none" }}
+                        className="relative aspect-[5/12] h-full max-w-[44%] origin-bottom sm:max-w-[30%] md:max-w-[19%]"
+                      >
+                        <img
+                          src={l.image}
+                          alt={d === 0 ? l.name || `Look ${num(i)}` : ""}
+                          draggable={false}
+                          loading={abs <= 1 ? "eager" : "lazy"}
+                          decoding="async"
+                          className="pointer-events-none h-full w-full object-contain object-bottom"
+                        />
+                        <span aria-hidden className="absolute -bottom-1 left-1/2 h-3 w-3/4 -translate-x-1/2 rounded-[50%] bg-black/80 blur-md" />
+                      </motion.button>
+                    </div>
+                  );
+                })
+              : null}
+
+            {/* "Drag" cursor that follows the mouse over the lineup. */}
+            <motion.span
+              aria-hidden
+              className="pointer-events-none absolute left-0 top-0 z-20 hidden h-16 w-16 items-center justify-center rounded-full border border-white/50 font-mono text-[9px] uppercase tracking-[0.25em] text-white backdrop-blur-[2px] [@media(pointer:fine)]:flex"
+              style={{ x: cursorX, y: cursorY, translateX: "-50%", translateY: "-50%" }}
+              animate={{ opacity: hovering && n > 1 ? 1 : 0, scale: hovering && n > 1 ? 1 : 0.6 }}
+              transition={{ duration: 0.25 }}
+            >
+              Drag
+            </motion.span>
           </motion.div>
 
           {/* Controls: prev, numbered steps with progress, pause, next (only when there's somewhere to go) */}
