@@ -76,8 +76,10 @@ const THEMES: Record<LooksTheme, Theme> = {
     section: "bg-noir text-foreground",
     title: "text-white",
     sub: "text-mid-grey/80",
-    stageGlow: "radial-gradient(ellipse 50% 45% at 50% 92%, rgba(255,255,255,0.10), transparent 70%)",
-    floorShadow: "bg-black/80",
+    // A soft spotlight behind the figures and a lit patch of floor, so black clothes still read on black.
+    stageGlow:
+      "radial-gradient(ellipse 34% 62% at 50% 48%, rgba(255,255,255,0.13), transparent 72%), radial-gradient(ellipse 45% 9% at 50% 90%, rgba(255,255,255,0.08), transparent 80%)",
+    floorShadow: "bg-black",
     cursor: "border-white/50 text-white",
     control: "text-white/60 hover:text-white",
     track: "bg-white/15",

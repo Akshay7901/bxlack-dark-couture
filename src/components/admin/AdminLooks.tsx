@@ -171,10 +171,10 @@ export function AdminLooks() {
               <select
                 className={`${inputClass} [&>option]:bg-white`}
                 value={form.theme}
-                onChange={(e) => set("theme", e.target.value === "dark" ? "dark" : "light")}
+                onChange={(e) => set("theme", e.target.value === "light" ? "light" : "dark")}
               >
-                <option value="light">Light studio (best for dark clothes)</option>
-                <option value="dark">Dark (matches the rest of the site)</option>
+                <option value="dark">Black (matches the rest of the site)</option>
+                <option value="light">Light studio</option>
               </select>
             </label>
           </div>

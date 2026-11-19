@@ -50,7 +50,7 @@ export const DEFAULT_LOOKS_SETTINGS: LooksSettings = {
   heading: "Try the Look",
   subheading: "Pick a look to see what it's wearing",
   source: "products",
-  theme: "light",
+  theme: "dark",
   productIds: [],
   productPhotos: {},
   looks: [],
