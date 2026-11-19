@@ -151,8 +151,8 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
             })}
           </motion.div>
 
-          {/* Controls: prev, numbered steps with progress, pause, next */}
-          <div className="mt-5 flex items-center gap-3 sm:gap-5">
+          {/* Controls: prev, numbered steps with progress, pause, next (only when there's somewhere to go) */}
+          <div className={`mt-5 items-center gap-3 sm:gap-5 ${n > 1 ? "flex" : "hidden"}`}>
             <button
               type="button"
               onClick={() => userGo(active - 1)}
