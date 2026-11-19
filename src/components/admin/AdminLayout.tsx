@@ -10,6 +10,7 @@ import {
   MessageCircle,
   MessageSquare,
   Package,
+  PersonStanding,
   Rocket,
   Search,
   Settings,
@@ -36,6 +37,7 @@ export type NavKey =
   | "emails"
   | "whatsapp"
   | "instagram"
+  | "looks"
   | "launch"
   | "team";
 
@@ -86,6 +88,7 @@ const NAV_PERMISSION: Record<NavKey, Permission | "admin"> = {
   emails: "content",
   whatsapp: "content",
   instagram: "content",
+  looks: "content",
   launch: "content",
   team: "admin",
 };
@@ -109,6 +112,7 @@ const NAV_ORDER: NavKey[] = [
   "emails",
   "whatsapp",
   "instagram",
+  "looks",
   "launch",
   "team",
 ];
@@ -134,6 +138,7 @@ const STORE_NAV: NavItem[] = [
   { key: "emails", label: "Email templates", icon: Mail },
   { key: "whatsapp", label: "WhatsApp", icon: MessageCircle },
   { key: "instagram", label: "Instagram", icon: Instagram },
+  { key: "looks", label: "Looks", icon: PersonStanding },
   { key: "launch", label: "Launch", icon: Rocket },
 ];
 

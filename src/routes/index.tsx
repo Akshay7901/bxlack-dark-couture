@@ -8,7 +8,9 @@ import { CampaignFeature } from "@/components/home/CampaignFeature";
 import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { BRAND_FAQ, HomeFaq } from "@/components/home/HomeFaq";
 import { ProductSlider } from "@/components/home/ProductSlider";
+import { TryTheLook } from "@/components/home/TryTheLook";
 import { fetchProducts, toCardProduct } from "@/lib/catalog";
+import { loadHomeLooks } from "@/lib/looks";
 import { loadPage } from "@/lib/pages/pages";
 import { SITE_URL, jsonLd, seo } from "@/lib/seo";
 
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/")({
     return {
       faqs: [BRAND_FAQ, ...faq.faqs.slice(0, HOME_FAQ_COUNT)],
       products: products.map(toCardProduct),
+      looks: await loadHomeLooks(products),
     };
   },
   head: ({ loaderData }) => ({
@@ -61,12 +64,13 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { faqs, products } = Route.useLoaderData();
+  const { faqs, products, looks } = Route.useLoaderData();
   return (
     <AppShell hideNewsletter={false}>
       <Hero />
       <ProductSlider products={products} />
       <ShopByCategory />
+      {looks ? <TryTheLook data={looks} /> : null}
       <GraphicFeature />
       <HeritageFeature />
       <CampaignFeature />
