@@ -209,7 +209,7 @@ export function AdminLooks() {
                     Products in the carousel ({form.productIds.length}/{MAX_LOOK_PRODUCTS})
                   </p>
                   <p className="mt-1 text-[12px] text-neutral-500">
-                    Tick the products to show. They appear in the order you tick them — the number shows each one's place.
+                    Tick the products to show. The number shows each one's place; change the order and add carousel photos below.
                   </p>
                 </div>
                 {form.productIds.length ? (
@@ -262,6 +262,44 @@ export function AdminLooks() {
                   );
                 })}
               </div>
+
+              {form.productIds.length ? (
+                <div className="mt-8">
+                  <p className="text-[14px] font-semibold text-neutral-900">Carousel order and photos</p>
+                  <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-neutral-500">
+                    Each product uses its product photo unless you upload a carousel photo. For the lineup effect, upload a
+                    full-body cut-out with the background removed (PNG), head to toe, framed the same way for every product.
+                  </p>
+                  <ol className="mt-4 space-y-3">
+                    {form.productIds.map((id, i) => {
+                      const p = products.find((x) => x.id === id);
+                      if (!p) return null;
+                      return (
+                        <CarouselProductRow
+                          key={id}
+                          index={i}
+                          product={p}
+                          photo={form.productPhotos[id] ?? ""}
+                          isFirst={i === 0}
+                          isLast={i === form.productIds.length - 1}
+                          onPhoto={(path) => {
+                            const next = { ...form.productPhotos };
+                            if (path) next[id] = path;
+                            else delete next[id];
+                            set("productPhotos", next);
+                          }}
+                          onMove={(dir) => {
+                            const next = [...form.productIds];
+                            [next[i], next[i + dir]] = [next[i + dir], next[i]];
+                            set("productIds", next);
+                          }}
+                          onRemove={() => toggleProduct(id)}
+                        />
+                      );
+                    })}
+                  </ol>
+                </div>
+              ) : null}
             </div>
           ) : (
           <div>
@@ -514,6 +552,118 @@ function LookEditor({
   );
 }
 
+function CarouselProductRow({
+  index,
+  product,
+  photo,
+  isFirst,
+  isLast,
+  onPhoto,
+  onMove,
+  onRemove,
+}: {
+  index: number;
+  product: CatalogProductWithUrls;
+  photo: string;
+  isFirst: boolean;
+  isLast: boolean;
+  onPhoto: (path: string) => void;
+  onMove: (dir: -1 | 1) => void;
+  onRemove: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const productPhoto = product.cardImageUrl ?? product.imageUrl ?? "";
+  const shown = photo ? lookImageUrl(photo) : productPhoto;
+
+  const upload = async (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Choose an image file");
+      return;
+    }
+    setUploading(true);
+    try {
+      onPhoto(await uploadProductImage(file));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const iconBtn = "flex h-8 w-8 items-center justify-center text-neutral-500 hover:bg-black/5 hover:text-black disabled:opacity-30";
+
+  return (
+    <li className="flex items-center gap-4 border border-black/12 p-3">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center bg-black text-[12px] font-semibold text-white">
+        {index + 1}
+      </span>
+
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading}
+        aria-label={photo ? `Replace carousel photo for ${product.name}` : `Upload carousel photo for ${product.name}`}
+        className="relative h-28 w-16 shrink-0 overflow-hidden bg-[repeating-conic-gradient(#ececec_0%_25%,#fafafa_0%_50%)] bg-[length:12px_12px]"
+      >
+        {shown ? <img src={shown} alt="" className="h-full w-full object-contain object-bottom" /> : null}
+        {uploading ? (
+          <span className="absolute inset-0 flex items-center justify-center bg-white/70">
+            <Loader2 size={16} className="animate-spin" />
+          </span>
+        ) : null}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/png,image/webp,image/jpeg"
+        className="hidden"
+        onChange={(e) => void upload(e.target.files?.[0])}
+      />
+
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[13px] font-semibold text-neutral-900">{product.name}</p>
+        <p className="mt-0.5 text-[12px] text-neutral-500">
+          {photo ? "Using your carousel photo" : "Using the product photo"}
+        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-black hover:underline disabled:opacity-40"
+          >
+            <ImagePlus size={13} /> {photo ? "Replace photo" : "Upload carousel photo"}
+          </button>
+          {photo ? (
+            <button
+              type="button"
+              onClick={() => onPhoto("")}
+              className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500 hover:text-red-600"
+            >
+              Use product photo
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center">
+        <button type="button" className={iconBtn} disabled={isFirst} onClick={() => onMove(-1)} aria-label="Move up">
+          <ArrowUp size={15} />
+        </button>
+        <button type="button" className={iconBtn} disabled={isLast} onClick={() => onMove(1)} aria-label="Move down">
+          <ArrowDown size={15} />
+        </button>
+        <button type="button" className={`${iconBtn} hover:text-red-600`} onClick={onRemove} aria-label="Remove from carousel">
+          <Trash2 size={15} />
+        </button>
+      </div>
+    </li>
+  );
+}
+
 function normalize(s: LooksSettings): LooksSettings {
   return {
     enabled: s.enabled,
@@ -521,6 +671,12 @@ function normalize(s: LooksSettings): LooksSettings {
     subheading: s.subheading.trim(),
     source: s.source,
     productIds: [...new Set(s.productIds)],
+    // Keep photos only for products still in the carousel, in a stable key order.
+    productPhotos: Object.fromEntries(
+      Object.entries(s.productPhotos)
+        .filter(([id, path]) => path && s.productIds.includes(id))
+        .sort(([a], [b]) => a.localeCompare(b)),
+    ),
     looks: s.looks.map((l) => ({ id: l.id, name: l.name.trim(), image: l.image, productIds: [...new Set(l.productIds)] })),
   };
 }

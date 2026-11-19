@@ -31,6 +31,11 @@ export type LooksSettings = {
   source: LooksSource;
   /** Products shown in "products" mode, in carousel order. */
   productIds: string[];
+  /**
+   * Optional carousel photo per product (storage path), e.g. a full-body
+   * cut-out. Products without one use their own product photo.
+   */
+  productPhotos: Record<string, string>;
   looks: Look[];
 };
 
@@ -43,6 +48,7 @@ export const DEFAULT_LOOKS_SETTINGS: LooksSettings = {
   subheading: "Pick a look to see what it's wearing",
   source: "products",
   productIds: [],
+  productPhotos: {},
   looks: [],
 };
 
@@ -73,6 +79,14 @@ function resolveSettings(saved: unknown): LooksSettings {
     productIds: Array.isArray(s.productIds)
       ? [...new Set(s.productIds.filter((p): p is string => typeof p === "string"))].slice(0, MAX_LOOK_PRODUCTS)
       : [],
+    productPhotos:
+      s.productPhotos && typeof s.productPhotos === "object" && !Array.isArray(s.productPhotos)
+        ? Object.fromEntries(
+            Object.entries(s.productPhotos as Record<string, unknown>).filter(
+              (e): e is [string, string] => typeof e[1] === "string" && e[1].length > 0,
+            ),
+          )
+        : {},
     looks,
   };
 }
@@ -138,12 +152,14 @@ export async function loadHomeLooks(products: CatalogProductWithUrls[]): Promise
   const byId = new Map(products.map((p) => [p.id, p]));
 
   if (settings.source === "products") {
+    const photoUrls = publicStorageUrls(Object.values(settings.productPhotos));
     const looks = settings.productIds
       .map((id) => byId.get(id))
       .filter((p): p is CatalogProductWithUrls => !!p)
       .map((p) => {
         const card = toCardProduct(p);
-        return { id: p.id, name: p.name, image: card.image, products: [card] };
+        const custom = settings.productPhotos[p.id];
+        return { id: p.id, name: p.name, image: (custom && photoUrls[custom]) || card.image, products: [card] };
       })
       .filter((l) => l.image);
     if (looks.length === 0) return null;
