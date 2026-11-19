@@ -291,6 +291,9 @@ export function AdminLooks() {
                           index={i}
                           product={p}
                           photo={form.productPhotos[id] ?? ""}
+                          allProducts={products}
+                          pieces={form.productPieces[id] ?? []}
+                          onPieces={(list) => set("productPieces", { ...form.productPieces, [id]: list })}
                           isFirst={i === 0}
                           isLast={i === form.productIds.length - 1}
                           onPhoto={(path) => {
@@ -567,6 +570,9 @@ function CarouselProductRow({
   index,
   product,
   photo,
+  allProducts,
+  pieces,
+  onPieces,
   isFirst,
   isLast,
   onPhoto,
@@ -576,6 +582,9 @@ function CarouselProductRow({
   index: number;
   product: CatalogProductWithUrls;
   photo: string;
+  allProducts: CatalogProductWithUrls[];
+  pieces: string[];
+  onPieces: (list: string[]) => void;
   isFirst: boolean;
   isLast: boolean;
   onPhoto: (path: string) => void;
@@ -658,6 +667,38 @@ function CarouselProductRow({
             </button>
           ) : null}
         </div>
+
+        {/* Everything else the model wears in this photo, so "In this look" lists the whole outfit. */}
+        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+          Also wearing ({pieces.length})
+        </p>
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {allProducts
+            .filter((o) => o.id !== product.id)
+            .map((o) => {
+              const on = pieces.includes(o.id);
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={on}
+                  onClick={() => onPieces(on ? pieces.filter((x) => x !== o.id) : [...pieces, o.id])}
+                  className={`flex items-center gap-1.5 border py-1 pl-1 pr-2 text-[11px] transition-colors ${
+                    on ? "border-black bg-black text-white" : "border-black/15 text-neutral-700 hover:border-black/40"
+                  }`}
+                >
+                  <span className="block h-6 w-5 shrink-0 overflow-hidden bg-neutral-100">
+                    {o.cardImageUrl || o.imageUrl ? (
+                      <img src={o.cardImageUrl ?? o.imageUrl ?? ""} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </span>
+                  {on ? <Check size={11} /> : null}
+                  <span className="max-w-[140px] truncate">{o.name}</span>
+                </button>
+              );
+            })}
+        </div>
       </div>
 
       <div className="flex shrink-0 items-center">
@@ -687,6 +728,12 @@ function normalize(s: LooksSettings): LooksSettings {
     productPhotos: Object.fromEntries(
       Object.entries(s.productPhotos)
         .filter(([id, path]) => path && s.productIds.includes(id))
+        .sort(([a], [b]) => a.localeCompare(b)),
+    ),
+    productPieces: Object.fromEntries(
+      Object.entries(s.productPieces)
+        .filter(([id, list]) => list.length && s.productIds.includes(id))
+        .map(([id, list]) => [id, [...new Set(list.filter((p) => p !== id))]] as [string, string[]])
         .sort(([a], [b]) => a.localeCompare(b)),
     ),
     looks: s.looks.map((l) => ({ id: l.id, name: l.name.trim(), image: l.image, productIds: [...new Set(l.productIds)] })),

@@ -39,6 +39,11 @@ export type LooksSettings = {
    * cut-out. Products without one use their own product photo.
    */
   productPhotos: Record<string, string>;
+  /**
+   * Other products the model is wearing in each product's carousel photo
+   * (e.g. the jeans with a shirt), listed after it in "In this look".
+   */
+  productPieces: Record<string, string[]>;
   looks: Look[];
 };
 
@@ -53,6 +58,7 @@ export const DEFAULT_LOOKS_SETTINGS: LooksSettings = {
   theme: "dark",
   productIds: [],
   productPhotos: {},
+  productPieces: {},
   looks: [],
 };
 
@@ -90,6 +96,14 @@ function resolveSettings(saved: unknown): LooksSettings {
             Object.entries(s.productPhotos as Record<string, unknown>).filter(
               (e): e is [string, string] => typeof e[1] === "string" && e[1].length > 0,
             ),
+          )
+        : {},
+    productPieces:
+      s.productPieces && typeof s.productPieces === "object" && !Array.isArray(s.productPieces)
+        ? Object.fromEntries(
+            Object.entries(s.productPieces as Record<string, unknown>)
+              .filter((e): e is [string, unknown[]] => Array.isArray(e[1]))
+              .map(([id, list]) => [id, [...new Set(list.filter((p): p is string => typeof p === "string" && p !== id))]]),
           )
         : {},
     looks,
@@ -164,7 +178,16 @@ export async function loadHomeLooks(products: CatalogProductWithUrls[]): Promise
       .map((p) => {
         const card = toCardProduct(p);
         const custom = settings.productPhotos[p.id];
-        return { id: p.id, name: p.name, image: (custom && photoUrls[custom]) || card.image, products: [card] };
+        const extras = (settings.productPieces[p.id] ?? [])
+          .map((id) => byId.get(id))
+          .filter((x): x is CatalogProductWithUrls => !!x)
+          .map(toCardProduct);
+        return {
+          id: p.id,
+          name: p.name,
+          image: (custom && photoUrls[custom]) || card.image,
+          products: [card, ...extras],
+        };
       })
       .filter((l) => l.image);
     if (looks.length === 0) return null;
