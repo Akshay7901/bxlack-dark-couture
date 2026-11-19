@@ -24,7 +24,7 @@ const mod = (a: number, n: number) => ((a % n) + n) % n;
 /** How long each look stays before the ring turns on by itself. */
 const AUTOPLAY_MS = 5000;
 /** Share of the stage height the front figure stands. */
-const FIGURE_HEIGHT = 0.86;
+const FIGURE_HEIGHT = 0.93;
 /** How long one step of the ring takes. */
 const TURN = { duration: 1.05, ease: EASE_OUT };
 
@@ -140,7 +140,7 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
   const narrow = stage.w < 640;
   const figH = stage.h * FIGURE_HEIGHT;
   // Ring radius: the side looks reach towards the stage edges.
-  const radius = stage.w * (narrow ? 0.5 : 0.4);
+  const radius = stage.w * (narrow ? 0.62 : 0.42);
 
   // Turn the ring to the current position.
   useEffect(() => {
@@ -216,7 +216,7 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
 
           <motion.div
             ref={stageRef}
-            className={`relative -mx-5 mt-2 h-[min(96vw,460px)] touch-pan-y select-none overflow-hidden sm:-mx-6 sm:h-[min(70vw,500px)] md:mx-0 md:h-[clamp(380px,52vh,540px)] ${
+            className={`relative -mx-5 mt-2 h-[min(135vw,600px)] touch-pan-y select-none overflow-hidden sm:-mx-6 sm:h-[min(95vw,640px)] md:mx-0 md:h-[clamp(480px,68vh,820px)] ${
               n > 1 ? "[@media(pointer:fine)]:cursor-none" : ""
             }`}
             onMouseEnter={() => setHovering(true)}
@@ -410,7 +410,7 @@ function Figure({
 
   return (
     <motion.div
-      className={`pointer-events-none absolute inset-x-0 bottom-[5%] flex items-end justify-center transition-opacity duration-500 ${
+      className={`pointer-events-none absolute inset-x-0 bottom-[3%] flex items-end justify-center transition-opacity duration-500 ${
         ready ? "opacity-100" : "opacity-0"
       }`}
       style={{ zIndex }}
