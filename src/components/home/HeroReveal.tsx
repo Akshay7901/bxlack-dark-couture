@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 
 /**
- * "Unmask" reveal for the hero: the pointer tears a hole through the front
- * photo, showing the back photo beneath. The hole has a ragged, torn-paper
- * edge traced by a thin neon line with a glow; neon specks fly off the edge
- * while it tears, and a small neon marker sits at the cursor. Once the
+ * "Unmask" reveal for the hero: the pointer opens a hole through the front
+ * photo, showing the back photo beneath. The hole's smooth outline is traced
+ * by a single thin neon line with a glow; neon specks fly off the edge while
+ * it moves, and a small neon marker sits at the cursor. Once the
  * pointer moves on, each part of the trail holds briefly, then shrinks into a
  * glowing slash and closes.
  *
@@ -18,9 +18,9 @@ const RIM = 3; // neon edge thickness, CSS px
 const HOLD_MS = 300; // how long a part of the trail stays fully open
 const HEAL_MS = 750; // then how long it takes to close
 const MAX_BLOBS = 240;
-const VERTS = 44;
+const VERTS = 48;
 
-type Blob = { x: number; y: number; r: number; born: number; seed: number; jitter: Float32Array };
+type Blob = { x: number; y: number; r: number; born: number; seed: number };
 type Speck = { x: number; y: number; vx: number; vy: number; born: number; life: number; size: number };
 
 export function HeroReveal({ src, className = "" }: { src: string; className?: string }) {
@@ -65,17 +65,13 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
       specks.length = 0;
     };
 
-    /** A torn blob: a circle with slow wobble plus fixed fine jitter for a ragged edge. */
+    /** A soft blob: a circle with a slow, gentle wobble. */
     const blobPath = (c: CanvasRenderingContext2D, b: Blob, r: number, t: number) => {
       c.beginPath();
       for (let i = 0; i <= VERTS; i++) {
-        const k = i % VERTS;
-        const a = (k / VERTS) * Math.PI * 2;
-        const wobble =
-          1 +
-          0.13 * Math.sin(2 * a + b.seed + t * 1.2) +
-          0.08 * Math.sin(5 * a - b.seed * 2 - t * 1.9) +
-          b.jitter[k];
+        const a = ((i % VERTS) / VERTS) * Math.PI * 2;
+        // Gentle, low-frequency wobble only: the outline reads as one smooth line.
+        const wobble = 1 + 0.05 * Math.sin(2 * a + b.seed + t * 1.2) + 0.025 * Math.sin(3 * a - b.seed * 2 - t * 1.6);
         const px = (b.x + Math.cos(a) * r * wobble) * dpr;
         const py = (b.y + Math.sin(a) * r * wobble * 0.86) * dpr;
         if (i === 0) c.moveTo(px, py);
@@ -194,9 +190,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
     };
 
     const add = (x: number, y: number, r: number) => {
-      const jitter = new Float32Array(VERTS);
-      for (let i = 0; i < VERTS; i++) jitter[i] = (Math.random() - 0.5) * 0.11;
-      blobs.push({ x, y, r, born: performance.now(), seed: Math.random() * 10, jitter });
+      blobs.push({ x, y, r, born: performance.now(), seed: Math.random() * 10 });
       if (blobs.length > MAX_BLOBS) blobs.splice(0, blobs.length - MAX_BLOBS);
     };
 
