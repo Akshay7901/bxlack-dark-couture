@@ -14,8 +14,25 @@ import { useEffect, useRef } from "react";
  */
 const NEON = "#d8ff2e";
 // Measured from the reference: reveals ~20% of the screen wide, oval, gone ~0.35s after the cursor passes.
-const RADIUS = 0.11; // blob radius as a share of the hero's shorter side
-const SQUASH = 0.3; // reveal height as a share of its width
+const RADIUS = 0.11; // blob radius as a share of the hero's shorter side (desktop)
+const SQUASH = 0.3; // reveal height as a share of its width (desktop)
+
+/**
+ * Reveal size by screen. Desktop keeps the tuned 0.11 × hero height. On
+ * phones and small tablets the shorter side is the narrow width, so that
+ * rule would leave a sliver; size from the width instead, a little bigger
+ * for a fingertip, with a minimum so it never gets too small to see.
+ */
+function radiusFor(w: number, h: number, touch: boolean) {
+  if (w >= 1024) return Math.min(w, h) * RADIUS;
+  const share = w < 640 ? 0.2 : 0.15;
+  return Math.max(48, w * share * (touch ? 1.1 : 1));
+}
+
+/** Taller oval on small screens, where a 30% band would be only a few pixels high. */
+function squashFor(w: number) {
+  return w >= 1024 ? SQUASH : w < 640 ? 0.55 : 0.42;
+}
 const RIM = 3; // neon edge thickness, CSS px
 const HOLD_MS = 150; // how long a part of the trail stays fully open
 const HEAL_MS = 200; // then how long it takes to close (with a neon flash)
@@ -47,6 +64,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
     let w = 0; // layout size in CSS px
     let h = 0;
     let dpr = 1;
+    let squash = SQUASH;
     let raf = 0;
     let running = false;
     let last: { x: number; y: number } | null = null;
@@ -59,6 +77,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
       h = canvas.offsetHeight;
       if (!w || !h) return;
       dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+      squash = squashFor(w);
       for (const c of [canvas, hole, rim, layer]) {
         c.width = Math.round(w * dpr);
         c.height = Math.round(h * dpr);
@@ -75,7 +94,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
         // Gentle, low-frequency wobble only: the outline reads as one smooth line.
         const wobble = 1 + 0.05 * Math.sin(2 * a + b.seed + t * 1.2) + 0.025 * Math.sin(3 * a - b.seed * 2 - t * 1.6);
         const px = (b.x + Math.cos(a) * r * wobble) * dpr;
-        const py = (b.y + Math.sin(a) * r * wobble * SQUASH) * dpr;
+        const py = (b.y + Math.sin(a) * r * wobble * squash) * dpr;
         if (i === 0) c.moveTo(px, py);
         else c.lineTo(px, py);
       }
@@ -228,7 +247,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
         const speed = 40 + Math.random() * 90;
         specks.push({
           x: x + Math.cos(a) * r,
-          y: y + Math.sin(a) * r * SQUASH,
+          y: y + Math.sin(a) * r * squash,
           vx: Math.cos(a) * speed - dx * 2,
           vy: Math.sin(a) * speed - dy * 2,
           born: performance.now(),
@@ -239,15 +258,15 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
       if (specks.length > 120) specks.splice(0, specks.length - 120);
     };
 
-    const onMove = (e: PointerEvent) => {
+    const reveal = (clientX: number, clientY: number, touch: boolean) => {
       if (!w) resize();
       const rect = canvas.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
       // Pointer position in layout px (the hero may be zoomed by the scroll effect).
-      const x = ((e.clientX - rect.left) / rect.width) * w;
-      const y = ((e.clientY - rect.top) / rect.height) * h;
+      const x = ((clientX - rect.left) / rect.width) * w;
+      const y = ((clientY - rect.top) / rect.height) * h;
       if (x < 0 || y < 0 || x > w || y > h) return;
-      const r = Math.min(w, h) * RADIUS * (e.pointerType === "touch" ? 1.2 : 1);
+      const r = radiusFor(w, h, touch);
       let dx = 0;
       let dy = 0;
       // Fill gaps between pointer events so fast moves leave a continuous tear.
@@ -261,8 +280,17 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
       }
       add(x, y, r);
       last = { x, y };
-      cursor = { x, y, at: performance.now() };
+      cursor = touch ? null : { x, y, at: performance.now() };
       start();
+    };
+    const onMove = (e: PointerEvent) => {
+      // Touch is handled by the touch listeners below, which keep firing while the page scrolls.
+      if (e.pointerType === "touch") return;
+      reveal(e.clientX, e.clientY, false);
+    };
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) reveal(t.clientX, t.clientY, true);
     };
     const onLeave = () => {
       last = null;
@@ -273,13 +301,24 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
     target.addEventListener("pointermove", onMove);
     target.addEventListener("pointerdown", onMove);
     target.addEventListener("pointerleave", onLeave);
+    // Passive, so swiping still scrolls the page normally.
+    target.addEventListener("touchstart", onTouch, { passive: true });
+    target.addEventListener("touchmove", onTouch, { passive: true });
+    target.addEventListener("touchend", onLeave);
+    target.addEventListener("touchcancel", onLeave);
     window.addEventListener("resize", resize);
+    window.addEventListener("orientationchange", resize);
     return () => {
       cancelAnimationFrame(raf);
       target.removeEventListener("pointermove", onMove);
       target.removeEventListener("pointerdown", onMove);
       target.removeEventListener("pointerleave", onLeave);
+      target.removeEventListener("touchstart", onTouch);
+      target.removeEventListener("touchmove", onTouch);
+      target.removeEventListener("touchend", onLeave);
+      target.removeEventListener("touchcancel", onLeave);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("orientationchange", resize);
     };
   }, [src]);
 
