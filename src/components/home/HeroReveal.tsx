@@ -10,9 +10,10 @@ import { useEffect, useRef } from "react";
  *
  * Drawn on a canvas laid exactly over the front image. Each frame the trail's
  * blobs are drawn twice: as the hole (clips the back image) and a little
- * larger in neon (the edge line and, blurred, its glow).
+ * larger in the accent colour (the edge line and, blurred, its glow).
  */
-const NEON = "#d8ff2e";
+// Brand beige (--beige in styles.css): warm, sits with the sunset instead of fighting it.
+const ACCENT = "#d4c4a8";
 // Measured from the reference: reveals ~20% of the screen wide, oval, gone ~0.35s after the cursor passes.
 const RADIUS = 0.11; // blob radius as a share of the hero's shorter side (desktop)
 const SQUASH = 0.3; // reveal height as a share of its width (desktop)
@@ -131,7 +132,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
       rctx.globalCompositeOperation = "destination-out";
       rctx.drawImage(hole, 0, 0);
       rctx.globalCompositeOperation = "source-in";
-      rctx.fillStyle = NEON;
+      rctx.fillStyle = ACCENT;
       rctx.fillRect(0, 0, rim.width, rim.height);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -168,7 +169,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
         if (closing.length) {
           lctx.globalCompositeOperation = "source-over";
           lctx.clearRect(0, 0, layer.width, layer.height);
-          lctx.fillStyle = NEON;
+          lctx.fillStyle = ACCENT;
           for (const c of closing) {
             lctx.globalAlpha = c.flash;
             blobPath(lctx, c.b, c.b.r * c.size, t);
@@ -188,7 +189,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
       }
 
       // Specks flying off the tear.
-      ctx.fillStyle = NEON;
+      ctx.fillStyle = ACCENT;
       for (let i = specks.length - 1; i >= 0; i--) {
         const p = specks[i];
         const age = (now - p.born) / p.life;
@@ -213,7 +214,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
         ctx.translate(cursor.x * dpr, cursor.y * dpr);
         ctx.rotate(Math.PI / 4);
         const d = 7 * dpr;
-        ctx.fillStyle = NEON;
+        ctx.fillStyle = ACCENT;
         ctx.fillRect(-d / 2, -d / 2, d, d);
         ctx.strokeStyle = "rgba(0,0,0,0.55)";
         ctx.lineWidth = 1 * dpr;
