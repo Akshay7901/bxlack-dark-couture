@@ -38,9 +38,9 @@ const RIM = 3; // neon edge thickness, CSS px
 const HOLD_MS = 150; // how long a part of the trail stays fully open
 const HEAL_MS = 200; // then how long it takes to close (with a neon flash)
 const MAX_BLOBS = 240;
-const VERTS = 48;
 
-type Blob = { x: number; y: number; r: number; born: number; seed: number };
+/** One point of the trail; `stroke` groups points from one continuous move so separate swipes aren't joined. */
+type Blob = { x: number; y: number; r: number; born: number; stroke: number };
 type Speck = { x: number; y: number; vx: number; vy: number; born: number; life: number; size: number };
 
 export function HeroReveal({ src, className = "" }: { src: string; className?: string }) {
@@ -70,6 +70,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
     let running = false;
     let last: { x: number; y: number } | null = null;
     let cursor: { x: number; y: number; at: number } | null = null;
+    let stroke = 0;
     const blobs: Blob[] = [];
     const specks: Speck[] = [];
 
@@ -87,47 +88,70 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
       specks.length = 0;
     };
 
-    /** A soft blob: a circle with a slow, gentle wobble. */
-    const blobPath = (c: CanvasRenderingContext2D, b: Blob, r: number, t: number) => {
-      c.beginPath();
-      for (let i = 0; i <= VERTS; i++) {
-        const a = ((i % VERTS) / VERTS) * Math.PI * 2;
-        // Gentle, low-frequency wobble only: the outline reads as one smooth line.
-        const wobble = 1 + 0.05 * Math.sin(2 * a + b.seed + t * 1.2) + 0.025 * Math.sin(3 * a - b.seed * 2 - t * 1.6);
-        const px = (b.x + Math.cos(a) * r * wobble) * dpr;
-        const py = (b.y + Math.sin(a) * r * wobble * squash) * dpr;
-        if (i === 0) c.moveTo(px, py);
-        else c.lineTo(px, py);
+    /**
+     * The trail as one continuous shape: an oval at each point plus a band
+     * joining it to the next point of the same stroke. Older points are
+     * smaller, so the trail tapers smoothly to a point instead of breaking
+     * into a chain of separate shrinking rings.
+     */
+    const tube = (c: CanvasRenderingContext2D, list: { b: Blob; r: number }[]) => {
+      c.save();
+      // Draw circles in a vertically stretched space; the transform squashes them into ovals.
+      c.setTransform(dpr, 0, 0, dpr * squash, 0, 0);
+      for (let i = 0; i < list.length; i++) {
+        const { b, r } = list[i];
+        const y = b.y / squash;
+        c.beginPath();
+        c.arc(b.x, y, r, 0, Math.PI * 2);
+        c.fill();
+        const next = list[i + 1];
+        if (!next || next.b.stroke !== b.stroke) continue;
+        const ny = next.b.y / squash;
+        const dx = next.b.x - b.x;
+        const dy = ny - y;
+        const d = Math.hypot(dx, dy);
+        if (d < 0.01) continue;
+        const ux = -dy / d;
+        const uy = dx / d;
+        c.beginPath();
+        c.moveTo(b.x + ux * r, y + uy * r);
+        c.lineTo(next.b.x + ux * next.r, ny + uy * next.r);
+        c.lineTo(next.b.x - ux * next.r, ny - uy * next.r);
+        c.lineTo(b.x - ux * r, y - uy * r);
+        c.closePath();
+        c.fill();
       }
-      c.closePath();
-      c.fill();
+      c.restore();
     };
 
     const draw = (now: number) => {
-      const t = now / 1000;
       hctx.clearRect(0, 0, hole.width, hole.height);
       rctx.globalCompositeOperation = "source-over";
       rctx.clearRect(0, 0, rim.width, rim.height);
       hctx.fillStyle = "#000";
       rctx.fillStyle = "#000";
-      const closing: { b: Blob; size: number; flash: number }[] = [];
-
-      for (let i = blobs.length - 1; i >= 0; i--) {
-        const b = blobs[i];
+      // Drop expired points (all share one lifetime, so they're the oldest).
+      while (blobs.length && now - blobs[0].born > HOLD_MS + HEAL_MS) blobs.shift();
+      const holeList: { b: Blob; r: number }[] = [];
+      const rimList: { b: Blob; r: number }[] = [];
+      const closing: { b: Blob; r: number }[] = [];
+      let flash = 0;
+      for (const b of blobs) {
         const age = now - b.born;
-        if (age > HOLD_MS + HEAL_MS) {
-          blobs.splice(i, 1);
-          continue;
-        }
         const k = age <= HOLD_MS ? 1 : 1 - (age - HOLD_MS) / HEAL_MS;
         const size = k * k * (3 - 2 * k);
-        // The neon edge outlives the hole a moment, so a closing tear ends as a glowing slash.
+        // The edge outlives the hole a moment, so a closing tear ends as a glowing slash.
         const edge = RIM * Math.min(1, k * 3);
-        if (size > 0.01) blobPath(hctx, b, b.r * size, t);
-        if (size * b.r + edge > 0.5) blobPath(rctx, b, b.r * size + edge, t);
-        // While it closes, the hole floods with neon for a moment (peaks mid-close).
-        if (age > HOLD_MS) closing.push({ b, size: Math.max(size, 0.15), flash: Math.sin(Math.PI * (1 - k)) });
+        if (size > 0.01) holeList.push({ b, r: b.r * size });
+        if (size * b.r + edge > 0.5) rimList.push({ b, r: b.r * size + edge });
+        // While it closes, the hole flashes for a moment (peaks mid-close).
+        if (age > HOLD_MS) {
+          closing.push({ b, r: b.r * Math.max(size, 0.15) });
+          flash = Math.max(flash, Math.sin(Math.PI * (1 - k)));
+        }
       }
+      tube(hctx, holeList);
+      tube(rctx, rimList);
       // Keep only the ring around the hole, and tint it neon.
       rctx.globalCompositeOperation = "destination-out";
       rctx.drawImage(hole, 0, 0);
@@ -170,11 +194,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
           lctx.globalCompositeOperation = "source-over";
           lctx.clearRect(0, 0, layer.width, layer.height);
           lctx.fillStyle = ACCENT;
-          for (const c of closing) {
-            lctx.globalAlpha = c.flash;
-            blobPath(lctx, c.b, c.b.r * c.size, t);
-          }
-          lctx.globalAlpha = 1;
+          tube(lctx, closing);
           // Only where the reveal has just closed, so the open hole stays clear.
           lctx.globalCompositeOperation = "destination-out";
           lctx.drawImage(hole, 0, 0);
@@ -182,7 +202,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
           // A soft, brief smear, not a solid fill.
           ctx.save();
           ctx.filter = `blur(${10 * dpr}px)`;
-          ctx.globalAlpha = 0.55;
+          ctx.globalAlpha = 0.55 * flash;
           ctx.drawImage(layer, 0, 0);
           ctx.restore();
         }
@@ -237,7 +257,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
     };
 
     const add = (x: number, y: number, r: number) => {
-      blobs.push({ x, y, r, born: performance.now(), seed: Math.random() * 10 });
+      blobs.push({ x, y, r, born: performance.now(), stroke });
       if (blobs.length > MAX_BLOBS) blobs.splice(0, blobs.length - MAX_BLOBS);
     };
 
@@ -295,6 +315,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
     };
     const onLeave = () => {
       last = null;
+      stroke++;
     };
 
     resize();
