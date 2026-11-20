@@ -14,7 +14,7 @@ import { useEffect, useRef } from "react";
  */
 const NEON = "#d8ff2e";
 // Measured from the reference: reveals ~20% of the screen wide, oval, gone ~0.35s after the cursor passes.
-const RADIUS = 0.17; // blob radius as a share of the hero's shorter side
+const RADIUS = 0.11; // blob radius as a share of the hero's shorter side
 const SQUASH = 0.3; // reveal height as a share of its width
 const RIM = 3; // neon edge thickness, CSS px
 const HOLD_MS = 150; // how long a part of the trail stays fully open
