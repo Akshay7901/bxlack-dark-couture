@@ -22,7 +22,7 @@ import { EASE_OUT } from "@/lib/motion";
 const num = (i: number) => String(i + 1).padStart(2, "0");
 const mod = (a: number, n: number) => ((a % n) + n) % n;
 /** How long each look stays before the ring turns on by itself. */
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 3000;
 /** Share of the stage height the front figure stands. */
 const FIGURE_HEIGHT = 0.93;
 /** How long one step of the ring takes. */
