@@ -130,12 +130,28 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
   const cursorY = useMotionValue(0);
   const panStart = useRef(0);
 
+  // Measure the stage straight away, then keep it in sync. Browsers without
+  // ResizeObserver (older iPhones, some in-app browsers) fall back to window
+  // resizes, so the figures always get a size and never stay hidden.
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setStage({ w: e.contentRect.width, h: e.contentRect.height }));
-    ro.observe(el);
-    return () => ro.disconnect();
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      if (r.width > 0) setStage({ w: r.width, h: r.height });
+    };
+    measure();
+    const frame = requestAnimationFrame(measure);
+    window.addEventListener("resize", measure);
+    window.addEventListener("orientationchange", measure);
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    ro?.observe(el);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("orientationchange", measure);
+      ro?.disconnect();
+    };
   }, []);
   const narrow = stage.w < 640;
   const figH = stage.h * FIGURE_HEIGHT;
@@ -168,6 +184,10 @@ export function TryTheLook({ data }: { data: HomeLooks }) {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
     const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
     io.observe(el);
     return () => io.disconnect();

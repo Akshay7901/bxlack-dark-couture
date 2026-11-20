@@ -12,8 +12,12 @@ const cache = new Map<string, Promise<string>>();
 const MAX_SIDE = 1400;
 const ALPHA_MIN = 16;
 
+/** Show the untrimmed image rather than nothing if the copy takes this long (slow mobile data). */
+const GIVE_UP_MS = 4000;
+
 function trim(src: string): Promise<string> {
   return new Promise((resolve) => {
+    setTimeout(() => resolve(src), GIVE_UP_MS);
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.decoding = "async";
