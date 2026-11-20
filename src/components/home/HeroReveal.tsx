@@ -14,6 +14,7 @@ import { useEffect, useRef } from "react";
  */
 const NEON = "#d8ff2e";
 const RADIUS = 0.11; // blob radius as a share of the hero's shorter side
+const SQUASH = 0.6; // reveal height as a share of its width
 const RIM = 3; // neon edge thickness, CSS px
 const HOLD_MS = 300; // how long a part of the trail stays fully open
 const HEAL_MS = 750; // then how long it takes to close
@@ -73,7 +74,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
         // Gentle, low-frequency wobble only: the outline reads as one smooth line.
         const wobble = 1 + 0.05 * Math.sin(2 * a + b.seed + t * 1.2) + 0.025 * Math.sin(3 * a - b.seed * 2 - t * 1.6);
         const px = (b.x + Math.cos(a) * r * wobble) * dpr;
-        const py = (b.y + Math.sin(a) * r * wobble * 0.86) * dpr;
+        const py = (b.y + Math.sin(a) * r * wobble * SQUASH) * dpr;
         if (i === 0) c.moveTo(px, py);
         else c.lineTo(px, py);
       }
@@ -201,7 +202,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
         const speed = 40 + Math.random() * 90;
         specks.push({
           x: x + Math.cos(a) * r,
-          y: y + Math.sin(a) * r * 0.86,
+          y: y + Math.sin(a) * r * SQUASH,
           vx: Math.cos(a) * speed - dx * 2,
           vy: Math.sin(a) * speed - dy * 2,
           born: performance.now(),
