@@ -13,11 +13,12 @@ import { useEffect, useRef } from "react";
  * larger in neon (the edge line and, blurred, its glow).
  */
 const NEON = "#d8ff2e";
-const RADIUS = 0.11; // blob radius as a share of the hero's shorter side
-const SQUASH = 0.4; // reveal height as a share of its width
+// Measured from the reference: reveals ~20% of the screen wide, oval, gone ~0.35s after the cursor passes.
+const RADIUS = 0.17; // blob radius as a share of the hero's shorter side
+const SQUASH = 0.75; // reveal height as a share of its width
 const RIM = 3; // neon edge thickness, CSS px
-const HOLD_MS = 300; // how long a part of the trail stays fully open
-const HEAL_MS = 750; // then how long it takes to close
+const HOLD_MS = 150; // how long a part of the trail stays fully open
+const HEAL_MS = 200; // then how long it takes to close (with a neon flash)
 const MAX_BLOBS = 240;
 const VERTS = 48;
 
@@ -89,6 +90,7 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
       rctx.clearRect(0, 0, rim.width, rim.height);
       hctx.fillStyle = "#000";
       rctx.fillStyle = "#000";
+      const closing: { b: Blob; size: number; flash: number }[] = [];
 
       for (let i = blobs.length - 1; i >= 0; i--) {
         const b = blobs[i];
@@ -103,6 +105,8 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
         const edge = RIM * Math.min(1, k * 3);
         if (size > 0.01) blobPath(hctx, b, b.r * size, t);
         if (size * b.r + edge > 0.5) blobPath(rctx, b, b.r * size + edge, t);
+        // While it closes, the hole floods with neon for a moment (peaks mid-close).
+        if (age > HOLD_MS) closing.push({ b, size: Math.max(size, 0.15), flash: Math.sin(Math.PI * (1 - k)) });
       }
       // Keep only the ring around the hole, and tint it neon.
       rctx.globalCompositeOperation = "destination-out";
@@ -140,6 +144,28 @@ export function HeroReveal({ src, className = "" }: { src: string; className?: s
         ctx.globalAlpha = 0.5;
         ctx.drawImage(rim, 0, 0);
         ctx.restore();
+
+        // Neon flash on closing reveals, drawn on the (now free) layer canvas.
+        if (closing.length) {
+          lctx.globalCompositeOperation = "source-over";
+          lctx.clearRect(0, 0, layer.width, layer.height);
+          lctx.fillStyle = NEON;
+          for (const c of closing) {
+            lctx.globalAlpha = c.flash;
+            blobPath(lctx, c.b, c.b.r * c.size, t);
+          }
+          lctx.globalAlpha = 1;
+          // Only where the reveal has just closed, so the open hole stays clear.
+          lctx.globalCompositeOperation = "destination-out";
+          lctx.drawImage(hole, 0, 0);
+          lctx.globalCompositeOperation = "source-over";
+          // A soft, brief smear, not a solid fill.
+          ctx.save();
+          ctx.filter = `blur(${10 * dpr}px)`;
+          ctx.globalAlpha = 0.55;
+          ctx.drawImage(layer, 0, 0);
+          ctx.restore();
+        }
       }
 
       // Specks flying off the tear.
