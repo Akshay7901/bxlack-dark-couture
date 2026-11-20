@@ -14,7 +14,7 @@ import { useEffect, useRef } from "react";
  */
 const NEON = "#d8ff2e";
 const RADIUS = 0.11; // blob radius as a share of the hero's shorter side
-const SQUASH = 0.6; // reveal height as a share of its width
+const SQUASH = 0.4; // reveal height as a share of its width
 const RIM = 3; // neon edge thickness, CSS px
 const HOLD_MS = 300; // how long a part of the trail stays fully open
 const HEAL_MS = 750; // then how long it takes to close
